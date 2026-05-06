@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My - Proyek</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #e0e7ff;
+            --bg-body: #f3f4f6;
+            --bg-surface: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --sidebar-width: 280px;
+            --header-height: 32px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        html {
+            font-size: 14px;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Loading Overlay */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            visibility: hidden;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        #loader.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transition: var(--transition);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            position: sticky;
+            top: 0;
+            background: var(--bg-surface);
+            z-index: 10;
+        }
+
+        .sidebar-header i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 1rem 0;
+            flex-grow: 1;
+        }
+
+        .nav-section {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 1rem 1rem 0.25rem 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+            padding: 0 0.5rem;
+        }
+
+        .nav-header {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-header:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-header.active {
+            background: linear-gradient(270deg, #3b82f6, #6366f1, #2563eb, #06b6d4, #4f46e5);
+            background-size: 400% 400%;
+            animation: gradientMove 4s ease infinite;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .nav-header i:first-child {
+            width: 24px;
+            font-size: 1rem;
+            margin-right: 10px;
+            text-align: center;
+        }
+
+        /* Colorful Icons */
+        .fa-chart-pie { color: #6366f1; }
+        .fa-list { color: #3b82f6; }
+        .fa-building { color: #f59e0b; }
+        .fa-wallet { color: #10b981; }
+        .fa-users { color: #06b6d4; }
+        .fa-cubes { color: #4f46e5; } /* Logo color */
+        .fa-briefcase { color: #4f46e5; } /* Project icon color */
+
+        .nav-header.active i { color: white !important; }
+
+        .nav-header .toggle-icon {
+            margin-left: auto;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .submenu {
+            list-style: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding-left: 2rem;
+        }
+
+        .nav-item.open .submenu {
+            max-height: 500px;
+            transition: max-height 0.4s ease-in;
+        }
+
+        .submenu li {
+            padding: 0.3rem 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin: 0.25rem 0;
+            transition: var(--transition);
+        }
+
+        .submenu li:hover {
+            color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.05);
+            font-weight: 500;
+        }
+
+        .submenu li.active {
+            background: linear-gradient(270deg, #3b82f6, #6366f1, #2563eb, #06b6d4, #4f46e5);
+            background-size: 400% 400%;
+            animation: gradientMove 4s ease infinite;
+            color: white !important;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: var(--transition);
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .top-header {
+            height: var(--header-height);
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .menu-toggle {
+            display: block;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        @media (min-width: 769px) {
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+            }
+            .main-wrapper.collapsed {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        .page-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+        }
+
+        .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .content-area {
+            padding: 0.75rem;
+            flex-grow: 1;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--bg-surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Overview Specifics */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-card {
+            background: var(--bg-surface);
+            border-radius: 12px;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+        }
+
+        .stat-content h3 {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-content .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .chart-container {
+            height: 350px;
+            width: 100%;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .data-table th {
+            background-color: #f8fafc;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .data-table td {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #d1d5db;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .overview-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+                box-shadow: var(--shadow-lg);
+            }
+
+            .main-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 90;
+                backdrop-filter: blur(2px);
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-cubes"></i> My-Proyek
+        </div>
+        <ul class="nav-menu">
+            <!-- Dashboard Section -->
+            <li class="nav-section">Dashboard</li>
+            <li class="nav-item">
+                <div class="nav-header active" onclick="loadView('overview', 'Overview', this)">
+                    <i class="fas fa-chart-pie"></i> <span>Overview</span>
+                </div>
+            </li>
+            <li class="nav-item">
+                <div class="nav-header" onclick="loadView('semua-proyek', 'Semua Proyek', this)">
+                    <i class="fas fa-list"></i> <span>Semua Proyek</span>
+                </div>
+            </li>
+
+            <!-- Proyek Section -->
+            <li class="nav-section">Proyek</li>
+
+            <li class="nav-item has-submenu">
+                <div class="nav-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-building"></i> <span>JRP JOBJ</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li onclick="loadView('jrp-jobj-spk', 'JRP JOBJ - SPK', this, true)">SPK</li>
+                    <li onclick="loadView('jrp-jobj-boq', 'JRP JOBJ - BoQ', this, true)">BoQ</li>
+                    <li onclick="loadView('jrp-jobj-rekon', 'JRP JOBJ - Rekon', this, true)">Rekon</li>
+                    <li onclick="loadView('jrp-jobj-material', 'JRP JOBJ - Material', this, true)">Material</li>
+                    <li onclick="loadView('jrp-jobj-maps', 'JRP JOBJ - Maps', this, true)">Maps</li>
+                </ul>
+            </li>
+
+            <li class="nav-item has-submenu">
+                <div class="nav-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-building"></i> <span>IJE CAO Ring 2</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li onclick="loadView('ije-cao-ring-2-spk', 'IJE CAO Ring 2 - SPK', this, true)">SPK</li>
+                    <li onclick="loadView('ije-cao-ring-2-boq', 'IJE CAO Ring 2 - BoQ', this, true)">BoQ</li>
+                    <li onclick="loadView('ije-cao-ring-2-rekon', 'IJE CAO Ring 2 - Rekon', this, true)">Rekon</li>
+                    <li onclick="loadView('ije-cao-ring-2-material', 'IJE CAO Ring 2 - Material', this, true)">Material
+                    </li>
+                    <li onclick="loadView('ije-cao-ring-2-maps', 'IJE CAO Ring 2 - Maps', this, true)">Maps</li>
+                </ul>
+            </li>
+
+            <li class="nav-item has-submenu">
+                <div class="nav-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-building"></i> <span>IJE CAO Ring 4</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li onclick="loadView('ije-cao-ring-4-spk', 'IJE CAO Ring 4 - SPK', this, true)">SPK</li>
+                    <li onclick="loadView('ije-cao-ring-4-boq', 'IJE CAO Ring 4 - BoQ', this, true)">BoQ</li>
+                    <li onclick="loadView('ije-cao-ring-4-rekon', 'IJE CAO Ring 4 - Rekon', this, true)">Rekon</li>
+                    <li onclick="loadView('ije-cao-ring-4-material', 'IJE CAO Ring 4 - Material', this, true)">Material
+                    </li>
+                    <li onclick="loadView('ije-cao-ring-4-maps', 'IJE CAO Ring 4 - Maps', this, true)">Maps</li>
+                </ul>
+            </li>
+
+            <li class="nav-item has-submenu">
+                <div class="nav-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-building"></i> <span>IJE CAO Ring 3a</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li onclick="loadView('ije-cao-ring-3a-spk', 'IJE CAO Ring 3a - SPK', this, true)">SPK</li>
+                    <li onclick="loadView('ije-cao-ring-3a-boq', 'IJE CAO Ring 3a - BoQ', this, true)">BoQ</li>
+                    <li onclick="loadView('ije-cao-ring-3a-rekon', 'IJE CAO Ring 3a - Rekon', this, true)">Rekon</li>
+                    <li onclick="loadView('ije-cao-ring-3a-material', 'IJE CAO Ring 3a - Material', this, true)">
+                        Material</li>
+                    <li onclick="loadView('ije-cao-ring-3a-maps', 'IJE CAO Ring 3a - Maps', this, true)">Maps</li>
+                </ul>
+            </li>
+
+            <li class="nav-item has-submenu">
+                <div class="nav-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-building"></i> <span>IJE CAO Ring 3b</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li onclick="loadView('ije-cao-ring-3b-spk', 'IJE CAO Ring 3b - SPK', this, true)">SPK</li>
+                    <li onclick="loadView('ije-cao-ring-3b-boq', 'IJE CAO Ring 3b - BoQ', this, true)">BoQ</li>
+                    <li onclick="loadView('ije-cao-ring-3b-rekon', 'IJE CAO Ring 3b - Rekon', this, true)">Rekon</li>
+                    <li onclick="loadView('ije-cao-ring-3b-material', 'IJE CAO Ring 3b - Material', this, true)">
+                        Material</li>
+                    <li onclick="loadView('ije-cao-ring-3b-maps', 'IJE CAO Ring 3b - Maps', this, true)">Maps</li>
+                </ul>
+            </li>
+
+            <li class="nav-item has-submenu">
+                <div class="nav-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-building"></i> <span>IJE FM Ring 1</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li onclick="loadView('ije-fm-ring-1-spk', 'IJE FM Ring 1 - SPK', this, true)">SPK</li>
+                    <li onclick="loadView('ije-fm-ring-1-boq', 'IJE FM Ring 1 - BoQ', this, true)">BoQ</li>
+                    <li onclick="loadView('ije-fm-ring-1-rekon', 'IJE FM Ring 1 - Rekon', this, true)">Rekon</li>
+                    <li onclick="loadView('ije-fm-ring-1-material', 'IJE FM Ring 1 - Material', this, true)">Material
+                    </li>
+                    <li onclick="loadView('ije-fm-ring-1-maps', 'IJE FM Ring 1 - Maps', this, true)">Maps</li>
+                </ul>
+            </li>
+
+            <!-- Surge FM Ex Pole -->
+            <li class="nav-item has-submenu">
+                <div class="nav-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-building"></i> <span>Surge FM Ex Pole</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li onclick="loadView('surge-fm-expole-spk', 'Surge FM Ex Pole - SPK', this, true)">SPK</li>
+                    <li onclick="loadView('surge-fm-expole-boq', 'Surge FM Ex Pole - BoQ', this, true)">BoQ</li>
+                    <li onclick="loadView('surge-fm-expole-rekon', 'Surge FM Ex Pole - Rekon', this, true)">Rekon</li>
+                    <li onclick="loadView('surge-fm-expole-material', 'Surge FM Ex Pole - Material', this, true)">Material</li>
+                    <li onclick="loadView('surge-fm-expole-maps', 'Surge FM Ex Pole - Maps', this, true)">Maps</li>
+                </ul>
+            </li>
+
+            <!-- Surge FM New Pole -->
+            <li class="nav-item has-submenu">
+                <div class="nav-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-building"></i> <span>Surge FM New Pole</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li onclick="loadView('surge-fm-newpole-spk', 'Surge FM New Pole - SPK', this, true)">SPK</li>
+                    <li onclick="loadView('surge-fm-newpole-boq', 'Surge FM New Pole - BoQ', this, true)">BoQ</li>
+                    <li onclick="loadView('surge-fm-newpole-rekon', 'Surge FM New Pole - Rekon', this, true)">Rekon</li>
+                    <li onclick="loadView('surge-fm-newpole-material', 'Surge FM New Pole - Material', this, true)">Material</li>
+                    <li onclick="loadView('surge-fm-newpole-maps', 'Surge FM New Pole - Maps', this, true)">Maps</li>
+                </ul>
+            </li>
+
+            <!-- Pembayaran Section -->
+            <li class="nav-section">Keuangan</li>
+
+            <li class="nav-item has-submenu">
+                <div class="nav-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-wallet"></i> <span>Pembayaran</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li onclick="loadView('daftar-pembayaran', 'Daftar Pembayaran', this, true)">Daftar Pembayaran</li>
+                    <li onclick="loadView('daftar-tagihan', 'Daftar Tagihan', this, true)">Daftar Tagihan</li>
+                </ul>
+            </li>
+
+            <!-- Tim Section -->
+            <li class="nav-section">Manajemen</li>
+
+            <li class="nav-item has-submenu">
+                <div class="nav-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-users"></i> <span>Tim</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li onclick="loadView('daftar-karyawan', 'Daftar Karyawan', this, true)">Daftar Karyawan</li>
+                    <li onclick="loadView('daftar-pelaksana', 'Daftar Pelaksana', this, true)">Daftar Pelaksana</li>
+                </ul>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title" id="pageTitle">Overview</h1>
+            </div>
+            <div class="header-right">
+                <div class="profile-btn">
+                    <span class="avatar">A</span>
+                    <span style="font-weight: 500; display: none;">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area" id="viewContainer">
+            <!-- Content injected here dynamically -->
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo-CYydpivABwE3NFJOaM45yT-nO1f4OY",
+            authDomain: "wngr-project.firebaseapp.com",
+            databaseURL: "https://wngr-project-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "wngr-project",
+            storageBucket: "wngr-project.firebasestorage.app",
+            messagingSenderId: "914234632159",
+            appId: "1:914234632159:web:787cdddbfb6490650fc66a",
+            measurementId: "G-CETR8CFN2R"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // UI State
+        let currentViewId = 'overview';
+
+        // Helper Functions
+        function formatDate(val) {
+            if (!val || val === '-') return '-';
+            try {
+                let date;
+                if (val && typeof val === 'object' && val.seconds !== undefined) {
+                    date = new Date(val.seconds * 1000);
+                } else if (val && typeof val.toDate === 'function') {
+                    date = val.toDate();
+                } else {
+                    date = new Date(val);
+                }
+                if (isNaN(date.getTime())) return val;
+                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                return `${String(date.getDate()).padStart(2, '0')}-${months[date.getMonth()]}-${date.getFullYear()}`;
+            } catch (e) { return val; }
+        }
+
+        function formatCurrency(val) {
+            if (val === undefined || val === null || val === '-') return '0.00';
+            const num = parseFloat(val);
+            if (isNaN(num)) return val;
+            return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function renderStatusBadge(status) {
+            if (!status || status === '-') return '-';
+            let bgColor = '#f3f4f6'; let textColor = '#374151';
+            const s = status.toLowerCase();
+            if (s.includes('selesai')) { bgColor = '#dcfce7'; textColor = '#16a34a'; }
+            else if (s.includes('jalan') || s.includes('proses')) { bgColor = '#fef9c3'; textColor = '#ca8a04'; }
+            else if (s.includes('tunda') || s.includes('henti')) { bgColor = '#fee2e2'; textColor = '#ef4444'; }
+            return `<span style="padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; background: ${bgColor}; color: ${textColor}; display: inline-block;">${status}</span>`;
+        }
+
+        function formatPercent(val) {
+            if (val === undefined || val === null || val === '-') return '0.00%';
+            const num = parseFloat(val);
+            if (isNaN(num)) return val;
+            return (num * 100).toFixed(2) + '%';
+        }
+
+        // UI Interactions
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const menuToggle = document.getElementById('menuToggle');
+        const loader = document.getElementById('loader');
+
+        menuToggle.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('show');
+                sidebarOverlay.classList.add('show');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                document.querySelector('.main-wrapper').classList.toggle('collapsed');
+            }
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+        });
+
+        // Global function for Submenu toggle
+        window.toggleSubmenu = function (el) {
+            const parent = el.parentElement;
+            parent.classList.toggle('open');
+            // Close other submenus
+            document.querySelectorAll('.nav-item.has-submenu').forEach(item => {
+                if (item !== parent) item.classList.remove('open');
+            });
+        };
+
+        // Navigation Config Map
+        const menuConfig = {
+            'overview': { path: 'semua-proyek', type: 'overview' },
+            'semua-proyek': { path: 'semua-proyek', type: 'table' },
+
+            'jrp-jobj-spk': { path: 'jrp-jobj-spk', type: 'table' },
+            'jrp-jobj-boq': { path: 'jrp-jobj-boq', type: 'table' },
+            'jrp-jobj-rekon': { path: 'jrp-jobj-rekon', type: 'table' },
+            'jrp-jobj-material': { path: 'jrp-jobj-material', type: 'table' },
+            'jrp-jobj-maps': { path: 'jrp-jobj-maps', type: 'map' },
+
+            'ije-cao-ring-2-spk': { path: 'ije-cao-ring-2-spk', type: 'table' },
+            'ije-cao-ring-2-boq': { path: 'ije-cao-ring-2-boq', type: 'table' },
+            'ije-cao-ring-2-rekon': { path: 'ije-cao-ring-2-rekon', type: 'table' },
+            'ije-cao-ring-2-material': { path: 'ije-cao-ring-2-material', type: 'table' },
+            'ije-cao-ring-2-maps': { path: 'ije-cao-ring-2-maps', type: 'map' },
+
+            'ije-cao-ring-4-spk': { path: 'ije-cao-ring-4-spk', type: 'table' },
+            'ije-cao-ring-4-boq': { path: 'ije-cao-ring-4-boq', type: 'table' },
+            'ije-cao-ring-4-rekon': { path: 'ije-cao-ring-4-rekon', type: 'table' },
+            'ije-cao-ring-4-material': { path: 'ije-cao-ring-4-material', type: 'table' },
+            'ije-cao-ring-4-maps': { path: 'ije-cao-ring-4-maps', type: 'map' },
+
+            'ije-cao-ring-3a-spk': { path: 'ije-cao-ring-3a-spk', type: 'table' },
+            'ije-cao-ring-3a-boq': { path: 'ije-cao-ring-3a-boq', type: 'table' },
+            'ije-cao-ring-3a-rekon': { path: 'ije-cao-ring-3a-rekon', type: 'table' },
+            'ije-cao-ring-3a-material': { path: 'ije-cao-ring-3a-material', type: 'table' },
+            'ije-cao-ring-3a-maps': { path: 'ije-cao-ring-3a-maps', type: 'map' },
+
+            'ije-cao-ring-3b-spk': { path: 'ije-cao-ring-3b-spk', type: 'table' },
+            'ije-cao-ring-3b-boq': { path: 'ije-cao-ring-3b-boq', type: 'table' },
+            'ije-cao-ring-3b-rekon': { path: 'ije-cao-ring-3b-rekon', type: 'table' },
+            'ije-cao-ring-3b-material': { path: 'ije-cao-ring-3b-material', type: 'table' },
+            'ije-cao-ring-3b-maps': { path: 'ije-cao-ring-3b-maps', type: 'map' },
+
+            'ije-fm-ring-1-spk': { path: 'ije-fm-ring-1-spk', type: 'table' },
+            'ije-fm-ring-1-boq': { path: 'ije-fm-ring-1-boq', type: 'table' },
+            'ije-fm-ring-1-rekon': { path: 'ije-fm-ring-1-rekon', type: 'table' },
+            'ije-fm-ring-1-material': { path: 'ije-fm-ring-1-material', type: 'table' },
+            'ije-fm-ring-1-maps': { path: 'ije-fm-ring-1-maps', type: 'map' },
+
+            'surge-fm-expole-spk': { path: 'surge-fm-expole-spk', type: 'table' },
+            'surge-fm-expole-boq': { path: 'surge-fm-expole-boq', type: 'table' },
+            'surge-fm-expole-rekon': { path: 'surge-fm-expole-rekon', type: 'table' },
+            'surge-fm-expole-material': { path: 'surge-fm-expole-material', type: 'table' },
+            'surge-fm-expole-maps': { path: 'surge-fm-expole-maps', type: 'map' },
+
+            'surge-fm-newpole-spk': { path: 'surge-fm-newpole-spk', type: 'table' },
+            'surge-fm-newpole-boq': { path: 'surge-fm-newpole-boq', type: 'table' },
+            'surge-fm-newpole-rekon': { path: 'surge-fm-newpole-rekon', type: 'table' },
+            'surge-fm-newpole-material': { path: 'surge-fm-newpole-material', type: 'table' },
+            'surge-fm-newpole-maps': { path: 'surge-fm-newpole-maps', type: 'map' },
+
+            'daftar-pembayaran': { path: 'daftar-pembayaran', type: 'table' },
+            'daftar-tagihan': { path: 'daftar-tagihan', type: 'table' },
+
+            'daftar-karyawan': { path: 'daftar-karyawan', type: 'table' },
+            'daftar-pelaksana': { path: 'daftar-pelaksana', type: 'table' }
+        };
+
+        let currentListener = null;
+
+        // Global Load View Function
+        window.loadView = function (viewId, title, el, isSub = false) {
+            currentViewId = viewId;
+            document.getElementById('pageTitle').innerText = title;
+
+            // Handle Active state classes
+            document.querySelectorAll('.nav-header').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.submenu li').forEach(n => n.classList.remove('active'));
+
+            if (el) {
+                if (isSub) {
+                    el.classList.add('active');
+                    el.parentElement.previousElementSibling.classList.add('active');
+                } else {
+                    el.classList.add('active');
+                }
+            }
+
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            }
+
+            const config = menuConfig[viewId];
+            if (!config) return;
+
+            // Show Loader
+            loader.classList.add('active');
+
+            // Detach previous listener if exists
+            if (currentListener) {
+                currentListener(); // Unsubscribe
+            }
+
+            const collRef = collection(db, config.path);
+
+            // Listen to data
+            currentListener = onSnapshot(collRef, (snapshot) => {
+                const data = [];
+                snapshot.forEach((doc) => {
+                    data.push({ id: doc.id, ...doc.data() });
+                });
+                loader.classList.remove('active');
+                renderContent(config.type, data);
+            }, (error) => {
+                console.error(error);
+                loader.classList.remove('active');
+                document.getElementById('viewContainer').innerHTML = `
+                    <div class="card empty-state">
+                        <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                        <p>Error fetching data: ${error.message}</p>
+                    </div>
+                `;
+            });
+        };
+
+        function renderContent(type, data) {
+            const container = document.getElementById('viewContainer');
+            if (type === 'table') {
+                container.innerHTML = generateTableHtml(data);
+            } else if (type === 'map') {
+                container.innerHTML = generateMapHtml(data);
+            } else if (type === 'overview') {
+                container.innerHTML = generateOverviewHtml(data);
+                setTimeout(initChart, 100);
+            }
+        }
+
+        function formatDataToArray(data) {
+            if (!data) return [];
+            if (Array.isArray(data)) return data;
+            if (typeof data === 'object') return Object.values(data);
+            return [];
+        }
+
+        function generateTableHtml(data) {
+            const items = formatDataToArray(data);
+            if (items.length === 0) {
+                return `
+                    <div class="card empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <p>Belum ada data tersedia.</p>
+                    </div>
+                `;
+            }
+
+            let headers;
+            if (currentViewId === 'semua-proyek') {
+                headers = [
+                    'Tanggal SPK', 'Nomor SPK', 'Nama Perusahaan', 'Nama SPK', 
+                    'Nilai SPK', 'Nilai Invoice', 'Nilai Terbayar', 
+                    'Status Proyek', 'URL Dokumen', 'Keterangan'
+                ];
+            } else if (currentViewId === 'daftar-pembayaran') {
+                headers = [
+                    'Tanggal Pembayaran', 'Nilai Pembayaran', 'Nama Perusahaan', 
+                    'Nama SPK', 'Status', 'Keterangan'
+                ];
+            } else if (currentViewId === 'daftar-tagihan') {
+                headers = [
+                    'Nama Perusahaan', 'Nomor SPK', 'Nama SPK', 'Uraian Detail Invoice', 
+                    'Nomor Invoice', 'Tanggal Invoice', 'Nilai Invoice', 
+                    'Status Invoice', 'Nilai Pembayaran', 'Status Pembayaran', 
+                    'URL Dokumen', 'Keterangan'
+                ];
+            } else if (currentViewId === 'daftar-karyawan') {
+                headers = [
+                    'Nama Karyawan', 'Jabatan', 'No Telepon', 'No KTP', 
+                    'Alamat Lengkap', 'Nomor Rekening', 'Alamat Email', 
+                    'No ID Karyawan', 'Area Kerja', 'URL Dokumen', 'Keterangan'
+                ];
+            } else if (currentViewId === 'daftar-pelaksana') {
+                headers = [
+                    'Nama Mandor', 'Jabatan', 'No Telepon', 'No KTP', 
+                    'Alamat Lengkap', 'Nama Bank', 'No Rekening', 'Email', 
+                    'Area Kerja', 'URL Dokumen', 'Keterangan'
+                ];
+            } else if (currentViewId === 'surge-fm-newpole-spk') {
+                headers = [
+                    'DAOP', 'Segmen', 'FO 96c_A', 'FO 96c_B', 
+                    'Total FO', 'BoQ New Pole', 'Bobot', 'Keterangan'
+                ];
+            } else if (currentViewId === 'surge-fm-expole-spk') {
+                headers = [
+                    'DAOP', 'Segmen', 'FO 48c', 'FO 96c', 
+                    'Total FO', 'BoQ Ext Pole', 'Bobot', 'Keterangan'
+                ];
+            } else if (currentViewId === 'jrp-jobj-spk') {
+                headers = [
+                    'Nama Cluster', 'Tipe', 'HP BoQ', 'Zona', 
+                    'Nilai BoQ', 'Bobot', 'Keterangan'
+                ];
+            } else if (currentViewId.endsWith('-spk')) {
+                headers = [
+                    'Item Pekerjaan', 'Satuan', 'Harga Satuan', 'Volume BoQ', 
+                    'Total Nilai BoQ', 'Bobot', 'Keterangan'
+                ];
+            } else if (currentViewId === 'jrp-jobj-boq') {
+                headers = [
+                    'Item Pekerjaan', 'Satuan', 'Harga Satuan Feeder', 'Harga Satuan Distribusi', 
+                    'Feeder', 'Discovery Alton', 'Discovery Cielo', 'Discovery Terra', 
+                    'Discovery Amore', 'Discovery Serenity', 'Discovery Eola', 
+                    'Discovery Flamine', 'Discovery Conserva', 'Discovery Fiore', 
+                    'Discovery Lumina', 'Discovery Altezza', 'Discovery Aluvia', 
+                    'Emerald Avenue 1 Ruko', 'Kebayoran Square', 'Ruko Kebayoran Arcade', 
+                    'Kebayoran Arcade 2', 'Kebayoran Arcade 3', 'Kebayoran Arcade 5', 
+                    'CBD Emerald', 'Emerald Home', 'Kebayoran Terrace', 'Kebayoran View', 
+                    'Kebayoran Essence', 'Kebayoran Piazza', 'Kebayoran Harmony', 
+                    'Kebayoran Villas', 'Kebayoran Garden', 'Kebayoran Heights', 
+                    'Kebayoran Village', 'Kebayoran Infinity', 'Kebayoran Symphoni', 
+                    'Emerald Avenue 2 Ruko', 'Dharmawangsa', 'Bursa Mobil', 
+                    'Bukit Menteng', 'Emerald Garden', 'Emerald Residence', 
+                    'Emerald Townhouse', 'Althia Park', 'Mahagoni Park', 
+                    'Cluster Vazza Plumeria', 'Emerald View', 
+                    'Emerald Terrace', 'Botanica Aralia', 'Keterangan'
+                ];
+            } else if (currentViewId === 'surge-fm-expole-boq' || currentViewId === 'surge-fm-newpole-boq') {
+                headers = [
+                    'Item Pekerjaan', 'Satuan', 'Harga Satuan', 
+                    'Manggarai - Citayam - Bogor', 'Bogor - Sukabumi', 
+                    'Manggarai - Jakarta Kota', 'Manggarai - Duri - Tangerang', 
+                    'Tanah Abang - Serpong', 'Serpong - Rangkasbitung', 
+                    'Rangkasbitung - Serang', 'Serang - Krenceng - Merak', 
+                    'Jatinegara - Manggarai - Tanjung Priok', 'Jatinegara - Cikarang', 
+                    'Cikarang - Cikampek', 'Cikampek - Haurgeulis', 'Haurgeulis - Jatibarang', 
+                    'Jatibarang - Cirebon', 'Cikampek - Plered', 'Plered - Padalarang', 
+                    'Padalarang - Lebakjero', 'Lebakjero - Cibatu', 'Cibatu - Garut', 
+                    'Cibatu - Tasikmalaya', 'Sukabumi - Cianjur', 'Cianjur - Padalarang', 
+                    'Brumbung - Gundih', 'Gundih - Gambringan', 'Purwokerto - Kroya', 
+                    'Kroya - Kebumen', 'Kebumen - Jenar', 'Jenar - Kedundang', 
+                    'Kedundang - Tugu Jogja', 'Tugu Jogja - Klaten', 'Klaten - Purwosari', 
+                    'Purwosari - Wonogiri', 'Purwosari - Gundih', 'Solo Balapan - Walikukun', 
+                    'Walikukun - Madiun', 'Kediri - Ngunut', 'Ngunut - Wlingi', 
+                    'Wlingi - Malang', 'Keterangan'
+                ];
+            } else if (currentViewId.endsWith('-boq')) {
+                headers = [
+                    'Item Pekerjaan', 'Satuan', 'Harga Satuan', 'Volume BoQ', 
+                    'Total Nilai BoQ', 'Keterangan'
+                ];
+            } else if (currentViewId.endsWith('-material')) {
+                headers = [
+                    'Tanggal PO', 'Nomor PO Material', 'Nama Supplier', 'Nama Material', 
+                    'Spesifikasi Material', 'Satuan', 'Volume', 'Harga Satuan', 
+                    'Total Harga', 'Status Material', 'URL Dokumen', 'Keterangan'
+                ];
+            } else if (currentViewId.endsWith('-rekon')) {
+                headers = [
+                    'Item Pekerjaan', 'Satuan', 'Harga Satuan', 'Volume Rekon', 
+                    'Total Nilai Rekon', 'Keterangan'
+                ];
+            } else {
+                headers = Object.keys(items[0]).filter(k => 
+                    typeof items[0][k] !== 'object' && 
+                    k.toLowerCase() !== 'id'
+                );
+            }
+
+            let html = `
+                <div class="card" style="padding:0; overflow:hidden;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px; text-align: center;">No</th>
+                                    ${headers.map(h => {
+                                        let textAlign = 'center';
+                                        return `<th style="text-align: ${textAlign};">${h.replace(/_/g, ' ')}</th>`;
+                                    }).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            items.forEach((item, index) => {
+                html += `<tr>`;
+                html += `<td style="text-align: center;">${index + 1}</td>`;
+                headers.forEach(h => {
+                    let val = item[h] !== undefined ? item[h] : '-';
+                    let style = 'text-align: left;';
+                    
+                    if (currentViewId === 'semua-proyek') {
+                        if (h === 'Tanggal SPK') {
+                            val = formatDate(val);
+                            style = 'text-align: right;';
+                        } else if (['Nilai SPK', 'Nilai Invoice', 'Nilai Terbayar'].includes(h)) {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else if (h === 'Status Proyek') {
+                            val = renderStatusBadge(val);
+                            style = 'text-align: center;';
+                        } else if (h === 'URL Dokumen') {
+                            val = (val !== '-' && val) ? `<a href="${val}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;"><i class="fas fa-external-link-alt"></i> Lihat Dokumen</a>` : '-';
+                            style = 'text-align: center;';
+                        }
+                    } else if (currentViewId === 'daftar-pembayaran') {
+                        if (h === 'Tanggal Pembayaran') {
+                            val = formatDate(val);
+                            style = 'text-align: right;';
+                        } else if (h === 'Nilai Pembayaran') {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId === 'daftar-tagihan') {
+                        if (h === 'Tanggal Invoice') {
+                            val = formatDate(val);
+                            style = 'text-align: right;';
+                        } else if (['Nilai Invoice', 'Nilai Pembayaran'].includes(h)) {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else if (['Status Invoice', 'Status Pembayaran'].includes(h)) {
+                            val = renderStatusBadge(val);
+                            style = 'text-align: center;';
+                        } else if (h === 'URL Dokumen') {
+                            val = (val !== '-' && val) ? `<a href="${val}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;"><i class="fas fa-external-link-alt"></i> Lihat Dokumen</a>` : '-';
+                            style = 'text-align: center;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId === 'daftar-karyawan') {
+                        if (h === 'URL Dokumen') {
+                            val = (val !== '-' && val) ? `<a href="${val}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;"><i class="fas fa-external-link-alt"></i> Lihat Dokumen</a>` : '-';
+                            style = 'text-align: center;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId === 'daftar-pelaksana') {
+                        if (h === 'URL Dokumen') {
+                            val = (val !== '-' && val) ? `<a href="${val}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;"><i class="fas fa-external-link-alt"></i> Lihat Dokumen</a>` : '-';
+                            style = 'text-align: center;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId === 'surge-fm-newpole-spk') {
+                        if (['FO 96c_A', 'FO 96c_B', 'Total FO', 'BoQ New Pole'].includes(h)) {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else if (h === 'Bobot') {
+                            val = formatPercent(val);
+                            style = 'text-align: right;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId === 'jrp-jobj-spk') {
+                        if (['HP BoQ', 'Nilai BoQ'].includes(h)) {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else if (h === 'Bobot') {
+                            val = formatPercent(val);
+                            style = 'text-align: right;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId === 'surge-fm-expole-spk') {
+                        if (['FO 48c', 'FO 96c', 'Total FO', 'BoQ Ext Pole'].includes(h)) {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else if (h === 'Bobot') {
+                            val = formatPercent(val);
+                            style = 'text-align: right;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId.endsWith('-spk')) {
+                        if (['Harga Satuan', 'Volume BoQ', 'Total Nilai BoQ'].includes(h)) {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else if (h === 'Bobot') {
+                            val = formatPercent(val);
+                            style = 'text-align: right;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId.endsWith('-material')) {
+                        if (h === 'Tanggal PO') {
+                            val = formatDate(val);
+                            style = 'text-align: right;';
+                        } else if (['Volume', 'Harga Satuan', 'Total Harga'].includes(h)) {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else if (h === 'Status Material') {
+                            val = renderStatusBadge(val);
+                            style = 'text-align: center;';
+                        } else if (h === 'URL Dokumen') {
+                            val = (val !== '-' && val) ? `<a href="${val}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;"><i class="fas fa-external-link-alt"></i> Lihat Dokumen</a>` : '-';
+                            style = 'text-align: center;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId === 'jrp-jobj-boq') {
+                        const leftAligned = ['Item Pekerjaan', 'Satuan', 'Keterangan'];
+                        if (!leftAligned.includes(h)) {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId === 'surge-fm-expole-boq' || currentViewId === 'surge-fm-newpole-boq') {
+                        if (h === 'Harga Satuan') {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId.endsWith('-boq')) {
+                        if (['Harga Satuan', 'Volume BoQ', 'Total Nilai BoQ'].includes(h)) {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId.endsWith('-rekon')) {
+                        if (['Harga Satuan', 'Volume Rekon', 'Total Nilai Rekon'].includes(h)) {
+                            val = formatCurrency(val);
+                            style = 'text-align: right;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    }
+                    
+                    html += `<td style="${style}">${val}</td>`;
+                });
+                html += `</tr>`;
+            });
+
+            html += `</tbody>`;
+
+            // Calculate totals for specific views
+            const viewsWithTotalNilaiBoQ = [
+                'ije-cao-ring-2-spk', 'ije-cao-ring-4-spk', 'ije-cao-ring-3a-spk', 'ije-cao-ring-3b-spk', 'ije-fm-ring-1-spk',
+                'ije-cao-ring-2-boq', 'ije-cao-ring-4-boq', 'ije-cao-ring-3a-boq', 'ije-cao-ring-3b-boq', 'ije-fm-ring-1-boq'
+            ];
+            if (viewsWithTotalNilaiBoQ.includes(currentViewId)) {
+                let totals = { 'Total Nilai BoQ': 0, 'Bobot': 0 };
+                items.forEach(item => {
+                    Object.keys(totals).forEach(key => {
+                        const val = parseFloat(String(item[key]).replace(/,/g, '')) || 0;
+                        totals[key] += val;
+                    });
+                });
+
+                html += `<tfoot><tr style="background: var(--bg-surface); font-weight: 700; border-top: 2px solid var(--border-color);">`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // No column
+                headers.forEach(h => {
+                    let val = '';
+                    let style = '';
+                    if (h === 'Item Pekerjaan') {
+                        val = 'Total';
+                        style = 'text-align: left;';
+                    } else if (totals[h] !== undefined && totals[h] !== 0) {
+                        val = (h === 'Bobot') ? formatPercent(totals[h]) : formatCurrency(totals[h]);
+                        style = 'text-align: right;';
+                    }
+                    html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
+                });
+                html += `</tr></tfoot>`;
+            } else if (currentViewId === 'surge-fm-expole-spk') {
+                let totals = { 'FO 48c': 0, 'FO 96c': 0, 'Total FO': 0, 'BoQ Ext Pole': 0, 'Bobot': 0 };
+                items.forEach(item => {
+                    Object.keys(totals).forEach(key => {
+                        const val = parseFloat(String(item[key]).replace(/,/g, '')) || 0;
+                        totals[key] += val;
+                    });
+                });
+
+                html += `<tfoot><tr style="background: var(--bg-surface); font-weight: 700; border-top: 2px solid var(--border-color);">`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // No column
+                headers.forEach(h => {
+                    let val = '';
+                    let style = '';
+                    if (h === 'DAOP') {
+                        val = 'Total';
+                        style = 'text-align: left;';
+                    } else if (totals[h] !== undefined) {
+                        val = (h === 'Bobot') ? formatPercent(totals[h]) : formatCurrency(totals[h]);
+                        style = 'text-align: right;';
+                    }
+                    html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
+                });
+                html += `</tr></tfoot>`;
+            } else if (currentViewId === 'surge-fm-newpole-spk') {
+                let totals = { 'FO 96c_A': 0, 'FO 96c_B': 0, 'Total FO': 0, 'BoQ New Pole': 0, 'Bobot': 0 };
+                items.forEach(item => {
+                    Object.keys(totals).forEach(key => {
+                        const val = parseFloat(String(item[key]).replace(/,/g, '')) || 0;
+                        totals[key] += val;
+                    });
+                });
+
+                html += `<tfoot><tr style="background: var(--bg-surface); font-weight: 700; border-top: 2px solid var(--border-color);">`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // No column
+                headers.forEach(h => {
+                    let val = '';
+                    let style = '';
+                    if (h === 'DAOP') {
+                        val = 'Total';
+                        style = 'text-align: left;';
+                    } else if (totals[h] !== undefined) {
+                        val = (h === 'Bobot') ? formatPercent(totals[h]) : formatCurrency(totals[h]);
+                        style = 'text-align: right;';
+                    }
+                    html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
+                });
+                html += `</tr></tfoot>`;
+            } else if (currentViewId === 'jrp-jobj-spk') {
+                let totals = { 'HP BoQ': 0, 'Nilai BoQ': 0, 'Bobot': 0 };
+                items.forEach(item => {
+                    Object.keys(totals).forEach(key => {
+                        const val = parseFloat(String(item[key]).replace(/,/g, '')) || 0;
+                        totals[key] += val;
+                    });
+                });
+
+                html += `<tfoot><tr style="background: var(--bg-surface); font-weight: 700; border-top: 2px solid var(--border-color);">`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // No column
+                headers.forEach(h => {
+                    let val = '';
+                    let style = '';
+                    if (h === 'Nama Cluster') {
+                        val = 'Total';
+                        style = 'text-align: left;';
+                    } else if (totals[h] !== undefined) {
+                        val = (h === 'Bobot') ? formatPercent(totals[h]) : formatCurrency(totals[h]);
+                        style = 'text-align: right;';
+                    }
+                    html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
+                });
+                html += `</tr></tfoot>`;
+            } else if (currentViewId === 'jrp-jobj-boq') {
+                const clusters = [
+                    'Discovery Alton', 'Discovery Cielo', 'Discovery Terra', 'Discovery Amore', 'Discovery Serenity', 
+                    'Discovery Eola', 'Discovery Flamine', 'Discovery Conserva', 'Discovery Fiore', 'Discovery Lumina', 
+                    'Discovery Altezza', 'Discovery Aluvia', 'Emerald Avenue 1 Ruko', 'Kebayoran Square', 'Ruko Kebayoran Arcade', 
+                    'Kebayoran Arcade 2', 'Kebayoran Arcade 3', 'Kebayoran Arcade 5', 'CBD Emerald', 'Emerald Home', 
+                    'Kebayoran Terrace', 'Kebayoran View', 'Kebayoran Essence', 'Kebayoran Piazza', 'Kebayoran Harmony', 
+                    'Kebayoran Villas', 'Kebayoran Garden', 'Kebayoran Heights', 'Kebayoran Village', 'Kebayoran Infinity', 
+                    'Kebayoran Symphoni', 'Emerald Avenue 2 Ruko', 'Dharmawangsa', 'Bursa Mobil', 'Bukit Menteng', 
+                    'Emerald Garden', 'Emerald Residence', 'Emerald Townhouse', 'Althia Park', 'Mahagoni Park', 
+                    'Cluster Vazza Plumeria', 'Emerald View', 'Emerald Terrace', 'Botanica Aralia'
+                ];
+                
+                let totals = { 'Feeder': 0 };
+                clusters.forEach(c => totals[c] = 0);
+
+                items.forEach(item => {
+                    const priceFeeder = parseFloat(String(item['Harga Satuan Feeder']).replace(/,/g, '')) || 0;
+                    const qtyFeeder = parseFloat(String(item['Feeder']).replace(/,/g, '')) || 0;
+                    totals['Feeder'] += (priceFeeder * qtyFeeder);
+
+                    const priceDist = parseFloat(String(item['Harga Satuan Distribusi']).replace(/,/g, '')) || 0;
+                    clusters.forEach(c => {
+                        const qty = parseFloat(String(item[c]).replace(/,/g, '')) || 0;
+                        totals[c] += (priceDist * qty);
+                    });
+                });
+
+                html += `<tfoot><tr style="background: var(--bg-surface); font-weight: 700; border-top: 2px solid var(--border-color);">`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // No column
+                headers.forEach(h => {
+                    let val = '';
+                    let style = '';
+                    if (h === 'Item Pekerjaan') {
+                        val = 'Total';
+                        style = 'text-align: left;';
+                    } else if (totals[h] !== undefined) {
+                        val = formatCurrency(totals[h]);
+                        style = 'text-align: right;';
+                    }
+                    html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
+                });
+                html += `</tr></tfoot>`;
+            }
+
+            // Calculate totals for IJE Rekon views
+            const viewsWithTotalNilaiRekon = [
+                'ije-cao-ring-2-rekon', 'ije-cao-ring-4-rekon', 'ije-cao-ring-3a-rekon', 'ije-cao-ring-3b-rekon', 'ije-fm-ring-1-rekon'
+            ];
+            if (viewsWithTotalNilaiRekon.includes(currentViewId)) {
+                let totalNilaiRekon = 0;
+                items.forEach(item => {
+                    const val = parseFloat(String(item['Total Nilai Rekon']).replace(/,/g, '')) || 0;
+                    totalNilaiRekon += val;
+                });
+
+                html += `<tfoot><tr style="background: var(--bg-surface); font-weight: 700; border-top: 2px solid var(--border-color);">`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // No column
+                headers.forEach(h => {
+                    let val = '';
+                    let style = '';
+                    if (h === 'Item Pekerjaan') {
+                        val = 'Total';
+                        style = 'text-align: left;';
+                    } else if (h === 'Total Nilai Rekon') {
+                        val = formatCurrency(totalNilaiRekon);
+                        style = 'text-align: right;';
+                    }
+                    html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
+                });
+                html += `</tr></tfoot>`;
+            }
+
+            // Calculate totals for Material views
+            if (currentViewId.endsWith('-material')) {
+                let totalHarga = 0;
+                items.forEach(item => {
+                    const val = parseFloat(String(item['Total Harga']).replace(/,/g, '')) || 0;
+                    totalHarga += val;
+                });
+
+                html += `<tfoot><tr style="background: var(--bg-surface); font-weight: 700; border-top: 2px solid var(--border-color);">`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // No column
+                headers.forEach(h => {
+                    let val = '';
+                    let style = '';
+                    if (h === 'Tanggal PO') {
+                        val = 'Total';
+                        style = 'text-align: left;';
+                    } else if (h === 'Total Harga') {
+                        val = formatCurrency(totalHarga);
+                        style = 'text-align: right;';
+                    }
+                    html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
+                });
+                html += `</tr></tfoot>`;
+            }
+
+            // Calculate totals for Daftar Pembayaran
+            if (currentViewId === 'daftar-pembayaran') {
+                let totalPembayaran = 0;
+                items.forEach(item => {
+                    const val = parseFloat(String(item['Nilai Pembayaran']).replace(/,/g, '')) || 0;
+                    totalPembayaran += val;
+                });
+
+                html += `<tfoot><tr style="background: var(--bg-surface); font-weight: 700; border-top: 2px solid var(--border-color);">`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // No column
+                headers.forEach(h => {
+                    let val = '';
+                    let style = '';
+                    if (h === 'Tanggal Pembayaran') {
+                        val = 'Total';
+                        style = 'text-align: left;';
+                    } else if (h === 'Nilai Pembayaran') {
+                        val = formatCurrency(totalPembayaran);
+                        style = 'text-align: right;';
+                    }
+                    html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
+                });
+                html += `</tr></tfoot>`;
+            }
+
+            // Calculate totals for Daftar Tagihan
+            if (currentViewId === 'daftar-tagihan') {
+                let totals = { 'Nilai Invoice': 0, 'Nilai Pembayaran': 0 };
+                items.forEach(item => {
+                    Object.keys(totals).forEach(key => {
+                        const val = parseFloat(String(item[key]).replace(/,/g, '')) || 0;
+                        totals[key] += val;
+                    });
+                });
+
+                html += `<tfoot><tr style="background: var(--bg-surface); font-weight: 700; border-top: 2px solid var(--border-color);">`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // No column
+                headers.forEach(h => {
+                    let val = '';
+                    let style = '';
+                    if (h === 'Nama Perusahaan') {
+                        val = 'Total';
+                        style = 'text-align: left;';
+                    } else if (totals[h] !== undefined) {
+                        val = formatCurrency(totals[h]);
+                        style = 'text-align: right;';
+                    }
+                    html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
+                });
+                html += `</tr></tfoot>`;
+            }
+
+            html += `</table></div></div>`;
+            return html;
+        }
+
+        function generateMapHtml(data) {
+            if (!data || data.length === 0) {
+                return `
+                    <div class="card empty-state">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <p>URL Peta tidak ditemukan di database.</p>
+                    </div>
+                `;
+            }
+
+            // Data is an array of objects from Firestore. Let's extract the first one.
+            let firstDoc = Array.isArray(data) ? data[0] : data;
+            let url = typeof firstDoc === 'string' ? firstDoc : (firstDoc.url || firstDoc.link || Object.values(firstDoc).find(v => typeof v === 'string' && v.startsWith('http')) || '');
+
+            if (!url || !url.startsWith('http')) {
+                return `
+                    <div class="card empty-state">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <p>Format URL Peta tidak valid.</p>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="card" style="padding: 0; overflow: hidden; height: calc(100vh - var(--header-height) - 1.6rem); margin-bottom: 0;">
+                    <iframe 
+                        src="${url}" 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            `;
+        }
+
+        let chartInstance = null;
+        function generateOverviewHtml(data) {
+            const items = formatDataToArray(data);
+            const total = items.length;
+
+            return `
+                <div class="overview-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-briefcase"></i></div>
+                        <div class="stat-content">
+                            <h3>Total Proyek</h3>
+                            <div class="value">${total}</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #dcfce7; color: #16a34a;"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-content">
+                            <h3>Selesai</h3>
+                            <div class="value">${Math.floor(total * 0.4)}</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #fef9c3; color: #ca8a04;"><i class="fas fa-spinner"></i></div>
+                        <div class="stat-content">
+                            <h3>Berjalan</h3>
+                            <div class="value">${Math.ceil(total * 0.6)}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem; color: var(--text-main);">Statistik Progress (Sample)</h3>
+                    <div class="chart-container">
+                        <canvas id="overviewChart"></canvas>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('overviewChart');
+            if (!ctx) return;
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+                    datasets: [{
+                        label: 'Penyelesaian Tugas',
+                        data: [12, 19, 15, 25, 22, 30],
+                        backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                borderDash: [5, 5]
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize default view
+        window.onload = () => {
+            loadView('overview', 'Overview', document.querySelector('.nav-header.active'));
+        };
+
+    </script>
+</body>
+
+</html>
