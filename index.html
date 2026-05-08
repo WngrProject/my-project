@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My - Proyek</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
@@ -38,7 +37,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         html {
@@ -687,8 +686,15 @@
         }
 
         @keyframes modalScale {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .modal-header {
@@ -732,7 +738,8 @@
             text-transform: uppercase;
         }
 
-        .modal-body input, .modal-body select {
+        .modal-body input,
+        .modal-body select {
             padding: 0.75rem;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
@@ -741,7 +748,8 @@
             transition: border-color 0.2s;
         }
 
-        .modal-body input:focus, .modal-body select:focus {
+        .modal-body input:focus,
+        .modal-body select:focus {
             border-color: #4f46e5;
         }
 
@@ -752,6 +760,33 @@
             display: flex;
             justify-content: flex-end;
             gap: 0.75rem;
+        }
+
+        /* Custom Tooltip */
+        .custom-tooltip {
+            position: fixed;
+            background: rgba(15, 23, 42, 0.9);
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 10000;
+            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transform: translateY(8px) scale(0.96);
+            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            letter-spacing: 0.01em;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
         }
     </style>
 </head>
@@ -1211,7 +1246,7 @@
             });
         };
 
-        window.applyFilters = function() {
+        window.applyFilters = function () {
             let filtered = [...rawProjectData];
 
             // Search Filter (Supports multiple words/AND logic)
@@ -1270,7 +1305,7 @@
                     if (activeSort.column.toLowerCase().includes('tanggal')) {
                         valA = valA && valA.seconds ? valA.seconds : new Date(valA).getTime() || 0;
                         valB = valB && valB.seconds ? valB.seconds : new Date(valB).getTime() || 0;
-                    } 
+                    }
                     // Handle numeric comparison
                     else if (activeSort.column.toLowerCase().includes('nilai')) {
                         valA = parseFloat(valA) || 0;
@@ -1293,11 +1328,11 @@
                 const limit = parseInt(activeFilters.entries);
                 const start = (currentPage - 1) * limit;
                 const end = start + limit;
-                
+
                 // Track total for pagination UI
                 window.totalFilteredItems = filtered.length;
                 window.totalPages = Math.ceil(filtered.length / limit);
-                
+
                 // If search resulted in no data, show alert
                 if (filtered.length === 0 && activeFilters.search) {
                     alert('data tidak temukan !');
@@ -1334,7 +1369,7 @@
         };
 
         let searchTimeout = null;
-        window.updateFilter = function(key, val) {
+        window.updateFilter = function (key, val) {
             activeFilters[key] = val;
             currentPage = 1;
 
@@ -1348,8 +1383,8 @@
                 applyFilters();
             }
         };
-        
-        window.toggleSort = function(column) {
+
+        window.toggleSort = function (column) {
             if (activeSort.column === column) {
                 activeSort.direction = activeSort.direction === 'asc' ? 'desc' : 'asc';
             } else {
@@ -1359,7 +1394,7 @@
             applyFilters();
         };
 
-        window.changePage = function(dir) {
+        window.changePage = function (dir) {
             const next = currentPage + dir;
             if (next >= 1 && next <= window.totalPages) {
                 currentPage = next;
@@ -1367,13 +1402,13 @@
             }
         };
 
-        window.updateFilter = function(key, val) {
+        window.updateFilter = function (key, val) {
             activeFilters[key] = val;
             currentPage = 1; // Reset to first page when filtering or searching
             applyFilters();
         };
 
-        window.exportToExcel = function() {
+        window.exportToExcel = function () {
             const config = menuConfig[currentViewId];
             if (!config || config.type !== 'table') return;
 
@@ -1388,16 +1423,16 @@
             // This is the "SUBTOTAL" request part
             const range = XLSX.utils.decode_range(ws['!ref']);
             const lastRow = range.e.r;
-            
+
             for (let c = range.s.c; c <= range.e.c; c++) {
                 const cellAddress = XLSX.utils.encode_cell({ r: lastRow, c: c });
                 const cell = ws[cellAddress];
-                
+
                 // If it's a total cell (identified by having a value that we want to subtotal)
                 // We'll check the header to see if it's a numeric column
                 const headerAddress = XLSX.utils.encode_cell({ r: 0, c: c });
                 const header = ws[headerAddress] ? String(ws[headerAddress].v).toLowerCase() : '';
-                
+
                 if (header.includes('nilai') || header.includes('harga') || header.includes('pembayaran') || header.includes('total') || header.includes('fo')) {
                     const colLetter = XLSX.utils.encode_col(c);
                     // SUBTOTAL(9, ...) where 9 is SUM function, excludes filtered rows
@@ -1409,11 +1444,11 @@
             XLSX.writeFile(wb, `${currentViewId}_${new Date().getTime()}.xlsx`);
         };
 
-        window.exportToPDF = function() {
+        window.exportToPDF = function () {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'mm', 'a4');
             const title = document.getElementById('pageTitle').innerText;
-            
+
             doc.setFontSize(18);
             doc.text(title, 14, 22);
             doc.setFontSize(11);
@@ -1432,7 +1467,7 @@
             doc.save(`${currentViewId}_${new Date().getTime()}.pdf`);
         };
 
-        window.resetFilters = function() {
+        window.resetFilters = function () {
             activeFilters = {
                 search: '',
                 tahun: 'Semua Tahun',
@@ -1449,7 +1484,7 @@
             applyFilters();
         };
 
-        window.showSuggestions = function(query) {
+        window.showSuggestions = function (query) {
             const list = document.getElementById('searchSuggestions');
             if (!list) return;
 
@@ -1485,7 +1520,7 @@
             }
         };
 
-        window.selectSuggestion = function(val) {
+        window.selectSuggestion = function (val) {
             const input = document.getElementById('mainSearchInput');
             if (input) input.value = val;
             activeFilters.search = val; // Update state directly to avoid double filter
@@ -1493,14 +1528,14 @@
             hideSuggestions();
         };
 
-        window.hideSuggestions = function() {
+        window.hideSuggestions = function () {
             setTimeout(() => {
                 const list = document.getElementById('searchSuggestions');
                 if (list) list.style.display = 'none';
             }, 200); // Small delay to allow click event to fire
         };
 
-        window.addData = function() {
+        window.addData = function () {
             // Set current date as default for Tanggal SPK
             const today = new Date().toISOString().split('T')[0];
             const dateInput = document.querySelector('#dataForm [name="Tanggal SPK"]');
@@ -1509,24 +1544,24 @@
             document.getElementById('dataModal').classList.add('active');
         };
 
-        window.closeModal = function() {
+        window.closeModal = function () {
             document.getElementById('dataModal').classList.remove('active');
             document.getElementById('dataForm').reset();
         };
 
-        window.saveData = async function(e) {
+        window.saveData = async function (e) {
             if (e) e.preventDefault();
-            
+
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
-            
+
             try {
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
                 btn.disabled = true;
 
                 const formData = new FormData(document.getElementById('dataForm'));
                 const rawData = Object.fromEntries(formData.entries());
-                
+
                 // Prepare data for Firestore
                 const docData = {
                     ...rawData,
@@ -1541,7 +1576,7 @@
                 if (!config || !config.path) throw new Error('Path penyimpanan tidak ditemukan');
 
                 await addDoc(collection(db, config.path), docData);
-                
+
                 alert('Data berhasil disimpan ke database!');
                 closeModal();
             } catch (error) {
@@ -1717,10 +1752,11 @@
                 <div class="card" style="padding:0; overflow:hidden;">
                     <div class="filter-bar" style="padding: 10px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 10px; width: 100% !important;">
                         
-                        <!-- Baris 1: Pencarian + Nama Perusahaan + Nama SPK + Status Proyek -->
-                        <div class="filter-row" style="display: grid; grid-template-columns: 1.5fr 1fr 1.2fr 0.8fr; gap: 8px; width: 100%; align-items: end;">
+                        <!-- Baris Tunggal: Pencarian, Filter, dan Aksi -->
+                        <div class="filter-row" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 0.8fr 0.8fr 1.2fr 0.8fr 0.8fr 0.8fr; gap: 8px; width: 100%; align-items: end;">
+                            <!-- Pencarian -->
                             <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
-                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Pencarian</span>
+                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: none;">Pencarian</span>
                                 <div class="search-container" id="searchContainer" style="position: relative; width: 100%; display: flex; align-items: center;">
                                     <i class="fas fa-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 12px; pointer-events: none; z-index: 5;"></i>
                                     <input type="text" id="mainSearchInput" class="search-input" placeholder="Cari..." value="${activeFilters.search}" oninput="updateFilter('search', this.value); showSuggestions(this.value);" onfocus="showSuggestions(this.value)" autocomplete="off" style="width: 100%; padding: 7px 32px 7px 30px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #fff; outline: none; transition: border-color 0.2s, box-shadow 0.2s;">
@@ -1734,35 +1770,36 @@
                                 </div>
                             </div>
                             
+                            <!-- Filter Perusahaan -->
                             <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
-                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Perusahaan</span>
+                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: none;">Nama Perusahaan</span>
                                 <select class="filter-select" onchange="updateFilter('perusahaan', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                     <option value="Semua Perusahaan">Semua</option>
                                     ${perusahaanList.map(v => `<option value="${v}" ${activeFilters.perusahaan == v ? 'selected' : ''}>${v}</option>`).join('')}
                                 </select>
                             </div>
 
+                            <!-- Filter Nama SPK -->
                             <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
-                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Nama SPK</span>
+                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: none;">Nama SPK</span>
                                 <select class="filter-select" onchange="updateFilter('namaSPK', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                     <option value="Semua SPK">Semua</option>
                                     ${spkList.map(v => `<option value="${v}" ${activeFilters.namaSPK == v ? 'selected' : ''}>${v}</option>`).join('')}
                                 </select>
                             </div>
 
+                            <!-- Filter Status -->
                             <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
-                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Status</span>
+                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: none;">Status</span>
                                 <select class="filter-select" onchange="updateFilter('statusProyek', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                     <option value="Semua Status">Semua</option>
                                     ${statusList.map(v => `<option value="${v}" ${activeFilters.statusProyek == v ? 'selected' : ''}>${v}</option>`).join('')}
                                 </select>
                             </div>
-                        </div>
 
-                        <!-- Baris 2: Tampilkan + Tambah Data + Reset + Excel + PDF -->
-                        <div class="filter-row" style="display: grid; grid-template-columns: 1fr 1.2fr 1fr 1fr 1fr; gap: 8px; width: 100%; align-items: end;">
+                            <!-- Tampilkan -->
                             <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
-                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Tampilkan</span>
+                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: none;">Tampilkan</span>
                                 <select class="filter-select" onchange="updateFilter('entries', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                     <option value="Semua" ${activeFilters.entries == 'Semua' ? 'selected' : ''}>Semua</option>
                                     <option value="5" ${activeFilters.entries == '5' ? 'selected' : ''}>5 Data</option>
@@ -1772,6 +1809,8 @@
                                     <option value="100" ${activeFilters.entries == '100' ? 'selected' : ''}>100 Data</option>
                                 </select>
                             </div>
+
+                            <!-- Aksi -->
                             <button class="btn btn-primary" onclick="addData()" style="width: 100%; padding: 7px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #4f46e5; color: #fff; border: none;">
                                 <i class="fas fa-plus"></i> Tambah Data
                             </button>
@@ -2388,6 +2427,87 @@
             });
         }
 
+        // Global Tooltip System
+        const tooltip = document.createElement('div');
+        tooltip.className = 'custom-tooltip';
+        document.body.appendChild(tooltip);
+
+        document.addEventListener('mouseover', (e) => {
+            const target = e.target.closest('button, .btn, .nav-header, .submenu li, .avatar, .menu-toggle, .filter-select, .filter-item, th[onclick]');
+            if (target) {
+                let text = target.getAttribute('data-tooltip') || target.getAttribute('title') || '';
+
+                if (!text) {
+                    // Extract text from children or the element itself
+                    const span = target.querySelector('span, .filter-label');
+                    if (span && span.innerText.trim()) text = span.innerText.trim();
+                    else if (target.innerText.trim()) text = target.innerText.trim().split('\n')[0];
+
+                    // Specific mapping for icon-only buttons or those needing clearer text
+                    const icon = target.querySelector('i');
+                    if (icon) {
+                        const cls = icon.className;
+                        if (cls.includes('fa-plus')) text = 'Tambah Data Baru';
+                        else if (cls.includes('fa-undo')) text = 'Reset Semua Filter';
+                        else if (cls.includes('fa-file-excel')) text = 'Export ke Excel';
+                        else if (cls.includes('fa-file-pdf')) text = 'Export ke PDF';
+                        else if (cls.includes('fa-times-circle')) text = 'Hapus Pencarian';
+                        else if (cls.includes('fa-bars')) text = 'Menu Sidebar';
+                        else if (cls.includes('fa-search')) text = 'Kolom Pencarian';
+                        else if (cls.includes('fa-external-link-alt')) text = 'Buka Link Dokumen';
+                        else if (cls.includes('fa-chevron-left')) text = 'Halaman Sebelumnya';
+                        else if (cls.includes('fa-chevron-right')) text = 'Halaman Selanjutnya';
+                        else if (cls.includes('fa-sort')) text = 'Urutkan Kolom Ini';
+                    }
+
+                    // Handle filter selects specifically
+                    if (target.classList.contains('filter-select')) {
+                        const label = target.parentElement.querySelector('.filter-label');
+                        let labelText = label ? label.innerText.trim() : 'Kategori';
+                        
+                        // Map labels to requested professional names
+                        const mapping = {
+                            'PERUSAHAAN': 'Nama Perusahaan',
+                            'NAMA PERUSAHAAN': 'Nama Perusahaan',
+                            'NAMA SPK': 'Nama SPK',
+                            'STATUS': 'Status Proyek',
+                            'TAMPILKAN': 'Tampilkan'
+                        };
+                        
+                        labelText = mapping[labelText.toUpperCase()] || labelText;
+                        text = `Filter ${labelText}`;
+                    }
+                }
+
+                if (text && text.length > 0) {
+                    tooltip.innerText = text;
+                    tooltip.classList.add('visible');
+
+                    const rect = target.getBoundingClientRect();
+                    const tooltipRect = tooltip.getBoundingClientRect();
+
+                    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+                    let top = rect.top - tooltipRect.height - 10;
+
+                    // Handle screen boundaries
+                    if (left < 10) left = 10;
+                    if (left + tooltipRect.width > window.innerWidth - 10) {
+                        left = window.innerWidth - tooltipRect.width - 10;
+                    }
+                    if (top < 10) top = rect.bottom + 10; // Show below if no space above
+
+                    tooltip.style.left = `${left}px`;
+                    tooltip.style.top = `${top}px`;
+                }
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            if (e.target.closest('button, .btn, .nav-header, .submenu li, .avatar, .menu-toggle, .filter-select, .filter-item, th[onclick]')) {
+                tooltip.classList.remove('visible');
+            }
+        });
+
         // Initialize default view or restore last view
         window.onload = () => {
             const savedView = localStorage.getItem('lastView');
@@ -2400,13 +2520,13 @@
                 } else {
                     targetEl = document.querySelector(`.nav-header[onclick*="'${viewId}'"]`);
                 }
-                
+
                 if (targetEl) {
                     loadView(viewId, title, targetEl, isSub);
                     return;
                 }
             }
-            
+
             // Fallback to overview
             loadView('overview', 'Overview', document.querySelector('.nav-header.active'));
         };
@@ -2417,7 +2537,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Edit Data</h2>
-                <button onclick="closeModal()" style="background:none; border:none; cursor:pointer; color:#64748b; font-size:1.5rem;">&times;</button>
+                <button onclick="closeModal()"
+                    style="background:none; border:none; cursor:pointer; color:#64748b; font-size:1.5rem;">&times;</button>
             </div>
             <form id="dataForm" onsubmit="saveData(event)">
                 <div class="modal-body">
@@ -2463,12 +2584,17 @@
                     </div>
                     <div class="form-group full">
                         <label>Keterangan</label>
-                        <textarea name="Keterangan" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.875rem; outline: none; transition: border-color 0.2s;" placeholder="Masukkan keterangan tambahan..."></textarea>
+                        <textarea name="Keterangan" rows="3"
+                            style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.875rem; outline: none; transition: border-color 0.2s;"
+                            placeholder="Masukkan keterangan tambahan..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn" style="background:#fff; border:1px solid #cbd5e1; color:#64748b; width:auto; padding:0.75rem 1.5rem;" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary" style="width:auto; padding:0.75rem 1.5rem;">Simpan</button>
+                    <button type="button" class="btn"
+                        style="background:#fff; border:1px solid #cbd5e1; color:#64748b; width:auto; padding:0.75rem 1.5rem;"
+                        onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary"
+                        style="width:auto; padding:0.75rem 1.5rem;">Simpan</button>
                 </div>
             </form>
         </div>
