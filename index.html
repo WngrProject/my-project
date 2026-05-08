@@ -30,7 +30,23 @@
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --transition: all 0.3s ease;
+
+            /* === Professional Motion Curves (2025) === */
+            /* Expo Out — dipakai Linear.app, Vercel, Stripe. Terasa sangat halus & cepat */
+            --ease-expo-out:   cubic-bezier(0.16, 1, 0.3, 1);
+            /* Spring — ada overshoot kecil, terasa alami & hidup */
+            --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+            /* Standard Material Design 3 — untuk elemen UI umum */
+            --ease-standard:   cubic-bezier(0.2, 0, 0, 1);
+            /* Decelerate — masuk layar, terasa smooth landing */
+            --ease-decel:      cubic-bezier(0, 0, 0.2, 1);
+            /* Accelerate — keluar layar, terasa tegas */
+            --ease-accel:      cubic-bezier(0.3, 0, 1, 1);
+
+            --transition:      all 0.3s var(--ease-expo-out);
+            --dur-fast:        180ms;
+            --dur-normal:      320ms;
+            --dur-slow:        480ms;
         }
 
         * {
@@ -59,14 +75,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             visibility: hidden;
             opacity: 0;
-            transition: var(--transition);
+            transition: opacity var(--dur-fast) var(--ease-decel),
+                        visibility var(--dur-fast) var(--ease-decel);
         }
 
         #loader.active {
@@ -74,22 +93,32 @@
             opacity: 1;
         }
 
+        /* Modern Dots Loader */
         .spinner {
-            border: 4px solid var(--border-color);
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
+        .spinner-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: dotBounce 1.2s var(--ease-spring) infinite;
+        }
 
-            100% {
-                transform: rotate(360deg);
+        .spinner-dot:nth-child(2) { animation-delay: 0.15s; }
+        .spinner-dot:nth-child(3) { animation-delay: 0.30s; }
+
+        @keyframes dotBounce {
+            0%, 80%, 100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
             }
         }
 
@@ -119,7 +148,9 @@
             left: 0;
             top: 0;
             z-index: 100;
-            transition: var(--transition);
+            transition: transform var(--dur-slow) var(--ease-expo-out),
+                        width var(--dur-slow) var(--ease-expo-out),
+                        box-shadow var(--dur-normal) var(--ease-standard);
             overflow-y: auto;
         }
 
@@ -234,24 +265,27 @@
         .nav-header .toggle-icon {
             margin-left: auto;
             font-size: 0.8rem;
-            transition: transform 0.3s ease;
+            transition: transform var(--dur-normal) var(--ease-spring);
         }
 
         .nav-item.open .toggle-icon {
             transform: rotate(180deg);
         }
 
+        /* Submenu collapse/expand with max-height */
         .submenu {
             list-style: none;
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
+            transition: max-height var(--dur-normal) var(--ease-expo-out),
+                        opacity var(--dur-normal) var(--ease-expo-out);
             padding-left: 2rem;
+            opacity: 0;
         }
 
         .nav-item.open .submenu {
             max-height: 500px;
-            transition: max-height 0.4s ease-in;
+            opacity: 1;
         }
 
         .submenu li {
@@ -286,7 +320,8 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            transition: var(--transition);
+            transition: margin-left var(--dur-slow) var(--ease-expo-out),
+                        width var(--dur-slow) var(--ease-expo-out);
             width: calc(100% - var(--sidebar-width));
         }
 
@@ -492,10 +527,14 @@
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
+                transition: transform var(--dur-normal) var(--ease-accel),
+                            box-shadow var(--dur-normal) var(--ease-standard);
             }
 
             .sidebar.show {
                 transform: translateX(0);
+                transition: transform var(--dur-slow) var(--ease-expo-out),
+                            box-shadow var(--dur-slow) var(--ease-expo-out);
                 box-shadow: var(--shadow-lg);
             }
 
@@ -907,39 +946,52 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            transition: background var(--dur-normal) var(--ease-decel),
+                        backdrop-filter var(--dur-normal) var(--ease-decel);
         }
 
         .modal-overlay.active {
             display: flex;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            animation: overlayIn var(--dur-normal) var(--ease-decel) both;
+        }
+
+        @keyframes overlayIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
         }
 
         .modal-content {
             background: #fff;
             width: 100%;
             max-width: 600px;
-            border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 16px;
+            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.18);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            animation: modalScale 0.3s ease-out;
+            animation: modalIn var(--dur-slow) var(--ease-spring) both;
         }
 
-        @keyframes modalScale {
+        @keyframes modalIn {
             from {
-                transform: scale(0.95);
+                transform: scale(0.88) translateY(24px);
                 opacity: 0;
+                filter: blur(4px);
             }
-
             to {
-                transform: scale(1);
+                transform: scale(1) translateY(0);
                 opacity: 1;
+                filter: blur(0px);
             }
         }
 
@@ -1034,6 +1086,353 @@
             opacity: 1;
             transform: translateY(0) scale(1);
         }
+
+        /* =============================================
+           PAGE TRANSITION — View Transitions API
+           Dipakai Chrome/Edge 111+, dengan fallback
+           ============================================= */
+
+        /* View Transitions API native rules */
+        ::view-transition-old(page-content) {
+            animation: vtPageOut var(--dur-fast) var(--ease-accel) both;
+        }
+        ::view-transition-new(page-content) {
+            animation: vtPageIn var(--dur-normal) var(--ease-expo-out) both;
+        }
+
+        @keyframes vtPageOut {
+            to {
+                opacity: 0;
+                transform: translateY(-8px) scale(0.98);
+                filter: blur(2px);
+            }
+        }
+        @keyframes vtPageIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.97);
+                filter: blur(3px);
+            }
+        }
+
+        /* Fallback CSS animation (non-VT browsers) */
+        @keyframes pageIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.97);
+                filter: blur(3px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes pageOut {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-8px) scale(0.98); filter: blur(2px); }
+        }
+
+        .content-area {
+            view-transition-name: page-content;
+            will-change: opacity, transform;
+        }
+
+        .content-area.page-entering {
+            animation: pageIn var(--dur-normal) var(--ease-expo-out) both;
+        }
+
+        .content-area.page-leaving {
+            animation: pageOut var(--dur-fast) var(--ease-accel) both;
+        }
+
+        /* Staggered table row entrance */
+        @keyframes rowSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .data-table tbody tr {
+            animation: rowSlideIn var(--dur-normal) var(--ease-expo-out) both;
+        }
+
+        /* Stagger per baris — maksimal 30 baris */
+        .data-table tbody tr:nth-child(1)  { animation-delay: 0ms; }
+        .data-table tbody tr:nth-child(2)  { animation-delay: 18ms; }
+        .data-table tbody tr:nth-child(3)  { animation-delay: 36ms; }
+        .data-table tbody tr:nth-child(4)  { animation-delay: 54ms; }
+        .data-table tbody tr:nth-child(5)  { animation-delay: 72ms; }
+        .data-table tbody tr:nth-child(6)  { animation-delay: 90ms; }
+        .data-table tbody tr:nth-child(7)  { animation-delay: 108ms; }
+        .data-table tbody tr:nth-child(8)  { animation-delay: 126ms; }
+        .data-table tbody tr:nth-child(9)  { animation-delay: 144ms; }
+        .data-table tbody tr:nth-child(10) { animation-delay: 162ms; }
+        .data-table tbody tr:nth-child(n+11) { animation-delay: 180ms; }
+
+        /* Stat card entrance (overview page) */
+        @keyframes cardFloat {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            animation: cardFloat var(--dur-slow) var(--ease-expo-out) both;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0ms; }
+        .stat-card:nth-child(2) { animation-delay: 60ms; }
+        .stat-card:nth-child(3) { animation-delay: 120ms; }
+        .stat-card:nth-child(4) { animation-delay: 180ms; }
+
+        /* ==========================================
+           PREMIUM DASHBOARD STYLES
+           ========================================== */
+
+        /* KPI Grid */
+        .dash-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        @media (max-width: 1200px) {
+            .dash-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .dash-kpi-grid { grid-template-columns: 1fr; }
+        }
+
+        /* KPI Card */
+        .dash-kpi {
+            position: relative;
+            border-radius: 16px;
+            padding: 1.25rem;
+            color: #fff;
+            overflow: hidden;
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.18);
+            transition: transform 0.28s var(--ease-spring), box-shadow 0.28s var(--ease-expo-out);
+            animation: kpiSlideIn var(--dur-slow) var(--ease-expo-out) both;
+        }
+        .dash-kpi:hover {
+            transform: translateY(-4px) scale(1.015);
+            box-shadow: 0 12px 32px -6px rgba(0,0,0,0.25);
+        }
+
+        /* Stagger */
+        .dash-kpi:nth-child(1) { animation-delay: 0ms; }
+        .dash-kpi:nth-child(2) { animation-delay: 60ms; }
+        .dash-kpi:nth-child(3) { animation-delay: 120ms; }
+        .dash-kpi:nth-child(4) { animation-delay: 180ms; }
+        .dash-kpi:nth-child(5) { animation-delay: 240ms; }
+        .dash-kpi:nth-child(6) { animation-delay: 300ms; }
+        .dash-kpi:nth-child(7) { animation-delay: 360ms; }
+        .dash-kpi:nth-child(8) { animation-delay: 420ms; }
+
+        @keyframes kpiSlideIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.96); filter: blur(4px); }
+            to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        /* Gradient backgrounds */
+        .dash-kpi.grad-1 { background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%); }
+        .dash-kpi.grad-2 { background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); }
+        .dash-kpi.grad-3 { background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); }
+        .dash-kpi.grad-4 { background: linear-gradient(135deg, #ef4444 0%, #ec4899 100%); }
+        .dash-kpi.grad-5 { background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); }
+        .dash-kpi.grad-6 { background: linear-gradient(135deg, #14b8a6 0%, #22d3ee 100%); }
+        .dash-kpi.grad-7 { background: linear-gradient(135deg, #e11d48 0%, #f43f5e 100%); }
+        .dash-kpi.grad-8 { background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%); }
+
+        /* Glass circle decoration */
+        .dash-kpi::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+        }
+        .dash-kpi::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .dash-kpi-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+        .dash-kpi-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            opacity: 0.9;
+            letter-spacing: 0.02em;
+        }
+        .dash-kpi-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        .dash-kpi-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+            line-height: 1.1;
+            margin-top: 0.5rem;
+        }
+        .dash-kpi-sub {
+            font-size: 0.7rem;
+            opacity: 0.75;
+            margin-top: 0.25rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Chart Grid */
+        .dash-chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        @media (max-width: 900px) {
+            .dash-chart-grid { grid-template-columns: 1fr; }
+        }
+
+        .dash-chart-card {
+            background: var(--bg-surface);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem;
+            animation: kpiSlideIn var(--dur-slow) var(--ease-expo-out) both;
+        }
+        .dash-chart-card:nth-child(1) { animation-delay: 200ms; }
+        .dash-chart-card:nth-child(2) { animation-delay: 280ms; }
+
+        .dash-chart-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dash-chart-title i {
+            font-size: 0.85rem;
+            color: var(--primary);
+        }
+        .dash-chart-wrap {
+            position: relative;
+            height: 280px;
+        }
+
+        /* Activity Table */
+        .dash-activity-card {
+            background: var(--bg-surface);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            animation: kpiSlideIn var(--dur-slow) var(--ease-expo-out) both;
+            animation-delay: 500ms;
+        }
+        .dash-activity-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .dash-activity-table th {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+        .dash-activity-table td {
+            font-size: 0.82rem;
+            padding: 0.65rem 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-main);
+        }
+        .dash-activity-table tbody tr {
+            transition: background 0.15s;
+        }
+        .dash-activity-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        .dash-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .dash-badge-green { background: #dcfce7; color: #16a34a; }
+        .dash-badge-yellow { background: #fef9c3; color: #ca8a04; }
+        .dash-badge-red { background: #fee2e2; color: #ef4444; }
+        .dash-badge-blue { background: #dbeafe; color: #2563eb; }
+
+        /* Summary row at bottom */
+        .dash-summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        @media (max-width: 900px) {
+            .dash-summary-grid { grid-template-columns: 1fr; }
+        }
+        .dash-summary-card {
+            background: var(--bg-surface);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem;
+            animation: kpiSlideIn var(--dur-slow) var(--ease-expo-out) both;
+            animation-delay: 450ms;
+        }
+
     </style>
 </head>
 
@@ -1239,7 +1638,11 @@
 
     <!-- Loading -->
     <div id="loader">
-        <div class="spinner"></div>
+        <div class="spinner">
+            <div class="spinner-dot"></div>
+            <div class="spinner-dot"></div>
+            <div class="spinner-dot"></div>
+        </div>
     </div>
 
     <!-- Firebase App (the core Firebase SDK) -->
@@ -1361,11 +1764,22 @@
         // Global function for Submenu toggle
         window.toggleSubmenu = function (el) {
             const parent = el.parentElement;
-            parent.classList.toggle('open');
-            // Close other submenus
+            const isCurrentlyOpen = parent.classList.contains('open');
+
+            // Close all submenus first
             document.querySelectorAll('.nav-item.has-submenu').forEach(item => {
-                if (item !== parent) item.classList.remove('open');
+                // Only close if it's not the one being clicked
+                if (item !== parent) {
+                    // Don't close if it contains the active submenu item
+                    const hasActiveChild = item.querySelector('.submenu li.active');
+                    if (!hasActiveChild) {
+                        item.classList.remove('open');
+                    }
+                }
             });
+
+            // Toggle the clicked submenu
+            parent.classList.toggle('open');
         };
 
         // Navigation Config Map
@@ -1470,11 +1884,27 @@
             if (el) {
                 if (isSub) {
                     el.classList.add('active');
-                    el.parentElement.previousElementSibling.classList.add('active');
+                    // Also make the parent nav-header active
+                    const parentNavItem = el.closest('.nav-item.has-submenu');
+                    if (parentNavItem) {
+                        parentNavItem.querySelector('.nav-header').classList.add('active');
+                    }
                 } else {
                     el.classList.add('active');
                 }
             }
+
+            // Manage submenu open/close state:
+            // Open the submenu that contains the active item, close all others
+            document.querySelectorAll('.nav-item.has-submenu').forEach(item => {
+                const hasActiveChild = item.querySelector('.submenu li.active') || 
+                                       item.querySelector('.nav-header.active');
+                if (hasActiveChild) {
+                    item.classList.add('open');
+                } else {
+                    item.classList.remove('open');
+                }
+            });
 
             // Close sidebar on mobile
             if (window.innerWidth <= 768) {
@@ -1488,11 +1918,66 @@
             // Show Loader
             loader.classList.add('active');
 
-            // Detach previous listener if exists
+            // Detach previous listener(s) if exists
             if (currentListener) {
                 currentListener(); // Unsubscribe
+                currentListener = null;
+            }
+            // Clean up dashboard listeners
+            if (window.dashboardListeners) {
+                window.dashboardListeners.forEach(unsub => unsub());
+                window.dashboardListeners = null;
             }
 
+            // === OVERVIEW: Multi-collection fetch ===
+            if (viewId === 'overview') {
+                window.dashboardData = { proyek: [], pembayaran: [], tagihan: [] };
+                let loaded = 0;
+
+                const checkAllLoaded = () => {
+                    loaded++;
+                    if (loaded >= 3) {
+                        loader.classList.remove('active');
+                        renderContent('overview', window.dashboardData);
+                    }
+                };
+
+                const unsub1 = onSnapshot(collection(db, 'semua-proyek'), (snap) => {
+                    window.dashboardData.proyek = [];
+                    snap.forEach(doc => window.dashboardData.proyek.push({ id: doc.id, ...doc.data() }));
+                    if (loaded >= 3) {
+                        // Re-render on live updates after initial load
+                        renderContent('overview', window.dashboardData);
+                    } else {
+                        checkAllLoaded();
+                    }
+                }, (err) => { console.error('proyek err:', err); checkAllLoaded(); });
+
+                const unsub2 = onSnapshot(collection(db, 'daftar-pembayaran'), (snap) => {
+                    window.dashboardData.pembayaran = [];
+                    snap.forEach(doc => window.dashboardData.pembayaran.push({ id: doc.id, ...doc.data() }));
+                    if (loaded >= 3) {
+                        renderContent('overview', window.dashboardData);
+                    } else {
+                        checkAllLoaded();
+                    }
+                }, (err) => { console.error('pembayaran err:', err); checkAllLoaded(); });
+
+                const unsub3 = onSnapshot(collection(db, 'daftar-tagihan'), (snap) => {
+                    window.dashboardData.tagihan = [];
+                    snap.forEach(doc => window.dashboardData.tagihan.push({ id: doc.id, ...doc.data() }));
+                    if (loaded >= 3) {
+                        renderContent('overview', window.dashboardData);
+                    } else {
+                        checkAllLoaded();
+                    }
+                }, (err) => { console.error('tagihan err:', err); checkAllLoaded(); });
+
+                window.dashboardListeners = [unsub1, unsub2, unsub3];
+                return;
+            }
+
+            // === NORMAL VIEW: Single-collection fetch ===
             const collRef = collection(db, config.path);
 
             // Listen to data
@@ -2753,14 +3238,42 @@
 
         function renderContent(type, data) {
             const container = document.getElementById('viewContainer');
-            if (type === 'table') {
-                container.innerHTML = generateTableHtml(data);
-            } else if (type === 'map') {
-                container.innerHTML = generateMapHtml(data);
-            } else if (type === 'overview') {
-                container.innerHTML = generateOverviewHtml(data);
-                setTimeout(initChart, 100);
+
+            const doRender = () => {
+                if (type === 'table') {
+                    container.innerHTML = generateTableHtml(data);
+                } else if (type === 'map') {
+                    container.innerHTML = generateMapHtml(data);
+                } else if (type === 'overview') {
+                    container.innerHTML = generateOverviewHtml(data);
+                    setTimeout(() => {
+                        initDashboardCharts(data);
+                        animateAllCounters();
+                    }, 150);
+                }
+            };
+
+            // View Transitions API — Chrome/Edge 111+
+            if (document.startViewTransition) {
+                document.startViewTransition(() => {
+                    doRender();
+                });
+                return;
             }
+
+            // Fallback: CSS class animation
+            container.classList.remove('page-entering');
+            container.classList.add('page-leaving');
+
+            setTimeout(() => {
+                container.classList.remove('page-leaving');
+                doRender();
+                void container.offsetWidth; // force reflow
+                container.classList.add('page-entering');
+                container.addEventListener('animationend', () => {
+                    container.classList.remove('page-entering');
+                }, { once: true });
+            }, 180); // match --dur-fast
         }
 
         function formatDataToArray(data) {
@@ -3727,99 +4240,328 @@
             `;
         }
 
-        let chartInstance = null;
-        function generateOverviewHtml(data) {
-            const items = formatDataToArray(data);
-            const total = items.length;
+        let dashCharts = [];
+        function destroyDashCharts() {
+            dashCharts.forEach(c => { try { c.destroy(); } catch(e){} });
+            dashCharts = [];
+        }
+
+        function parseNum(v) {
+            if (v === undefined || v === null || v === '-') return 0;
+            return parseFloat(String(v).replace(/,/g, '')) || 0;
+        }
+        function parseFireDate(v) {
+            if (!v) return null;
+            if (v.seconds) return new Date(v.seconds * 1000);
+            if (typeof v.toDate === 'function') return v.toDate();
+            const d = new Date(v);
+            return isNaN(d.getTime()) ? null : d;
+        }
+        function fmtRp(n) {
+            if (n >= 1e12) return 'Rp ' + (n/1e12).toFixed(2) + ' T';
+            if (n >= 1e9) return 'Rp ' + (n/1e9).toFixed(2) + ' M';
+            if (n >= 1e6) return 'Rp ' + (n/1e6).toFixed(1) + ' Jt';
+            return 'Rp ' + n.toLocaleString('id-ID');
+        }
+
+        function generateOverviewHtml(dd) {
+            const proyek = dd.proyek || [];
+            const pembayaran = dd.pembayaran || [];
+            const tagihan = dd.tagihan || [];
+
+            const totalProyek = proyek.length;
+            const lunas = proyek.filter(p => (p['Status Proyek']||'').toLowerCase().includes('lunas')).length;
+            const berjalan = proyek.filter(p => (p['Status Proyek']||'').toLowerCase().includes('progress')).length;
+            const invoice = proyek.filter(p => (p['Status Proyek']||'').toLowerCase().includes('invoice') && !(p['Status Proyek']||'').toLowerCase().includes('progress')).length;
+
+            const totalSPK = proyek.reduce((s,p) => s + parseNum(p['Nilai SPK']), 0);
+            const totalTerbayar = proyek.reduce((s,p) => s + parseNum(p['Nilai Terbayar']), 0);
+            const totalTagihan = tagihan.reduce((s,t) => s + parseNum(t['Nilai Invoice']), 0);
+            const totalPembayaran = pembayaran.reduce((s,p) => s + parseNum(p['Nilai Pembayaran']), 0);
+
+            // Recent pembayaran sorted by date desc
+            const recentPembayaran = [...pembayaran]
+                .map(p => ({ ...p, _date: parseFireDate(p['Tanggal Pembayaran']) }))
+                .filter(p => p._date)
+                .sort((a,b) => b._date - a._date)
+                .slice(0, 7);
+
+            const recentRows = recentPembayaran.map(p => {
+                const d = p._date;
+                const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+                const ds = d ? `${String(d.getDate()).padStart(2,'0')}-${months[d.getMonth()]}-${d.getFullYear()}` : '-';
+                const st = (p['Status']||'').toLowerCase();
+                let badgeCls = 'dash-badge-blue';
+                if (st.includes('lunas') || st.includes('selesai')) badgeCls = 'dash-badge-green';
+                else if (st.includes('proses') || st.includes('jalan')) badgeCls = 'dash-badge-yellow';
+                else if (st.includes('tunda') || st.includes('gagal')) badgeCls = 'dash-badge-red';
+                return `<tr>
+                    <td>${ds}</td>
+                    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p['Nama SPK']||p['Nama Perusahaan']||'-'}</td>
+                    <td style="text-align:right;font-weight:600;">${formatCurrency(parseNum(p['Nilai Pembayaran']))}</td>
+                    <td><span class="dash-badge ${badgeCls}">${p['Status']||'-'}</span></td>
+                </tr>`;
+            }).join('');
 
             return `
-                <div class="overview-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-briefcase"></i></div>
-                        <div class="stat-content">
-                            <h3>Total Proyek</h3>
-                            <div class="value">${total}</div>
-                        </div>
+            <!-- KPI Row 1 -->
+            <div class="dash-kpi-grid">
+                <div class="dash-kpi grad-1">
+                    <div class="dash-kpi-top">
+                        <span class="dash-kpi-label">Total Proyek</span>
+                        <div class="dash-kpi-icon"><i class="fas fa-briefcase"></i></div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #dcfce7; color: #16a34a;"><i class="fas fa-check-circle"></i></div>
-                        <div class="stat-content">
-                            <h3>Selesai</h3>
-                            <div class="value">${Math.floor(total * 0.4)}</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #fef9c3; color: #ca8a04;"><i class="fas fa-spinner"></i></div>
-                        <div class="stat-content">
-                            <h3>Berjalan</h3>
-                            <div class="value">${Math.ceil(total * 0.6)}</div>
-                        </div>
-                    </div>
-
-                    ${activeFilters.entries !== 'Semua' ? `
-                    <div class="pagination-footer" style="padding: 0.75rem; border-top: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; gap: 1rem; background: #f9fafb;">
-                        <button class="btn btn-secondary" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : 'style="width: auto; padding: 5px 15px; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"'}>
-                            <i class="fas fa-chevron-left"></i> Sebelumnya
-                        </button>
-                        <span style="font-size: 0.8rem; font-weight: 600; color: #6b7280;">Halaman ${currentPage} dari ${window.totalPages || 1}</span>
-                        <button class="btn btn-secondary" onclick="changePage(1)" ${currentPage >= window.totalPages ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : 'style="width: auto; padding: 5px 15px; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"'}>
-                            Selanjutnya <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                    ` : ''}
+                    <div class="dash-kpi-value" data-counter="${totalProyek}" data-type="int">0</div>
+                    <div class="dash-kpi-sub">Semua proyek terdaftar</div>
                 </div>
-
-                <div class="card">
-                    <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem; color: var(--text-main);">Statistik Progress (Sample)</h3>
-                    <div class="chart-container">
-                        <canvas id="overviewChart"></canvas>
+                <div class="dash-kpi grad-2">
+                    <div class="dash-kpi-top">
+                        <span class="dash-kpi-label">Proyek Selesai</span>
+                        <div class="dash-kpi-icon"><i class="fas fa-check-circle"></i></div>
                     </div>
+                    <div class="dash-kpi-value" data-counter="${lunas}" data-type="int">0</div>
+                    <div class="dash-kpi-sub">${totalProyek > 0 ? ((lunas/totalProyek)*100).toFixed(1) : 0}% dari total</div>
                 </div>
+                <div class="dash-kpi grad-3">
+                    <div class="dash-kpi-top">
+                        <span class="dash-kpi-label">Proyek Berjalan</span>
+                        <div class="dash-kpi-icon"><i class="fas fa-spinner"></i></div>
+                    </div>
+                    <div class="dash-kpi-value" data-counter="${berjalan}" data-type="int">0</div>
+                    <div class="dash-kpi-sub">${totalProyek > 0 ? ((berjalan/totalProyek)*100).toFixed(1) : 0}% dari total</div>
+                </div>
+                <div class="dash-kpi grad-4">
+                    <div class="dash-kpi-top">
+                        <span class="dash-kpi-label">Proyek Invoice</span>
+                        <div class="dash-kpi-icon"><i class="fas fa-file-invoice"></i></div>
+                    </div>
+                    <div class="dash-kpi-value" data-counter="${invoice}" data-type="int">0</div>
+                    <div class="dash-kpi-sub">Menunggu pembayaran</div>
+                </div>
+            </div>
+
+            <!-- KPI Row 2 -->
+            <div class="dash-kpi-grid">
+                <div class="dash-kpi grad-5">
+                    <div class="dash-kpi-top">
+                        <span class="dash-kpi-label">Total Nilai SPK</span>
+                        <div class="dash-kpi-icon"><i class="fas fa-file-contract"></i></div>
+                    </div>
+                    <div class="dash-kpi-value" data-counter="${totalSPK}" data-type="currency" style="font-size:1.3rem;">0</div>
+                    <div class="dash-kpi-sub">${proyek.length} kontrak aktif</div>
+                </div>
+                <div class="dash-kpi grad-6">
+                    <div class="dash-kpi-top">
+                        <span class="dash-kpi-label">Total Terbayar</span>
+                        <div class="dash-kpi-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                    </div>
+                    <div class="dash-kpi-value" data-counter="${totalTerbayar}" data-type="currency" style="font-size:1.3rem;">0</div>
+                    <div class="dash-kpi-sub">${totalSPK > 0 ? ((totalTerbayar/totalSPK)*100).toFixed(1) : 0}% dari SPK</div>
+                </div>
+                <div class="dash-kpi grad-7">
+                    <div class="dash-kpi-top">
+                        <span class="dash-kpi-label">Total Tagihan</span>
+                        <div class="dash-kpi-icon"><i class="fas fa-receipt"></i></div>
+                    </div>
+                    <div class="dash-kpi-value" data-counter="${totalTagihan}" data-type="currency" style="font-size:1.3rem;">0</div>
+                    <div class="dash-kpi-sub">${tagihan.length} invoice tercatat</div>
+                </div>
+                <div class="dash-kpi grad-8">
+                    <div class="dash-kpi-top">
+                        <span class="dash-kpi-label">Total Pembayaran</span>
+                        <div class="dash-kpi-icon"><i class="fas fa-wallet"></i></div>
+                    </div>
+                    <div class="dash-kpi-value" data-counter="${totalPembayaran}" data-type="currency" style="font-size:1.3rem;">0</div>
+                    <div class="dash-kpi-sub">${pembayaran.length} transaksi</div>
+                </div>
+            </div>
+
+            <!-- Charts Row 1 -->
+            <div class="dash-chart-grid">
+                <div class="dash-chart-card">
+                    <div class="dash-chart-title"><i class="fas fa-chart-bar"></i> Nilai SPK per Proyek</div>
+                    <div class="dash-chart-wrap"><canvas id="dashChartSPK"></canvas></div>
+                </div>
+                <div class="dash-chart-card">
+                    <div class="dash-chart-title"><i class="fas fa-chart-pie"></i> Status Proyek</div>
+                    <div class="dash-chart-wrap"><canvas id="dashChartStatus"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2 -->
+            <div class="dash-chart-grid">
+                <div class="dash-chart-card" style="animation-delay:350ms;">
+                    <div class="dash-chart-title"><i class="fas fa-chart-area"></i> Trend Pembayaran Bulanan</div>
+                    <div class="dash-chart-wrap"><canvas id="dashChartTrend"></canvas></div>
+                </div>
+                <div class="dash-chart-card" style="animation-delay:420ms;">
+                    <div class="dash-chart-title"><i class="fas fa-balance-scale"></i> Invoice vs Terbayar</div>
+                    <div class="dash-chart-wrap"><canvas id="dashChartCompare"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="dash-activity-card">
+                <div class="dash-chart-title"><i class="fas fa-clock"></i> Transaksi Pembayaran Terbaru</div>
+                ${recentPembayaran.length > 0 ? `
+                <div style="overflow-x:auto;">
+                    <table class="dash-activity-table">
+                        <thead><tr><th>Tanggal</th><th>Nama SPK</th><th style="text-align:right;">Nilai</th><th>Status</th></tr></thead>
+                        <tbody>${recentRows}</tbody>
+                    </table>
+                </div>` : '<p style="text-align:center;color:var(--text-muted);padding:2rem;">Belum ada data pembayaran.</p>'}
+            </div>
             `;
         }
 
-        function initChart() {
-            const ctx = document.getElementById('overviewChart');
-            if (!ctx) return;
+        // ========== ANIMATED COUNTER ==========
+        function animateCounter(el, target, duration) {
+            const type = el.getAttribute('data-type');
+            const start = 0;
+            const startTime = performance.now();
+            const step = (now) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                const current = start + (target - start) * eased;
+                if (type === 'currency') {
+                    el.textContent = fmtRp(Math.round(current));
+                } else {
+                    el.textContent = Math.round(current).toLocaleString('id-ID');
+                }
+                if (progress < 1) requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+        }
+        function animateAllCounters() {
+            document.querySelectorAll('[data-counter]').forEach((el, i) => {
+                const target = parseFloat(el.getAttribute('data-counter')) || 0;
+                setTimeout(() => animateCounter(el, target, 1200), i * 80);
+            });
+        }
 
-            if (chartInstance) {
-                chartInstance.destroy();
+        // ========== DASHBOARD CHARTS ==========
+        function initDashboardCharts(dd) {
+            destroyDashCharts();
+            const proyek = dd.proyek || [];
+            const pembayaran = dd.pembayaran || [];
+            const tagihan = dd.tagihan || [];
+
+            // Chart 1: Nilai SPK per Proyek (Horizontal Bar)
+            const ctx1 = document.getElementById('dashChartSPK');
+            if (ctx1) {
+                const sorted = [...proyek].sort((a,b) => parseNum(b['Nilai SPK']) - parseNum(a['Nilai SPK'])).slice(0, 10);
+                const labels = sorted.map(p => {
+                    const name = p['Nama SPK'] || p['Nama Perusahaan'] || 'N/A';
+                    return name.length > 25 ? name.substring(0,22) + '...' : name;
+                });
+                const values = sorted.map(p => parseNum(p['Nilai SPK']));
+                const colors = ['#6366f1','#3b82f6','#06b6d4','#10b981','#f59e0b','#f97316','#ef4444','#ec4899','#8b5cf6','#14b8a6'];
+                dashCharts.push(new Chart(ctx1, {
+                    type: 'bar',
+                    data: { labels, datasets: [{ label: 'Nilai SPK', data: values, backgroundColor: colors.map(c => c + 'cc'), borderColor: colors, borderWidth: 1, borderRadius: 6, borderSkipped: false }] },
+                    options: {
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Rp ' + formatCurrency(ctx.raw) } } },
+                        scales: { x: { ticks: { callback: v => { if (v >= 1e9) return (v/1e9).toFixed(1)+'M'; if (v >= 1e6) return (v/1e6).toFixed(0)+'Jt'; return v; } }, grid: { borderDash: [3,3] } }, y: { grid: { display: false } } }
+                    }
+                }));
             }
 
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
-                    datasets: [{
-                        label: 'Penyelesaian Tugas',
-                        data: [12, 19, 15, 25, 22, 30],
-                        backgroundColor: 'rgba(79, 70, 229, 0.8)',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
+            // Chart 2: Status Proyek (Doughnut)
+            const ctx2 = document.getElementById('dashChartStatus');
+            if (ctx2) {
+                const lunas = proyek.filter(p => (p['Status Proyek']||'').toLowerCase().includes('lunas')).length;
+                const progress = proyek.filter(p => (p['Status Proyek']||'').toLowerCase().includes('progress')).length;
+                const inv = proyek.length - lunas - progress;
+                dashCharts.push(new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: { labels: ['Lunas','In Progress','Invoice'], datasets: [{ data: [lunas, progress, inv], backgroundColor: ['#10b981','#f59e0b','#6366f1'], borderWidth: 0, hoverOffset: 8 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '65%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 12, weight: 500 } } },
+                            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + ' proyek' } }
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                borderDash: [5, 5]
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
+                    plugins: [{
+                        id: 'centerText',
+                        beforeDraw: (chart) => {
+                            const { ctx: c, width, height } = chart;
+                            c.save();
+                            c.font = '800 1.8rem "Segoe UI"';
+                            c.fillStyle = '#111827';
+                            c.textAlign = 'center';
+                            c.textBaseline = 'middle';
+                            c.fillText(proyek.length, width/2, height/2 - 8);
+                            c.font = '500 0.7rem "Segoe UI"';
+                            c.fillStyle = '#6b7280';
+                            c.fillText('Total', width/2, height/2 + 16);
+                            c.restore();
                         }
+                    }]
+                }));
+            }
+
+            // Chart 3: Trend Pembayaran Bulanan (Line/Area)
+            const ctx3 = document.getElementById('dashChartTrend');
+            if (ctx3) {
+                const monthlyMap = {};
+                pembayaran.forEach(p => {
+                    const d = parseFireDate(p['Tanggal Pembayaran']);
+                    if (!d) return;
+                    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                    monthlyMap[key] = (monthlyMap[key]||0) + parseNum(p['Nilai Pembayaran']);
+                });
+                const sortedKeys = Object.keys(monthlyMap).sort();
+                const last12 = sortedKeys.slice(-12);
+                const monthNames = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+                const labels3 = last12.map(k => { const [y,m] = k.split('-'); return monthNames[parseInt(m)-1] + ' ' + y.slice(2); });
+                const values3 = last12.map(k => monthlyMap[k]);
+
+                dashCharts.push(new Chart(ctx3, {
+                    type: 'line',
+                    data: { labels: labels3, datasets: [{
+                        label: 'Pembayaran', data: values3,
+                        borderColor: '#6366f1', borderWidth: 2.5,
+                        backgroundColor: (ctx) => {
+                            const g = ctx.chart.ctx.createLinearGradient(0,0,0,280);
+                            g.addColorStop(0, 'rgba(99,102,241,0.3)');
+                            g.addColorStop(1, 'rgba(99,102,241,0.02)');
+                            return g;
+                        },
+                        fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#fff',
+                        pointBorderColor: '#6366f1', pointBorderWidth: 2, pointHoverRadius: 7
+                    }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Rp ' + formatCurrency(ctx.raw) } } },
+                        scales: { y: { beginAtZero: true, ticks: { callback: v => { if (v>=1e9) return (v/1e9).toFixed(1)+'M'; if (v>=1e6) return (v/1e6).toFixed(0)+'Jt'; return v; } }, grid: { borderDash: [3,3] } }, x: { grid: { display: false } } }
                     }
-                }
-            });
+                }));
+            }
+
+            // Chart 4: Invoice vs Terbayar per Proyek (Grouped Bar)
+            const ctx4 = document.getElementById('dashChartCompare');
+            if (ctx4) {
+                const top8 = [...proyek].sort((a,b) => parseNum(b['Nilai SPK']) - parseNum(a['Nilai SPK'])).slice(0, 8);
+                const labels4 = top8.map(p => { const n = p['Nama SPK']||'N/A'; return n.length > 15 ? n.substring(0,12)+'...' : n; });
+                const invVals = top8.map(p => parseNum(p['Nilai Invoice']));
+                const bayarVals = top8.map(p => parseNum(p['Nilai Terbayar']));
+
+                dashCharts.push(new Chart(ctx4, {
+                    type: 'bar',
+                    data: { labels: labels4, datasets: [
+                        { label: 'Nilai Invoice', data: invVals, backgroundColor: '#6366f1cc', borderRadius: 4 },
+                        { label: 'Nilai Terbayar', data: bayarVals, backgroundColor: '#10b981cc', borderRadius: 4 }
+                    ] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 11 } } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': Rp ' + formatCurrency(ctx.raw) } } },
+                        scales: { y: { beginAtZero: true, ticks: { callback: v => { if (v>=1e9) return (v/1e9).toFixed(1)+'M'; if (v>=1e6) return (v/1e6).toFixed(0)+'Jt'; return v; } }, grid: { borderDash: [3,3] } }, x: { grid: { display: false } } }
+                    }
+                }));
+            }
         }
 
         // Global Tooltip System
