@@ -551,7 +551,23 @@
 
         /* Specific Grid for JRP JOBJ - SPK (8 items) */
         .filter-row-spk {
-            grid-template-columns: 2fr 1fr 1fr 0.8fr 36px 36px 36px 36px !important;
+            grid-template-columns: 2fr 1.2fr 1.2fr 0.8fr 36px 36px 36px 36px !important;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row-spk {
+                grid-template-columns: repeat(4, 1fr) !important;
+            }
+            .filter-row-spk > .filter-item:nth-child(1) {
+                grid-column: span 2 !important;
+            }
+            .filter-row-spk .action-group {
+                display: flex !important;
+                gap: 4px;
+                grid-column: span 3 !important;
+                justify-content: flex-start;
+                align-items: end;
+            }
         }
 
         /* Specific Grid for JRP JOBJ - BoQ (6 items) */
