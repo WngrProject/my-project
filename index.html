@@ -545,26 +545,28 @@
             gap: 8px;
             width: 100%;
             align-items: end;
-            /* Update per request: Pencarian (8fr), Filters (4fr), Actions (36px) */
-            grid-template-columns: 8fr 4fr 4fr 4fr 4fr 4fr 36px 36px 36px 36px;
+            /* Desktop/Tablet: Fixed width for icon buttons */
+            grid-template-columns: 2fr 0.8fr 1fr 1fr 0.9fr 0.8fr 36px 36px 36px 36px;
         }
 
         /* Specific Grid for JRP JOBJ - SPK (8 items) */
         .filter-row-spk {
-            grid-template-columns: 2fr 1.2fr 1.2fr 0.8fr 36px 36px 36px 36px !important;
+            grid-template-columns: 1.5fr 0.8fr 0.8fr 0.7fr 36px 36px 36px 36px !important;
         }
 
         @media (max-width: 768px) {
             .filter-row-spk {
                 grid-template-columns: repeat(4, 1fr) !important;
             }
-            .filter-row-spk > .filter-item:nth-child(1) {
+
+            .filter-row-spk>.filter-item:nth-child(1) {
                 grid-column: span 2 !important;
             }
+
             .filter-row-spk .action-group {
                 display: flex !important;
                 gap: 4px;
-                grid-column: span 3 !important;
+                grid-column: span 2 !important;
                 justify-content: flex-start;
                 align-items: end;
             }
@@ -579,9 +581,11 @@
             .filter-row-boq {
                 grid-template-columns: 1fr 1fr !important;
             }
-            .filter-row-boq > .filter-item:nth-child(1) {
+
+            .filter-row-boq>.filter-item:nth-child(1) {
                 grid-column: span 2 !important;
             }
+
             .filter-row-boq .action-group {
                 display: flex !important;
                 gap: 4px;
@@ -628,9 +632,11 @@
             .filter-row-tagihan {
                 grid-template-columns: repeat(6, 1fr);
             }
-            .filter-row-tagihan > .filter-item:nth-child(1) {
+
+            .filter-row-tagihan>.filter-item:nth-child(1) {
                 grid-column: span 2;
             }
+
             .filter-row-tagihan .action-group {
                 display: flex !important;
                 gap: 4px;
@@ -656,9 +662,11 @@
                 .filter-row-karyawan {
                     grid-template-columns: repeat(4, 1fr);
                 }
-                .filter-row-karyawan > .filter-item:nth-child(1) {
+
+                .filter-row-karyawan>.filter-item:nth-child(1) {
                     grid-column: span 2;
                 }
+
                 .filter-row-karyawan .action-group {
                     display: flex !important;
                     gap: 4px;
@@ -666,6 +674,63 @@
                     justify-content: flex-start;
                     align-items: end;
                 }
+            }
+
+            /* Specific Grid for Dashboard / Semua Proyek */
+            .filter-row-dashboard {
+                display: grid;
+                gap: 8px;
+                width: 100%;
+                align-items: end;
+                grid-template-columns: 1.5fr 0.7fr 1fr 1fr 0.9fr 0.7fr 36px 36px 36px 36px;
+            }
+
+            .filter-row-dashboard .action-group {
+                display: contents;
+            }
+
+            @media (max-width: 768px) {
+                .filter-row-dashboard {
+                    grid-template-columns: repeat(4, 1fr);
+                }
+
+                .filter-row-dashboard>.filter-item:nth-child(1) {
+                    grid-column: span 2;
+                }
+
+                .filter-row-dashboard .action-group {
+                    display: flex !important;
+                    gap: 4px;
+                    grid-column: span 1;
+                    justify-content: flex-start;
+                    align-items: end;
+                }
+            }
+        }
+
+        /* Specific Grid for IJE / Compact Views */
+        .filter-row-ije {
+            grid-template-columns: 1.5fr 0.8fr auto 1fr !important;
+        }
+
+        .filter-row-ije .action-group {
+            display: flex !important;
+            gap: 4px;
+            justify-content: flex-start;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row-ije {
+                grid-template-columns: 1fr 1fr !important;
+            }
+
+            .filter-row-ije>.filter-item:nth-child(1) {
+                grid-column: span 2 !important;
+            }
+
+            .filter-row-ije .action-group {
+                grid-column: span 1 !important;
             }
         }
 
@@ -2842,7 +2907,7 @@
                     <div class="filter-bar" style="padding: 10px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 10px; width: 100% !important;">
                         
                         <!-- Responsive Filter Row -->
-                        <div class="filter-row ${isSPKView ? 'filter-row-spk' : ''} ${isBoQView ? 'filter-row-boq' : ''} ${isTagihanView ? 'filter-row-tagihan' : ''} ${isKaryawanView ? 'filter-row-karyawan' : ''}">
+                        <div class="filter-row ${isSPKView ? 'filter-row-spk' : ''} ${isBoQView ? 'filter-row-boq' : ''} ${isTagihanView ? 'filter-row-tagihan' : ''} ${isKaryawanView ? 'filter-row-karyawan' : ''} ${currentViewId === 'semua-proyek' ? 'filter-row-dashboard' : ''} ${currentViewId === 'ije-cao-ring-2-spk' ? 'filter-row-ije' : ''}">
                             <!-- Item 1: Pencarian -->
                             <div class="filter-item">
                                 <span class="filter-label">Pencarian</span>
