@@ -545,8 +545,8 @@
             gap: 8px;
             width: 100%;
             align-items: end;
-            /* Desktop/Tablet: Fixed width for icon buttons */
-            grid-template-columns: 2fr 0.8fr 1fr 1fr 0.9fr 0.8fr 36px 36px 36px 36px;
+            /* Update per request: Pencarian (8fr), Filters (4fr), Actions (36px) */
+            grid-template-columns: 8fr 4fr 4fr 4fr 4fr 4fr 36px 36px 36px 36px;
         }
 
         /* Specific Grid for JRP JOBJ - SPK (8 items) */
@@ -573,6 +573,22 @@
         /* Specific Grid for JRP JOBJ - BoQ (6 items) */
         .filter-row-boq {
             grid-template-columns: 2fr 0.8fr 36px 36px 36px 36px !important;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row-boq {
+                grid-template-columns: 1fr 1fr !important;
+            }
+            .filter-row-boq > .filter-item:nth-child(1) {
+                grid-column: span 2 !important;
+            }
+            .filter-row-boq .action-group {
+                display: flex !important;
+                gap: 4px;
+                grid-column: span 1 !important;
+                justify-content: flex-start;
+                align-items: end;
+            }
         }
 
         @media (max-width: 768px) {
