@@ -11,6 +11,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Excel & PDF Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
         :root {
@@ -193,15 +197,40 @@
         }
 
         /* Colorful Icons */
-        .fa-chart-pie { color: #6366f1; }
-        .fa-list { color: #3b82f6; }
-        .fa-building { color: #f59e0b; }
-        .fa-wallet { color: #10b981; }
-        .fa-users { color: #06b6d4; }
-        .fa-cubes { color: #4f46e5; } /* Logo color */
-        .fa-briefcase { color: #4f46e5; } /* Project icon color */
+        .fa-chart-pie {
+            color: #6366f1;
+        }
 
-        .nav-header.active i { color: white !important; }
+        .fa-list {
+            color: #3b82f6;
+        }
+
+        .fa-building {
+            color: #f59e0b;
+        }
+
+        .fa-wallet {
+            color: #10b981;
+        }
+
+        .fa-users {
+            color: #06b6d4;
+        }
+
+        .fa-cubes {
+            color: #4f46e5;
+        }
+
+        /* Logo color */
+        .fa-briefcase {
+            color: #4f46e5;
+        }
+
+        /* Project icon color */
+
+        .nav-header.active i {
+            color: white !important;
+        }
 
         .nav-header .toggle-icon {
             margin-left: auto;
@@ -294,6 +323,7 @@
             .sidebar.collapsed {
                 transform: translateX(-100%);
             }
+
             .main-wrapper.collapsed {
                 margin-left: 0;
                 width: 100%;
@@ -498,6 +528,130 @@
             .overview-grid {
                 grid-template-columns: 1fr;
             }
+        /* Filter Bar Styles */
+        /* Filter Bar Styles */
+        .filter-bar {
+            padding: 0.75rem;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .filter-row {
+            display: grid;
+            gap: 0.5rem;
+            width: 100%;
+            align-items: end;
+        }
+
+        /* Enforce columns on ALL screen sizes */
+        .filter-row-1 {
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+        }
+
+        .filter-row-2 {
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 6px 8px 6px 28px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            background-color: #f9fafb;
+            outline: none;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            min-width: 0;
+        }
+
+        .filter-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 5px 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--text-main);
+            background: #fff;
+            outline: none;
+            cursor: pointer;
+            text-overflow: ellipsis;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 6px 4px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-excel {
+            background-color: #ecfdf5;
+            color: #059669;
+            border: 1px solid #10b98140;
+        }
+
+        .btn-pdf {
+            background-color: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #ef444440;
+        }
+
+        .btn-reset {
+            background-color: #f3f4f6;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-reset:hover {
+            background-color: #e5e7eb;
+            color: #ef4444;
         }
     </style>
 </head>
@@ -628,7 +782,8 @@
                     <li onclick="loadView('surge-fm-expole-spk', 'Surge FM Ex Pole - SPK', this, true)">SPK</li>
                     <li onclick="loadView('surge-fm-expole-boq', 'Surge FM Ex Pole - BoQ', this, true)">BoQ</li>
                     <li onclick="loadView('surge-fm-expole-rekon', 'Surge FM Ex Pole - Rekon', this, true)">Rekon</li>
-                    <li onclick="loadView('surge-fm-expole-material', 'Surge FM Ex Pole - Material', this, true)">Material</li>
+                    <li onclick="loadView('surge-fm-expole-material', 'Surge FM Ex Pole - Material', this, true)">
+                        Material</li>
                     <li onclick="loadView('surge-fm-expole-maps', 'Surge FM Ex Pole - Maps', this, true)">Maps</li>
                 </ul>
             </li>
@@ -643,7 +798,8 @@
                     <li onclick="loadView('surge-fm-newpole-spk', 'Surge FM New Pole - SPK', this, true)">SPK</li>
                     <li onclick="loadView('surge-fm-newpole-boq', 'Surge FM New Pole - BoQ', this, true)">BoQ</li>
                     <li onclick="loadView('surge-fm-newpole-rekon', 'Surge FM New Pole - Rekon', this, true)">Rekon</li>
-                    <li onclick="loadView('surge-fm-newpole-material', 'Surge FM New Pole - Material', this, true)">Material</li>
+                    <li onclick="loadView('surge-fm-newpole-material', 'Surge FM New Pole - Material', this, true)">
+                        Material</li>
                     <li onclick="loadView('surge-fm-newpole-maps', 'Surge FM New Pole - Maps', this, true)">Maps</li>
                 </ul>
             </li>
@@ -727,6 +883,15 @@
 
         // UI State
         let currentViewId = 'overview';
+        let rawProjectData = [];
+        let activeFilters = {
+            search: '',
+            tahun: 'Semua Tahun',
+            perusahaan: 'Semua Perusahaan',
+            namaSPK: 'Semua SPK',
+            statusProyek: 'Semua Status',
+            entries: 10
+        };
 
         // Helper Functions
         function formatDate(val) {
@@ -868,6 +1033,16 @@
             currentViewId = viewId;
             document.getElementById('pageTitle').innerText = title;
 
+            // Reset filters on view change
+            activeFilters = {
+                search: '',
+                tahun: 'Semua Tahun',
+                perusahaan: 'Semua Perusahaan',
+                namaSPK: 'Semua SPK',
+                statusProyek: 'Semua Status',
+                entries: 10
+            };
+
             // Handle Active state classes
             document.querySelectorAll('.nav-header').forEach(n => n.classList.remove('active'));
             document.querySelectorAll('.submenu li').forEach(n => n.classList.remove('active'));
@@ -907,7 +1082,8 @@
                     data.push({ id: doc.id, ...doc.data() });
                 });
                 loader.classList.remove('active');
-                renderContent(config.type, data);
+                rawProjectData = data;
+                applyFilters();
             }, (error) => {
                 console.error(error);
                 loader.classList.remove('active');
@@ -918,6 +1094,135 @@
                     </div>
                 `;
             });
+        };
+
+        window.applyFilters = function() {
+            let filtered = [...rawProjectData];
+
+            // Search Filter
+            if (activeFilters.search) {
+                const query = activeFilters.search.toLowerCase();
+                filtered = filtered.filter(item => {
+                    return Object.values(item).some(val => 
+                        String(val).toLowerCase().includes(query)
+                    );
+                });
+            }
+
+            // Year Filter
+            if (activeFilters.tahun && activeFilters.tahun !== 'Semua Tahun') {
+                filtered = filtered.filter(item => {
+                    const dateVal = item['Tanggal SPK'] || item['Tanggal Pembayaran'] || item['Tanggal Invoice'] || item['Tanggal PO'];
+                    if (!dateVal) return false;
+                    let year;
+                    if (dateVal.seconds) year = new Date(dateVal.seconds * 1000).getFullYear().toString();
+                    else year = new Date(dateVal).getFullYear().toString();
+                    return year === activeFilters.tahun;
+                });
+            }
+
+            // Perusahaan Filter
+            if (activeFilters.perusahaan && activeFilters.perusahaan !== 'Semua Perusahaan') {
+                filtered = filtered.filter(item => item['Nama Perusahaan'] === activeFilters.perusahaan);
+            }
+
+            // Nama SPK Filter
+            if (activeFilters.namaSPK && activeFilters.namaSPK !== 'Semua SPK') {
+                filtered = filtered.filter(item => item['Nama SPK'] === activeFilters.namaSPK);
+            }
+
+            // Status Proyek Filter
+            if (activeFilters.statusProyek && activeFilters.statusProyek !== 'Semua Status') {
+                filtered = filtered.filter(item => item['Status Proyek'] === activeFilters.statusProyek);
+            }
+
+            // Entries Filter (Pagination)
+            if (activeFilters.entries && activeFilters.entries !== 'Semua') {
+                const limit = parseInt(activeFilters.entries);
+                filtered = filtered.slice(0, limit);
+            }
+
+            renderContent(menuConfig[currentViewId].type, filtered);
+        };
+
+        window.updateFilter = function(key, val) {
+            activeFilters[key] = val;
+            applyFilters();
+        };
+
+        window.exportToExcel = function() {
+            const config = menuConfig[currentViewId];
+            if (!config || config.type !== 'table') return;
+
+            const table = document.querySelector('.data-table');
+            if (!table) return;
+
+            // Use XLSX to convert table to workbook
+            const wb = XLSX.utils.table_to_book(table, { raw: true });
+            const ws = wb.Sheets[wb.SheetNames[0]];
+
+            // Find the total row and replace values with SUBTOTAL formulas
+            // This is the "SUBTOTAL" request part
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            const lastRow = range.e.r;
+            
+            for (let c = range.s.c; c <= range.e.c; c++) {
+                const cellAddress = XLSX.utils.encode_cell({ r: lastRow, c: c });
+                const cell = ws[cellAddress];
+                
+                // If it's a total cell (identified by having a value that we want to subtotal)
+                // We'll check the header to see if it's a numeric column
+                const headerAddress = XLSX.utils.encode_cell({ r: 0, c: c });
+                const header = ws[headerAddress] ? String(ws[headerAddress].v).toLowerCase() : '';
+                
+                if (header.includes('nilai') || header.includes('harga') || header.includes('pembayaran') || header.includes('total') || header.includes('fo')) {
+                    const colLetter = XLSX.utils.encode_col(c);
+                    // SUBTOTAL(9, ...) where 9 is SUM function, excludes filtered rows
+                    cell.f = `SUBTOTAL(9,${colLetter}2:${colLetter}${lastRow})`;
+                    cell.t = 'n'; // Numeric
+                }
+            }
+
+            XLSX.writeFile(wb, `${currentViewId}_${new Date().getTime()}.xlsx`);
+        };
+
+        window.exportToPDF = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            const title = document.getElementById('pageTitle').innerText;
+            
+            doc.setFontSize(18);
+            doc.text(title, 14, 22);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+
+            doc.autoTable({
+                html: '.data-table',
+                startY: 35,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 2 },
+                headStyles: { fillColor: [79, 70, 229], textColor: 255 },
+                footStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' }
+            });
+
+            doc.save(`${currentViewId}_${new Date().getTime()}.pdf`);
+        };
+
+        window.resetFilters = function() {
+            activeFilters = {
+                search: '',
+                tahun: 'Semua Tahun',
+                perusahaan: 'Semua Perusahaan',
+                namaSPK: 'Semua SPK',
+                statusProyek: 'Semua Status',
+                entries: 'Semua'
+            };
+            applyFilters();
+        };
+
+        window.addData = function() {
+            alert('Fitur Tambah Data akan segera hadir!');
         };
 
         function renderContent(type, data) {
@@ -953,126 +1258,205 @@
             let headers;
             if (currentViewId === 'semua-proyek') {
                 headers = [
-                    'Tanggal SPK', 'Nomor SPK', 'Nama Perusahaan', 'Nama SPK', 
-                    'Nilai SPK', 'Nilai Invoice', 'Nilai Terbayar', 
+                    'Tanggal SPK', 'Nomor SPK', 'Nama Perusahaan', 'Nama SPK',
+                    'Nilai SPK', 'Nilai Invoice', 'Nilai Terbayar',
                     'Status Proyek', 'URL Dokumen', 'Keterangan'
                 ];
             } else if (currentViewId === 'daftar-pembayaran') {
                 headers = [
-                    'Tanggal Pembayaran', 'Nilai Pembayaran', 'Nama Perusahaan', 
+                    'Tanggal Pembayaran', 'Nilai Pembayaran', 'Nama Perusahaan',
                     'Nama SPK', 'Status', 'Keterangan'
                 ];
             } else if (currentViewId === 'daftar-tagihan') {
                 headers = [
-                    'Nama Perusahaan', 'Nomor SPK', 'Nama SPK', 'Uraian Detail Invoice', 
-                    'Nomor Invoice', 'Tanggal Invoice', 'Nilai Invoice', 
-                    'Status Invoice', 'Nilai Pembayaran', 'Status Pembayaran', 
+                    'Nama Perusahaan', 'Nomor SPK', 'Nama SPK', 'Uraian Detail Invoice',
+                    'Nomor Invoice', 'Tanggal Invoice', 'Nilai Invoice',
+                    'Status Invoice', 'Nilai Pembayaran', 'Status Pembayaran',
                     'URL Dokumen', 'Keterangan'
                 ];
             } else if (currentViewId === 'daftar-karyawan') {
                 headers = [
-                    'Nama Karyawan', 'Jabatan', 'No Telepon', 'No KTP', 
-                    'Alamat Lengkap', 'Nomor Rekening', 'Alamat Email', 
+                    'Nama Karyawan', 'Jabatan', 'No Telepon', 'No KTP',
+                    'Alamat Lengkap', 'Nomor Rekening', 'Alamat Email',
                     'No ID Karyawan', 'Area Kerja', 'URL Dokumen', 'Keterangan'
                 ];
             } else if (currentViewId === 'daftar-pelaksana') {
                 headers = [
-                    'Nama Mandor', 'Jabatan', 'No Telepon', 'No KTP', 
-                    'Alamat Lengkap', 'Nama Bank', 'No Rekening', 'Email', 
+                    'Nama Mandor', 'Jabatan', 'No Telepon', 'No KTP',
+                    'Alamat Lengkap', 'Nama Bank', 'No Rekening', 'Email',
                     'Area Kerja', 'URL Dokumen', 'Keterangan'
                 ];
             } else if (currentViewId === 'surge-fm-newpole-spk') {
                 headers = [
-                    'DAOP', 'Segmen', 'FO 96c_A', 'FO 96c_B', 
+                    'DAOP', 'Segmen', 'FO 96c_A', 'FO 96c_B',
                     'Total FO', 'BoQ New Pole', 'Bobot', 'Keterangan'
                 ];
             } else if (currentViewId === 'surge-fm-expole-spk') {
                 headers = [
-                    'DAOP', 'Segmen', 'FO 48c', 'FO 96c', 
+                    'DAOP', 'Segmen', 'FO 48c', 'FO 96c',
                     'Total FO', 'BoQ Ext Pole', 'Bobot', 'Keterangan'
                 ];
             } else if (currentViewId === 'jrp-jobj-spk') {
                 headers = [
-                    'Nama Cluster', 'Tipe', 'HP BoQ', 'Zona', 
+                    'Nama Cluster', 'Tipe', 'HP BoQ', 'Zona',
                     'Nilai BoQ', 'Bobot', 'Keterangan'
                 ];
             } else if (currentViewId.endsWith('-spk')) {
                 headers = [
-                    'Item Pekerjaan', 'Satuan', 'Harga Satuan', 'Volume BoQ', 
+                    'Item Pekerjaan', 'Satuan', 'Harga Satuan', 'Volume BoQ',
                     'Total Nilai BoQ', 'Bobot', 'Keterangan'
                 ];
             } else if (currentViewId === 'jrp-jobj-boq') {
                 headers = [
-                    'Item Pekerjaan', 'Satuan', 'Harga Satuan Feeder', 'Harga Satuan Distribusi', 
-                    'Feeder', 'Discovery Alton', 'Discovery Cielo', 'Discovery Terra', 
-                    'Discovery Amore', 'Discovery Serenity', 'Discovery Eola', 
-                    'Discovery Flamine', 'Discovery Conserva', 'Discovery Fiore', 
-                    'Discovery Lumina', 'Discovery Altezza', 'Discovery Aluvia', 
-                    'Emerald Avenue 1 Ruko', 'Kebayoran Square', 'Ruko Kebayoran Arcade', 
-                    'Kebayoran Arcade 2', 'Kebayoran Arcade 3', 'Kebayoran Arcade 5', 
-                    'CBD Emerald', 'Emerald Home', 'Kebayoran Terrace', 'Kebayoran View', 
-                    'Kebayoran Essence', 'Kebayoran Piazza', 'Kebayoran Harmony', 
-                    'Kebayoran Villas', 'Kebayoran Garden', 'Kebayoran Heights', 
-                    'Kebayoran Village', 'Kebayoran Infinity', 'Kebayoran Symphoni', 
-                    'Emerald Avenue 2 Ruko', 'Dharmawangsa', 'Bursa Mobil', 
-                    'Bukit Menteng', 'Emerald Garden', 'Emerald Residence', 
-                    'Emerald Townhouse', 'Althia Park', 'Mahagoni Park', 
-                    'Cluster Vazza Plumeria', 'Emerald View', 
+                    'Item Pekerjaan', 'Satuan', 'Harga Satuan Feeder', 'Harga Satuan Distribusi',
+                    'Feeder', 'Discovery Alton', 'Discovery Cielo', 'Discovery Terra',
+                    'Discovery Amore', 'Discovery Serenity', 'Discovery Eola',
+                    'Discovery Flamine', 'Discovery Conserva', 'Discovery Fiore',
+                    'Discovery Lumina', 'Discovery Altezza', 'Discovery Aluvia',
+                    'Emerald Avenue 1 Ruko', 'Kebayoran Square', 'Ruko Kebayoran Arcade',
+                    'Kebayoran Arcade 2', 'Kebayoran Arcade 3', 'Kebayoran Arcade 5',
+                    'CBD Emerald', 'Emerald Home', 'Kebayoran Terrace', 'Kebayoran View',
+                    'Kebayoran Essence', 'Kebayoran Piazza', 'Kebayoran Harmony',
+                    'Kebayoran Villas', 'Kebayoran Garden', 'Kebayoran Heights',
+                    'Kebayoran Village', 'Kebayoran Infinity', 'Kebayoran Symphoni',
+                    'Emerald Avenue 2 Ruko', 'Dharmawangsa', 'Bursa Mobil',
+                    'Bukit Menteng', 'Emerald Garden', 'Emerald Residence',
+                    'Emerald Townhouse', 'Althia Park', 'Mahagoni Park',
+                    'Cluster Vazza Plumeria', 'Emerald View',
                     'Emerald Terrace', 'Botanica Aralia', 'Keterangan'
                 ];
             } else if (currentViewId === 'surge-fm-expole-boq' || currentViewId === 'surge-fm-newpole-boq') {
                 headers = [
-                    'Item Pekerjaan', 'Satuan', 'Harga Satuan', 
-                    'Manggarai - Citayam - Bogor', 'Bogor - Sukabumi', 
-                    'Manggarai - Jakarta Kota', 'Manggarai - Duri - Tangerang', 
-                    'Tanah Abang - Serpong', 'Serpong - Rangkasbitung', 
-                    'Rangkasbitung - Serang', 'Serang - Krenceng - Merak', 
-                    'Jatinegara - Manggarai - Tanjung Priok', 'Jatinegara - Cikarang', 
-                    'Cikarang - Cikampek', 'Cikampek - Haurgeulis', 'Haurgeulis - Jatibarang', 
-                    'Jatibarang - Cirebon', 'Cikampek - Plered', 'Plered - Padalarang', 
-                    'Padalarang - Lebakjero', 'Lebakjero - Cibatu', 'Cibatu - Garut', 
-                    'Cibatu - Tasikmalaya', 'Sukabumi - Cianjur', 'Cianjur - Padalarang', 
-                    'Brumbung - Gundih', 'Gundih - Gambringan', 'Purwokerto - Kroya', 
-                    'Kroya - Kebumen', 'Kebumen - Jenar', 'Jenar - Kedundang', 
-                    'Kedundang - Tugu Jogja', 'Tugu Jogja - Klaten', 'Klaten - Purwosari', 
-                    'Purwosari - Wonogiri', 'Purwosari - Gundih', 'Solo Balapan - Walikukun', 
-                    'Walikukun - Madiun', 'Kediri - Ngunut', 'Ngunut - Wlingi', 
+                    'Item Pekerjaan', 'Satuan', 'Harga Satuan',
+                    'Manggarai - Citayam - Bogor', 'Bogor - Sukabumi',
+                    'Manggarai - Jakarta Kota', 'Manggarai - Duri - Tangerang',
+                    'Tanah Abang - Serpong', 'Serpong - Rangkasbitung',
+                    'Rangkasbitung - Serang', 'Serang - Krenceng - Merak',
+                    'Jatinegara - Manggarai - Tanjung Priok', 'Jatinegara - Cikarang',
+                    'Cikarang - Cikampek', 'Cikampek - Haurgeulis', 'Haurgeulis - Jatibarang',
+                    'Jatibarang - Cirebon', 'Cikampek - Plered', 'Plered - Padalarang',
+                    'Padalarang - Lebakjero', 'Lebakjero - Cibatu', 'Cibatu - Garut',
+                    'Cibatu - Tasikmalaya', 'Sukabumi - Cianjur', 'Cianjur - Padalarang',
+                    'Brumbung - Gundih', 'Gundih - Gambringan', 'Purwokerto - Kroya',
+                    'Kroya - Kebumen', 'Kebumen - Jenar', 'Jenar - Kedundang',
+                    'Kedundang - Tugu Jogja', 'Tugu Jogja - Klaten', 'Klaten - Purwosari',
+                    'Purwosari - Wonogiri', 'Purwosari - Gundih', 'Solo Balapan - Walikukun',
+                    'Walikukun - Madiun', 'Kediri - Ngunut', 'Ngunut - Wlingi',
                     'Wlingi - Malang', 'Keterangan'
                 ];
             } else if (currentViewId.endsWith('-boq')) {
                 headers = [
-                    'Item Pekerjaan', 'Satuan', 'Harga Satuan', 'Volume BoQ', 
+                    'Item Pekerjaan', 'Satuan', 'Harga Satuan', 'Volume BoQ',
                     'Total Nilai BoQ', 'Keterangan'
                 ];
             } else if (currentViewId.endsWith('-material')) {
                 headers = [
-                    'Tanggal PO', 'Nomor PO Material', 'Nama Supplier', 'Nama Material', 
-                    'Spesifikasi Material', 'Satuan', 'Volume', 'Harga Satuan', 
+                    'Tanggal PO', 'Nomor PO Material', 'Nama Supplier', 'Nama Material',
+                    'Spesifikasi Material', 'Satuan', 'Volume', 'Harga Satuan',
                     'Total Harga', 'Status Material', 'URL Dokumen', 'Keterangan'
                 ];
             } else if (currentViewId.endsWith('-rekon')) {
                 headers = [
-                    'Item Pekerjaan', 'Satuan', 'Harga Satuan', 'Volume Rekon', 
+                    'Item Pekerjaan', 'Satuan', 'Harga Satuan', 'Volume Rekon',
                     'Total Nilai Rekon', 'Keterangan'
                 ];
             } else {
-                headers = Object.keys(items[0]).filter(k => 
-                    typeof items[0][k] !== 'object' && 
+                headers = Object.keys(items[0]).filter(k =>
+                    typeof items[0][k] !== 'object' &&
                     k.toLowerCase() !== 'id'
                 );
             }
 
+            // Extract unique years for the filter
+            const years = [...new Set(rawProjectData.map(item => {
+                const dateVal = item['Tanggal SPK'] || item['Tanggal Pembayaran'] || item['Tanggal Invoice'] || item['Tanggal PO'];
+                if (!dateVal) return null;
+                if (dateVal.seconds) return new Date(dateVal.seconds * 1000).getFullYear();
+                return new Date(dateVal).getFullYear();
+            }).filter(y => y))].sort((a, b) => b - a);
+
+            // Extract unique values for specific filters (Semua Proyek)
+            let perusahaanList = [];
+            let spkList = [];
+            let statusList = [];
+            if (currentViewId === 'semua-proyek') {
+                perusahaanList = [...new Set(rawProjectData.map(item => item['Nama Perusahaan']).filter(v => v))].sort();
+                spkList = [...new Set(rawProjectData.map(item => item['Nama SPK']).filter(v => v))].sort();
+                statusList = [...new Set(rawProjectData.map(item => item['Status Proyek']).filter(v => v))].sort();
+            }
+
             let html = `
                 <div class="card" style="padding:0; overflow:hidden;">
+                    <div class="filter-bar">
+                        <!-- Baris 1: Pencarian + Nama Perusahaan + Nama SPK + Status Proyek -->
+                        <div class="filter-row filter-row-1">
+                            <div class="search-container">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="search-input" placeholder="Cari..." value="${activeFilters.search}" onkeyup="updateFilter('search', this.value)">
+                            </div>
+                            
+                            <div class="filter-item">
+                                <span class="filter-label">Perusahaan</span>
+                                <select class="filter-select" onchange="updateFilter('perusahaan', this.value)">
+                                    <option value="Semua Perusahaan">Semua</option>
+                                    ${perusahaanList.map(v => `<option value="${v}" ${activeFilters.perusahaan == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                </select>
+                            </div>
+
+                            <div class="filter-item">
+                                <span class="filter-label">Nama SPK</span>
+                                <select class="filter-select" onchange="updateFilter('namaSPK', this.value)">
+                                    <option value="Semua SPK">Semua</option>
+                                    ${spkList.map(v => `<option value="${v}" ${activeFilters.namaSPK == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                </select>
+                            </div>
+
+                            <div class="filter-item">
+                                <span class="filter-label">Status</span>
+                                <select class="filter-select" onchange="updateFilter('statusProyek', this.value)">
+                                    <option value="Semua Status">Semua</option>
+                                    ${statusList.map(v => `<option value="${v}" ${activeFilters.statusProyek == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Baris 2: Tampilkan + Tambah Data + Reset + Excel + PDF -->
+                        <div class="filter-row filter-row-2">
+                            <div class="filter-item">
+                                <span class="filter-label">Tampilkan</span>
+                                <select class="filter-select" onchange="updateFilter('entries', this.value)">
+                                    <option value="Semua" ${activeFilters.entries == 'Semua' ? 'selected' : ''}>Semua</option>
+                                    <option value="5" ${activeFilters.entries == '5' ? 'selected' : ''}>5 Data</option>
+                                    <option value="10" ${activeFilters.entries == '10' ? 'selected' : ''}>10 Data</option>
+                                    <option value="25" ${activeFilters.entries == '25' ? 'selected' : ''}>25 Data</option>
+                                    <option value="50" ${activeFilters.entries == '50' ? 'selected' : ''}>50 Data</option>
+                                    <option value="100" ${activeFilters.entries == '100' ? 'selected' : ''}>100 Data</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="addData()">
+                                <i class="fas fa-plus"></i> Tambah Data
+                            </button>
+                            <button class="btn btn-reset" onclick="resetFilters()">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                            <button class="btn btn-excel" onclick="exportToExcel()">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                            <button class="btn btn-pdf" onclick="exportToPDF()">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
                         <table class="data-table">
                             <thead>
                                 <tr>
                                     <th style="width: 50px; text-align: center;">No</th>
                                     ${headers.map(h => {
-                                        let textAlign = 'center';
-                                        return `<th style="text-align: ${textAlign};">${h.replace(/_/g, ' ')}</th>`;
-                                    }).join('')}
+                let textAlign = 'center';
+                return `<th style="text-align: ${textAlign};">${h.replace(/_/g, ' ')}</th>`;
+            }).join('')}
                                 </tr>
                             </thead>
                             <tbody>
@@ -1084,7 +1468,7 @@
                 headers.forEach(h => {
                     let val = item[h] !== undefined ? item[h] : '-';
                     let style = 'text-align: left;';
-                    
+
                     if (currentViewId === 'semua-proyek') {
                         if (h === 'Tanggal SPK') {
                             val = formatDate(val);
@@ -1225,7 +1609,7 @@
                             style = 'text-align: left;';
                         }
                     }
-                    
+
                     html += `<td style="${style}">${val}</td>`;
                 });
                 html += `</tr>`;
@@ -1238,7 +1622,31 @@
                 'ije-cao-ring-2-spk', 'ije-cao-ring-4-spk', 'ije-cao-ring-3a-spk', 'ije-cao-ring-3b-spk', 'ije-fm-ring-1-spk',
                 'ije-cao-ring-2-boq', 'ije-cao-ring-4-boq', 'ije-cao-ring-3a-boq', 'ije-cao-ring-3b-boq', 'ije-fm-ring-1-boq'
             ];
-            if (viewsWithTotalNilaiBoQ.includes(currentViewId)) {
+            if (currentViewId === 'semua-proyek') {
+                let totals = { 'Nilai SPK': 0, 'Nilai Invoice': 0, 'Nilai Terbayar': 0 };
+                items.forEach(item => {
+                    Object.keys(totals).forEach(key => {
+                        const val = parseFloat(String(item[key]).replace(/,/g, '')) || 0;
+                        totals[key] += val;
+                    });
+                });
+
+                html += `<tfoot><tr style="background: var(--bg-surface); font-weight: 700; border-top: 2px solid var(--border-color);">`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // No column
+                headers.forEach(h => {
+                    let val = '';
+                    let style = '';
+                    if (h === 'Tanggal SPK') {
+                        val = 'Total';
+                        style = 'text-align: left;';
+                    } else if (totals[h] !== undefined) {
+                        val = formatCurrency(totals[h]);
+                        style = 'text-align: right;';
+                    }
+                    html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
+                });
+                html += `</tr></tfoot>`;
+            } else if (viewsWithTotalNilaiBoQ.includes(currentViewId)) {
                 let totals = { 'Total Nilai BoQ': 0, 'Bobot': 0 };
                 items.forEach(item => {
                     Object.keys(totals).forEach(key => {
@@ -1336,17 +1744,17 @@
                 html += `</tr></tfoot>`;
             } else if (currentViewId === 'jrp-jobj-boq') {
                 const clusters = [
-                    'Discovery Alton', 'Discovery Cielo', 'Discovery Terra', 'Discovery Amore', 'Discovery Serenity', 
-                    'Discovery Eola', 'Discovery Flamine', 'Discovery Conserva', 'Discovery Fiore', 'Discovery Lumina', 
-                    'Discovery Altezza', 'Discovery Aluvia', 'Emerald Avenue 1 Ruko', 'Kebayoran Square', 'Ruko Kebayoran Arcade', 
-                    'Kebayoran Arcade 2', 'Kebayoran Arcade 3', 'Kebayoran Arcade 5', 'CBD Emerald', 'Emerald Home', 
-                    'Kebayoran Terrace', 'Kebayoran View', 'Kebayoran Essence', 'Kebayoran Piazza', 'Kebayoran Harmony', 
-                    'Kebayoran Villas', 'Kebayoran Garden', 'Kebayoran Heights', 'Kebayoran Village', 'Kebayoran Infinity', 
-                    'Kebayoran Symphoni', 'Emerald Avenue 2 Ruko', 'Dharmawangsa', 'Bursa Mobil', 'Bukit Menteng', 
-                    'Emerald Garden', 'Emerald Residence', 'Emerald Townhouse', 'Althia Park', 'Mahagoni Park', 
+                    'Discovery Alton', 'Discovery Cielo', 'Discovery Terra', 'Discovery Amore', 'Discovery Serenity',
+                    'Discovery Eola', 'Discovery Flamine', 'Discovery Conserva', 'Discovery Fiore', 'Discovery Lumina',
+                    'Discovery Altezza', 'Discovery Aluvia', 'Emerald Avenue 1 Ruko', 'Kebayoran Square', 'Ruko Kebayoran Arcade',
+                    'Kebayoran Arcade 2', 'Kebayoran Arcade 3', 'Kebayoran Arcade 5', 'CBD Emerald', 'Emerald Home',
+                    'Kebayoran Terrace', 'Kebayoran View', 'Kebayoran Essence', 'Kebayoran Piazza', 'Kebayoran Harmony',
+                    'Kebayoran Villas', 'Kebayoran Garden', 'Kebayoran Heights', 'Kebayoran Village', 'Kebayoran Infinity',
+                    'Kebayoran Symphoni', 'Emerald Avenue 2 Ruko', 'Dharmawangsa', 'Bursa Mobil', 'Bukit Menteng',
+                    'Emerald Garden', 'Emerald Residence', 'Emerald Townhouse', 'Althia Park', 'Mahagoni Park',
                     'Cluster Vazza Plumeria', 'Emerald View', 'Emerald Terrace', 'Botanica Aralia'
                 ];
-                
+
                 let totals = { 'Feeder': 0 };
                 clusters.forEach(c => totals[c] = 0);
 
