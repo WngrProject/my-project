@@ -1758,10 +1758,28 @@
                 return;
             }
 
-            // Collect unique values from relevant columns for suggestions
+            // Collect unique values from relevant columns for suggestions based on current view
             const suggestions = new Set();
+            let cols = ['Nama Perusahaan', 'Nama SPK', 'Nomor SPK', 'Status Proyek']; // Default
+
+            if (currentViewId === 'daftar-tagihan') {
+                cols = ['Nama Perusahaan', 'Nomor SPK', 'Nama SPK', 'Nomor Invoice'];
+            } else if (currentViewId === 'daftar-karyawan') {
+                cols = ['Nama Karyawan', 'Jabatan', 'No ID Karyawan', 'Area Kerja'];
+            } else if (currentViewId === 'daftar-pelaksana') {
+                cols = ['Nama Mandor', 'Jabatan', 'Area Kerja'];
+            } else if (currentViewId === 'daftar-pembayaran') {
+                cols = ['Nama Perusahaan', 'Nama SPK', 'Status'];
+            } else if (currentViewId === 'jrp-jobj-spk') {
+                cols = ['Nama Cluster', 'Tipe', 'Zona'];
+            } else if (currentViewId.endsWith('-material')) {
+                cols = ['Nama Supplier', 'Nama Material', 'Nomor PO Material'];
+            } else if (currentViewId.endsWith('-spk') || currentViewId.endsWith('-boq') || currentViewId.endsWith('-rekon')) {
+                cols = ['Item Pekerjaan'];
+            }
+
             rawProjectData.forEach(item => {
-                ['Nama Perusahaan', 'Nama SPK', 'Nomor SPK', 'Status Proyek'].forEach(col => {
+                cols.forEach(col => {
                     if (item[col]) suggestions.add(String(item[col]));
                 });
             });
