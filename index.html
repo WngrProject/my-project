@@ -542,18 +542,128 @@
 
         .filter-row {
             display: grid;
-            gap: 0.5rem;
+            gap: 8px;
             width: 100%;
             align-items: end;
+            /* Desktop/Tablet: Fixed width for icon buttons */
+            grid-template-columns: 2fr 0.8fr 1fr 1fr 0.9fr 0.8fr 36px 36px 36px 36px;
         }
 
-        /* Enforce columns on ALL screen sizes */
-        .filter-row-1 {
-            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+        /* Specific Grid for JRP JOBJ - SPK (8 items) */
+        .filter-row-spk {
+            grid-template-columns: 2fr 1fr 1fr 0.8fr 36px 36px 36px 36px !important;
         }
 
-        .filter-row-2 {
-            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        /* Specific Grid for JRP JOBJ - BoQ (6 items) */
+        .filter-row-boq {
+            grid-template-columns: 2fr 0.8fr 36px 36px 36px 36px !important;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row {
+                /* Mobile: tetap 5 kolom */
+                grid-template-columns: repeat(5, 1fr);
+            }
+
+            .filter-row> :nth-child(1) {
+                grid-column: auto;
+            }
+
+            .action-group {
+                display: flex !important;
+                gap: 8px;
+                grid-column: span 4;
+                justify-content: flex-start;
+                align-items: end;
+            }
+        }
+
+        /* Desktop/Tablet behavior for action group */
+        .action-group {
+            display: contents;
+        }
+
+        /* Specific Grid for Daftar Tagihan */
+        .filter-row-tagihan {
+            display: grid;
+            gap: 8px;
+            width: 100%;
+            align-items: end;
+            grid-template-columns: 2fr repeat(6, 1fr) 0.8fr 36px 36px 36px 36px;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row-tagihan {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            .filter-row-tagihan > .filter-item:nth-child(1) {
+                grid-column: span 2;
+            }
+            .filter-row-tagihan .action-group {
+                display: flex !important;
+                gap: 4px;
+                grid-column: span 3;
+                justify-content: flex-start;
+                align-items: end;
+            }
+
+            /* Specific Grid for Daftar Karyawan */
+            .filter-row-karyawan {
+                display: grid;
+                gap: 8px;
+                width: 100%;
+                align-items: end;
+                grid-template-columns: 2fr 1.2fr 1.2fr 0.8fr 36px 36px 36px 36px;
+            }
+
+            .filter-row-karyawan .action-group {
+                display: contents;
+            }
+
+            @media (max-width: 768px) {
+                .filter-row-karyawan {
+                    grid-template-columns: repeat(4, 1fr);
+                }
+                .filter-row-karyawan > .filter-item:nth-child(1) {
+                    grid-column: span 2;
+                }
+                .filter-row-karyawan .action-group {
+                    display: flex !important;
+                    gap: 4px;
+                    grid-column: span 3;
+                    justify-content: flex-start;
+                    align-items: end;
+                }
+            }
+        }
+
+        /* Modern Icon Button Style */
+        .btn-icon {
+            width: 36px !important;
+            height: 36px !important;
+            padding: 0 !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+            border: 1px solid rgba(0, 0, 0, 0.05) !important;
+            cursor: pointer;
+        }
+
+        .btn-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            filter: brightness(1.05);
+        }
+
+        .btn-icon:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon i {
+            font-size: 16px !important;
         }
 
         .search-container {
@@ -588,13 +698,14 @@
         }
 
         .filter-label {
-            font-size: 0.6rem;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 500;
             color: var(--text-muted);
-            text-transform: uppercase;
+            text-transform: none;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-bottom: 2px;
         }
 
         .filter-select {
@@ -1025,7 +1136,21 @@
             perusahaan: 'Semua Perusahaan',
             namaSPK: 'Semua SPK',
             statusProyek: 'Semua Status',
-            entries: 'Semua'
+            tipe: 'Semua Tipe',
+            zona: 'Semua Zona',
+            tahunPO: 'Semua Tahun PO',
+            supplier: 'Semua Supplier',
+            materialName: 'Semua Material',
+            statusMaterial: 'Semua Status Material',
+            entries: 'Semua',
+            tahunInvoice: 'Semua Tahun Invoice',
+            bulanInvoice: 'Semua Bulan Invoice',
+            tahunPembayaran: 'Semua Tahun Pembayaran',
+            bulanPembayaran: 'Semua Bulan Pembayaran',
+            statusInvoice: 'Semua Status Invoice',
+            statusPembayaran: 'Semua Status Pembayaran',
+            jabatan: 'Semua Jabatan',
+            areaKerja: 'Semua Area Kerja'
         };
 
         let activeSort = {
@@ -1185,7 +1310,17 @@
                 perusahaan: 'Semua Perusahaan',
                 namaSPK: 'Semua SPK',
                 statusProyek: 'Semua Status',
-                entries: 'Semua'
+                daop: 'Semua DAOP',
+                bulan: 'Semua Bulan',
+                entries: 'Semua',
+                tahunInvoice: 'Semua Tahun Invoice',
+                bulanInvoice: 'Semua Bulan Invoice',
+                tahunPembayaran: 'Semua Tahun Pembayaran',
+                bulanPembayaran: 'Semua Bulan Pembayaran',
+                statusInvoice: 'Semua Status Invoice',
+                statusPembayaran: 'Semua Status Pembayaran',
+                jabatan: 'Semua Jabatan',
+                areaKerja: 'Semua Area Kerja'
             };
             activeSort = {
                 column: 'Tanggal SPK',
@@ -1293,6 +1428,120 @@
             // Status Proyek Filter
             if (activeFilters.statusProyek && activeFilters.statusProyek !== 'Semua Status') {
                 filtered = filtered.filter(item => item['Status Proyek'] === activeFilters.statusProyek);
+            }
+
+            // Tipe Filter
+            if (activeFilters.tipe && activeFilters.tipe !== 'Semua Tipe') {
+                filtered = filtered.filter(item => item['Tipe'] === activeFilters.tipe);
+            }
+
+            // Zona Filter
+            if (activeFilters.zona && activeFilters.zona !== 'Semua Zona') {
+                filtered = filtered.filter(item => item['Zona'] === activeFilters.zona);
+            }
+
+            // Tahun PO Filter
+            if (activeFilters.tahunPO && activeFilters.tahunPO !== 'Semua Tahun PO') {
+                filtered = filtered.filter(item => {
+                    const dateVal = item['Tanggal PO'];
+                    if (!dateVal) return false;
+                    let year;
+                    if (dateVal.seconds) year = new Date(dateVal.seconds * 1000).getFullYear().toString();
+                    else year = new Date(dateVal).getFullYear().toString();
+                    return year === activeFilters.tahunPO;
+                });
+            }
+
+            // Supplier Filter
+            if (activeFilters.supplier && activeFilters.supplier !== 'Semua Supplier') {
+                filtered = filtered.filter(item => item['Nama Supplier'] === activeFilters.supplier);
+            }
+
+            // Material Name Filter
+            if (activeFilters.materialName && activeFilters.materialName !== 'Semua Material') {
+                filtered = filtered.filter(item => item['Nama Material'] === activeFilters.materialName);
+            }
+
+            // Status Material Filter
+            if (activeFilters.statusMaterial && activeFilters.statusMaterial !== 'Semua Status Material') {
+                filtered = filtered.filter(item => item['Status Material'] === activeFilters.statusMaterial);
+            }
+
+            // Month Filter
+            if (activeFilters.bulan && activeFilters.bulan !== 'Semua Bulan') {
+                filtered = filtered.filter(item => {
+                    const dateVal = item['Tanggal Pembayaran'] || item['Tanggal SPK'] || item['Tanggal Invoice'] || item['Tanggal PO'];
+                    if (!dateVal) return false;
+                    const dateObj = dateVal.seconds ? new Date(dateVal.seconds * 1000) : new Date(dateVal);
+                    const month = dateObj.getMonth();
+                    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                    return monthNames[month] === activeFilters.bulan;
+                });
+            }
+
+            // DAOP Filter
+            if (activeFilters.daop && activeFilters.daop !== 'Semua DAOP') {
+                filtered = filtered.filter(item => item['DAOP'] === activeFilters.daop);
+            }
+
+            // Specific filters for Daftar Tagihan
+            if (currentViewId === 'daftar-tagihan') {
+                // Tahun Invoice
+                if (activeFilters.tahunInvoice && activeFilters.tahunInvoice !== 'Semua Tahun Invoice') {
+                    filtered = filtered.filter(item => {
+                        const dateVal = item['Tanggal Invoice'];
+                        if (!dateVal) return false;
+                        let year = dateVal.seconds ? new Date(dateVal.seconds * 1000).getFullYear().toString() : new Date(dateVal).getFullYear().toString();
+                        return year === activeFilters.tahunInvoice;
+                    });
+                }
+                // Bulan Invoice
+                if (activeFilters.bulanInvoice && activeFilters.bulanInvoice !== 'Semua Bulan Invoice') {
+                    filtered = filtered.filter(item => {
+                        const dateVal = item['Tanggal Invoice'];
+                        if (!dateVal) return false;
+                        const dateObj = dateVal.seconds ? new Date(dateVal.seconds * 1000) : new Date(dateVal);
+                        const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                        return monthNames[dateObj.getMonth()] === activeFilters.bulanInvoice;
+                    });
+                }
+                // Tahun Pembayaran
+                if (activeFilters.tahunPembayaran && activeFilters.tahunPembayaran !== 'Semua Tahun Pembayaran') {
+                    filtered = filtered.filter(item => {
+                        const dateVal = item['Tanggal Pembayaran'];
+                        if (!dateVal) return false;
+                        let year = dateVal.seconds ? new Date(dateVal.seconds * 1000).getFullYear().toString() : new Date(dateVal).getFullYear().toString();
+                        return year === activeFilters.tahunPembayaran;
+                    });
+                }
+                // Bulan Pembayaran
+                if (activeFilters.bulanPembayaran && activeFilters.bulanPembayaran !== 'Semua Bulan Pembayaran') {
+                    filtered = filtered.filter(item => {
+                        const dateVal = item['Tanggal Pembayaran'];
+                        if (!dateVal) return false;
+                        const dateObj = dateVal.seconds ? new Date(dateVal.seconds * 1000) : new Date(dateVal);
+                        const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                        return monthNames[dateObj.getMonth()] === activeFilters.bulanPembayaran;
+                    });
+                }
+                // Status Invoice
+                if (activeFilters.statusInvoice && activeFilters.statusInvoice !== 'Semua Status Invoice') {
+                    filtered = filtered.filter(item => item['Status Invoice'] === activeFilters.statusInvoice);
+                }
+                // Status Pembayaran
+                if (activeFilters.statusPembayaran && activeFilters.statusPembayaran !== 'Semua Status Pembayaran') {
+                    filtered = filtered.filter(item => item['Status Pembayaran'] === activeFilters.statusPembayaran);
+                }
+            }
+
+            // Specific filters for Daftar Karyawan & Pelaksana
+            if (currentViewId === 'daftar-karyawan' || currentViewId === 'daftar-pelaksana') {
+                if (activeFilters.jabatan && activeFilters.jabatan !== 'Semua Jabatan') {
+                    filtered = filtered.filter(item => item['Jabatan'] === activeFilters.jabatan);
+                }
+                if (activeFilters.areaKerja && activeFilters.areaKerja !== 'Semua Area Kerja') {
+                    filtered = filtered.filter(item => item['Area Kerja'] === activeFilters.areaKerja);
+                }
             }
 
             // Sorting Logic
@@ -1474,7 +1723,23 @@
                 perusahaan: 'Semua Perusahaan',
                 namaSPK: 'Semua SPK',
                 statusProyek: 'Semua Status',
-                entries: 'Semua'
+                tipe: 'Semua Tipe',
+                zona: 'Semua Zona',
+                tahunPO: 'Semua Tahun PO',
+                supplier: 'Semua Supplier',
+                materialName: 'Semua Material',
+                statusMaterial: 'Semua Status Material',
+                daop: 'Semua DAOP',
+                bulan: 'Semua Bulan',
+                entries: 'Semua',
+                tahunInvoice: 'Semua Tahun Invoice',
+                bulanInvoice: 'Semua Bulan Invoice',
+                tahunPembayaran: 'Semua Tahun Pembayaran',
+                bulanPembayaran: 'Semua Bulan Pembayaran',
+                statusInvoice: 'Semua Status Invoice',
+                statusPembayaran: 'Semua Status Pembayaran',
+                jabatan: 'Semua Jabatan',
+                areaKerja: 'Semua Area Kerja'
             };
             activeSort = {
                 column: 'Tanggal SPK',
@@ -1536,13 +1801,642 @@
         };
 
         window.addData = function () {
-            // Set current date as default for Tanggal SPK
-            const today = new Date().toISOString().split('T')[0];
+            const modalBody = document.querySelector('#dataModal .modal-body');
+            if (modalBody) {
+                modalBody.innerHTML = generateFormFields(currentViewId);
+            }
+
+            // Set current date as default for Tanggal SPK if it exists
             const dateInput = document.querySelector('#dataForm [name="Tanggal SPK"]');
-            if (dateInput) dateInput.value = today;
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+            }
 
             document.getElementById('dataModal').classList.add('active');
         };
+
+        function generateFormFields(viewId) {
+            if (viewId === 'jrp-jobj-spk') {
+                return `
+                    <div class="form-group full">
+                        <label>Nama Cluster</label>
+                        <input type="text" name="Nama Cluster" placeholder="Masukkan nama cluster" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipe</label>
+                        <input type="text" name="Tipe" placeholder="Masukkan tipe" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Zona</label>
+                        <input type="text" name="Zona" placeholder="Masukkan zona" required>
+                    </div>
+                    <div class="form-group">
+                        <label>HP BoQ</label>
+                        <input type="number" name="HP BoQ" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nilai BoQ</label>
+                        <input type="number" name="Nilai BoQ" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bobot</label>
+                        <input type="number" step="0.0001" name="Bobot" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'jrp-jobj-boq') {
+                const clusters = [
+                    'Feeder', 'Discovery Alton', 'Discovery Cielo', 'Discovery Terra',
+                    'Discovery Amore', 'Discovery Serenity', 'Discovery Eola',
+                    'Discovery Flamine', 'Discovery Conserva', 'Discovery Fiore',
+                    'Discovery Lumina', 'Discovery Altezza', 'Discovery Aluvia',
+                    'Emerald Avenue 1 Ruko', 'Kebayoran Square', 'Ruko Kebayoran Arcade',
+                    'Kebayoran Arcade 2', 'Kebayoran Arcade 3', 'Kebayoran Arcade 5',
+                    'CBD Emerald', 'Emerald Home', 'Kebayoran Terrace', 'Kebayoran View',
+                    'Kebayoran Essence', 'Kebayoran Piazza', 'Kebayoran Harmony',
+                    'Kebayoran Villas', 'Kebayoran Garden', 'Kebayoran Heights',
+                    'Kebayoran Village', 'Kebayoran Infinity', 'Kebayoran Symphoni',
+                    'Emerald Avenue 2 Ruko', 'Dharmawangsa', 'Bursa Mobil',
+                    'Bukit Menteng', 'Emerald Garden', 'Emerald Residence',
+                    'Emerald Townhouse', 'Althia Park', 'Mahagoni Park',
+                    'Cluster Vazza Plumeria', 'Emerald View',
+                    'Emerald Terrace', 'Botanica Aralia'
+                ];
+
+                let clusterFields = clusters.map(c => `
+                    <div class="form-group">
+                        <label>${c}</label>
+                        <input type="number" name="${c}" placeholder="0">
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="form-group full">
+                        <label>Item Pekerjaan</label>
+                        <input type="text" name="Item Pekerjaan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Satuan</label>
+                        <input type="text" name="Satuan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Satuan Feeder</label>
+                        <input type="number" name="Harga Satuan Feeder" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Satuan Distribusi</label>
+                        <input type="number" name="Harga Satuan Distribusi" placeholder="0">
+                    </div>
+                    ${clusterFields}
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="2" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'jrp-jobj-material') {
+                return `
+                    <div class="form-group">
+                        <label>Tanggal PO</label>
+                        <input type="date" name="Tanggal PO" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor PO Material</label>
+                        <input type="text" name="Nomor PO Material" placeholder="Masukkan nomor PO" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Nama Supplier</label>
+                        <input type="text" name="Nama Supplier" placeholder="Masukkan nama supplier" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Nama Material</label>
+                        <input type="text" name="Nama Material" placeholder="Masukkan nama material" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Spesifikasi Material</label>
+                        <input type="text" name="Spesifikasi Material" placeholder="Masukkan spesifikasi">
+                    </div>
+                    <div class="form-group">
+                        <label>Satuan</label>
+                        <input type="text" name="Satuan" placeholder="Pcs/Mtr/Lot" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Volume</label>
+                        <input type="number" name="Volume" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Satuan</label>
+                        <input type="number" name="Harga Satuan" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Harga</label>
+                        <input type="number" name="Total Harga" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Status Material</label>
+                        <select name="Status Material" required>
+                            <option value="Ordered">Ordered</option>
+                            <option value="In Transit">In Transit</option>
+                            <option value="Received">Received</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label>URL Dokumen</label>
+                        <input type="url" name="URL Dokumen" placeholder="https://...">
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="2" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'surge-fm-expole-spk') {
+                return `
+                    <div class="form-group">
+                        <label>DAOP</label>
+                        <input type="text" name="DAOP" placeholder="Contoh: DAOP 1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Segmen</label>
+                        <input type="text" name="Segmen" placeholder="Contoh: Manggarai - Bogor" required>
+                    </div>
+                    <div class="form-group">
+                        <label>FO 48c</label>
+                        <input type="number" name="FO 48c" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>FO 96c</label>
+                        <input type="number" name="FO 96c" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Total FO</label>
+                        <input type="number" name="Total FO" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>BoQ Ext Pole</label>
+                        <input type="number" name="BoQ Ext Pole" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Bobot</label>
+                        <input type="number" step="0.0001" name="Bobot" placeholder="0.00">
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'surge-fm-newpole-spk') {
+                return `
+                    <div class="form-group">
+                        <label>DAOP</label>
+                        <input type="text" name="DAOP" placeholder="Contoh: DAOP 1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Segmen</label>
+                        <input type="text" name="Segmen" placeholder="Contoh: Manggarai - Bogor" required>
+                    </div>
+                    <div class="form-group">
+                        <label>FO 96c_A</label>
+                        <input type="number" name="FO 96c_A" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>FO 96c_B</label>
+                        <input type="number" name="FO 96c_B" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Total FO</label>
+                        <input type="number" name="Total FO" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>BoQ New Pole</label>
+                        <input type="number" name="BoQ New Pole" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Bobot</label>
+                        <input type="number" step="0.0001" name="Bobot" placeholder="0.00">
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'ije-cao-ring-2-spk' || viewId === 'ije-cao-ring-4-spk' || viewId === 'ije-cao-ring-3a-spk' || viewId === 'ije-cao-ring-3b-spk' || viewId === 'ije-fm-ring-1-spk') {
+                return `
+                    <div class="form-group full">
+                        <label>Item Pekerjaan</label>
+                        <input type="text" name="Item Pekerjaan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Satuan</label>
+                        <input type="text" name="Satuan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Satuan</label>
+                        <input type="number" name="Harga Satuan" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Volume BoQ</label>
+                        <input type="number" name="Volume BoQ" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Nilai BoQ</label>
+                        <input type="number" name="Total Nilai BoQ" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bobot</label>
+                        <input type="number" step="0.0001" name="Bobot" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'surge-fm-expole-boq' || viewId === 'surge-fm-newpole-boq') {
+                const segments = [
+                    'Manggarai - Citayam - Bogor', 'Bogor - Sukabumi', 'Manggarai - Jakarta Kota', 'Manggarai - Duri - Tangerang',
+                    'Tanah Abang - Serpong', 'Serpong - Rangkasbitung', 'Rangkasbitung - Serang', 'Serang - Krenceng - Merak',
+                    'Jatinegara - Manggarai - Tanjung Priok', 'Jatinegara - Cikarang', 'Cikarang - Cikampek', 'Cikampek - Haurgeulis',
+                    'Haurgeulis - Jatibarang', 'Jatibarang - Cirebon', 'Cikampek - Plered', 'Plered - Padalarang',
+                    'Padalarang - Lebakjero', 'Lebakjero - Cibatu', 'Cibatu - Garut', 'Cibatu - Tasikmalaya',
+                    'Sukabumi - Cianjur', 'Cianjur - Padalarang', 'Brumbung - Gundih', 'Gundih - Gambringan',
+                    'Purwokerto - Kroya', 'Kroya - Kebumen', 'Kebumen - Jenar', 'Jenar - Kedundang',
+                    'Kedundang - Tugu Jogja', 'Tugu Jogja - Klaten', 'Klaten - Purwosari', 'Purwosari - Wonogiri',
+                    'Purwosari - Gundih', 'Solo Balapan - Walikukun', 'Walikukun - Madiun', 'Kediri - Ngunut',
+                    'Ngunut - Wlingi', 'Wlingi - Malang'
+                ];
+                let segmentFields = segments.map(s => `
+                    <div class="form-group">
+                        <label>${s}</label>
+                        <input type="number" name="${s}" placeholder="0">
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="form-group full">
+                        <label>Item Pekerjaan</label>
+                        <input type="text" name="Item Pekerjaan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Satuan</label>
+                        <input type="text" name="Satuan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Satuan</label>
+                        <input type="number" name="Harga Satuan" placeholder="0" required>
+                    </div>
+                    ${segmentFields}
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'ije-cao-ring-2-material' || viewId === 'ije-cao-ring-4-material' || viewId === 'ije-cao-ring-3a-material' || viewId === 'ije-cao-ring-3b-material' || viewId === 'ije-fm-ring-1-material' || viewId === 'surge-fm-expole-material' || viewId === 'surge-fm-newpole-material') {
+                return `
+                    <div class="form-group">
+                        <label>Tanggal PO</label>
+                        <input type="date" name="Tanggal PO" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor PO Material</label>
+                        <input type="text" name="Nomor PO Material" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Nama Supplier</label>
+                        <input type="text" name="Nama Supplier" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Nama Material</label>
+                        <input type="text" name="Nama Material" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Spesifikasi Material</label>
+                        <input type="text" name="Spesifikasi Material">
+                    </div>
+                    <div class="form-group">
+                        <label>Satuan</label>
+                        <input type="text" name="Satuan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Volume</label>
+                        <input type="number" name="Volume" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Satuan</label>
+                        <input type="number" name="Harga Satuan" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Harga</label>
+                        <input type="number" name="Total Harga" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status Material</label>
+                        <select name="Status Material" required>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Dikirim">Dikirim</option>
+                            <option value="Diterima">Diterima</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label>URL Dokumen</label>
+                        <input type="url" name="URL Dokumen" placeholder="https://...">
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'ije-cao-ring-2-boq' || viewId === 'ije-cao-ring-4-boq' || viewId === 'ije-cao-ring-3a-boq' || viewId === 'ije-cao-ring-3b-boq' || viewId === 'ije-fm-ring-1-boq') {
+                return `
+                    <div class="form-group full">
+                        <label>Item Pekerjaan</label>
+                        <input type="text" name="Item Pekerjaan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Satuan</label>
+                        <input type="text" name="Satuan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Satuan</label>
+                        <input type="number" name="Harga Satuan" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Volume BoQ</label>
+                        <input type="number" name="Volume BoQ" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Nilai BoQ</label>
+                        <input type="number" name="Total Nilai BoQ" placeholder="0" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId.endsWith('-rekon')) {
+                return `
+                    <div class="form-group full">
+                        <label>Item Pekerjaan</label>
+                        <input type="text" name="Item Pekerjaan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Satuan</label>
+                        <input type="text" name="Satuan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Satuan</label>
+                        <input type="number" name="Harga Satuan" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Volume Rekon</label>
+                        <input type="number" name="Volume Rekon" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Nilai Rekon</label>
+                        <input type="number" name="Total Nilai Rekon" placeholder="0" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'daftar-pembayaran') {
+                return `
+                    <div class="form-group">
+                        <label>Tanggal Pembayaran</label>
+                        <input type="date" name="Tanggal Pembayaran" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nilai Pembayaran</label>
+                        <input type="number" name="Nilai Pembayaran" placeholder="0" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Nama Perusahaan</label>
+                        <input type="text" name="Nama Perusahaan" placeholder="Masukkan nama perusahaan" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Nama SPK</label>
+                        <input type="text" name="Nama SPK" placeholder="Masukkan nama proyek/SPK" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="Status" required>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Lunas">Lunas</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'daftar-tagihan') {
+                return `
+                    <div class="form-group full">
+                        <label>Nama Perusahaan</label>
+                        <input type="text" name="Nama Perusahaan" placeholder="Masukkan nama perusahaan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor SPK</label>
+                        <input type="text" name="Nomor SPK" placeholder="Masukkan nomor SPK" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nama SPK</label>
+                        <input type="text" name="Nama SPK" placeholder="Masukkan nama SPK" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Uraian Detail Invoice</label>
+                        <textarea name="Uraian Detail Invoice" rows="2" class="form-control" placeholder="Masukkan uraian detail invoice..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor Invoice</label>
+                        <input type="text" name="Nomor Invoice" placeholder="Masukkan nomor invoice" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Invoice</label>
+                        <input type="date" name="Tanggal Invoice" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nilai Invoice</label>
+                        <input type="number" name="Nilai Invoice" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status Invoice</label>
+                        <select name="Status Invoice" required>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Invoice">Invoice</option>
+                            <option value="Lunas">Lunas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nilai Pembayaran</label>
+                        <input type="number" name="Nilai Pembayaran" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Pembayaran</label>
+                        <input type="date" name="Tanggal Pembayaran">
+                    </div>
+                    <div class="form-group">
+                        <label>Status Pembayaran</label>
+                        <select name="Status Pembayaran" required>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Lunas">Lunas</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label>URL Dokumen</label>
+                        <input type="url" name="URL Dokumen" placeholder="https://...">
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="2" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'daftar-karyawan') {
+                return `
+                    <div class="form-group full">
+                        <label>Nama Karyawan</label>
+                        <input type="text" name="Nama Karyawan" placeholder="Masukkan nama karyawan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jabatan</label>
+                        <input type="text" name="Jabatan" placeholder="Masukkan jabatan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>No ID Karyawan</label>
+                        <input type="text" name="No ID Karyawan" placeholder="Masukkan ID karyawan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>No Telepon</label>
+                        <input type="tel" name="No Telepon" placeholder="Masukkan nomor telepon" required>
+                    </div>
+                    <div class="form-group">
+                        <label>No KTP</label>
+                        <input type="text" name="No KTP" placeholder="Masukkan nomor KTP" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Alamat Lengkap</label>
+                        <textarea name="Alamat Lengkap" rows="2" class="form-control" placeholder="Masukkan alamat lengkap..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor Rekening</label>
+                        <input type="text" name="Nomor Rekening" placeholder="Masukkan nomor rekening" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Alamat Email</label>
+                        <input type="email" name="Alamat Email" placeholder="Masukkan alamat email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Area Kerja</label>
+                        <input type="text" name="Area Kerja" placeholder="Masukkan area kerja" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>URL Dokumen</label>
+                        <input type="url" name="URL Dokumen" placeholder="https://...">
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="2" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            } else if (viewId === 'daftar-pelaksana') {
+                return `
+                    <div class="form-group full">
+                        <label>Nama Mandor</label>
+                        <input type="text" name="Nama Mandor" placeholder="Masukkan nama mandor" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jabatan</label>
+                        <input type="text" name="Jabatan" placeholder="Masukkan jabatan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>No Telepon</label>
+                        <input type="tel" name="No Telepon" placeholder="Masukkan nomor telepon" required>
+                    </div>
+                    <div class="form-group">
+                        <label>No KTP</label>
+                        <input type="text" name="No KTP" placeholder="Masukkan nomor KTP" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Alamat Lengkap</label>
+                        <textarea name="Alamat Lengkap" rows="2" class="form-control" placeholder="Masukkan alamat lengkap..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Bank</label>
+                        <input type="text" name="Nama Bank" placeholder="Masukkan nama bank" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor Rekening</label>
+                        <input type="text" name="Nomor Rekening" placeholder="Masukkan nomor rekening" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="Email" placeholder="Masukkan alamat email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Area Kerja</label>
+                        <input type="text" name="Area Kerja" placeholder="Masukkan area kerja" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>URL Dokumen</label>
+                        <input type="url" name="URL Dokumen" placeholder="https://...">
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="2" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
+            }
+
+            // Default fields (Semua Proyek)
+            return `
+                <div class="form-group">
+                    <label>Tanggal SPK</label>
+                    <input type="date" name="Tanggal SPK" required>
+                </div>
+                <div class="form-group">
+                    <label>Nomor SPK</label>
+                    <input type="text" name="Nomor SPK" placeholder="Contoh: 001/SPK/..." required>
+                </div>
+                <div class="form-group full">
+                    <label>Nama Perusahaan</label>
+                    <input type="text" name="Nama Perusahaan" placeholder="Masukkan nama perusahaan" required>
+                </div>
+                <div class="form-group full">
+                    <label>Nama SPK</label>
+                    <input type="text" name="Nama SPK" placeholder="Masukkan nama proyek/SPK" required>
+                </div>
+                <div class="form-group">
+                    <label>Nilai SPK</label>
+                    <input type="number" name="Nilai SPK" placeholder="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Nilai Invoice</label>
+                    <input type="number" name="Nilai Invoice" placeholder="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Nilai Terbayar</label>
+                    <input type="number" name="Nilai Terbayar" placeholder="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Status Proyek</label>
+                    <select name="Status Proyek" required>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Invoice">Invoice</option>
+                        <option value="Lunas">Lunas</option>
+                    </select>
+                </div>
+                <div class="form-group full">
+                    <label>URL Dokumen</label>
+                    <input type="url" name="URL Dokumen" placeholder="https://...">
+                </div>
+                <div class="form-group full">
+                    <label>Keterangan</label>
+                    <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                </div>
+            `;
+        }
 
         window.closeModal = function () {
             document.getElementById('dataModal').classList.remove('active');
@@ -1565,12 +2459,97 @@
                 // Prepare data for Firestore
                 const docData = {
                     ...rawData,
-                    'Nilai SPK': parseFloat(rawData['Nilai SPK']) || 0,
-                    'Nilai Invoice': parseFloat(rawData['Nilai Invoice']) || 0,
-                    'Nilai Terbayar': parseFloat(rawData['Nilai Terbayar']) || 0,
-                    'Tanggal SPK': rawData['Tanggal SPK'] ? Timestamp.fromDate(new Date(rawData['Tanggal SPK'])) : null,
                     'CreatedAt': Timestamp.now()
                 };
+
+                // Convert numbers and dates
+                if (currentViewId === 'jrp-jobj-spk') {
+                    if (rawData['HP BoQ']) docData['HP BoQ'] = parseFloat(rawData['HP BoQ']) || 0;
+                    if (rawData['Nilai BoQ']) docData['Nilai BoQ'] = parseFloat(rawData['Nilai BoQ']) || 0;
+                    if (rawData['Bobot']) docData['Bobot'] = parseFloat(rawData['Bobot']) || 0;
+                } else if (currentViewId === 'jrp-jobj-boq') {
+                    const clusters = [
+                        'Feeder', 'Discovery Alton', 'Discovery Cielo', 'Discovery Terra',
+                        'Discovery Amore', 'Discovery Serenity', 'Discovery Eola',
+                        'Discovery Flamine', 'Discovery Conserva', 'Discovery Fiore',
+                        'Discovery Lumina', 'Discovery Altezza', 'Discovery Aluvia',
+                        'Emerald Avenue 1 Ruko', 'Kebayoran Square', 'Ruko Kebayoran Arcade',
+                        'Kebayoran Arcade 2', 'Kebayoran Arcade 3', 'Kebayoran Arcade 5',
+                        'CBD Emerald', 'Emerald Home', 'Kebayoran Terrace', 'Kebayoran View',
+                        'Kebayoran Essence', 'Kebayoran Piazza', 'Kebayoran Harmony',
+                        'Kebayoran Villas', 'Kebayoran Garden', 'Kebayoran Heights',
+                        'Kebayoran Village', 'Kebayoran Infinity', 'Kebayoran Symphoni',
+                        'Emerald Avenue 2 Ruko', 'Dharmawangsa', 'Bursa Mobil',
+                        'Bukit Menteng', 'Emerald Garden', 'Emerald Residence',
+                        'Emerald Townhouse', 'Althia Park', 'Mahagoni Park',
+                        'Cluster Vazza Plumeria', 'Emerald View',
+                        'Emerald Terrace', 'Botanica Aralia'
+                    ];
+                    const numericFields = ['Harga Satuan Feeder', 'Harga Satuan Distribusi', ...clusters];
+                    numericFields.forEach(f => {
+                        if (rawData[f]) docData[f] = parseFloat(rawData[f]) || 0;
+                    });
+                } else if (currentViewId === 'jrp-jobj-material' || currentViewId === 'ije-cao-ring-2-material' || currentViewId === 'ije-cao-ring-4-material' || currentViewId === 'ije-cao-ring-3a-material' || currentViewId === 'ije-cao-ring-3b-material' || currentViewId === 'ije-fm-ring-1-material' || currentViewId === 'surge-fm-expole-material' || currentViewId === 'surge-fm-newpole-material') {
+                    if (rawData['Volume']) docData['Volume'] = parseFloat(rawData['Volume']) || 0;
+                    if (rawData['Harga Satuan']) docData['Harga Satuan'] = parseFloat(rawData['Harga Satuan']) || 0;
+                    if (rawData['Total Harga']) docData['Total Harga'] = parseFloat(rawData['Total Harga']) || 0;
+                    if (rawData['Tanggal PO']) docData['Tanggal PO'] = Timestamp.fromDate(new Date(rawData['Tanggal PO']));
+                } else if (currentViewId === 'surge-fm-expole-spk') {
+                    if (rawData['FO 48c']) docData['FO 48c'] = parseFloat(rawData['FO 48c']) || 0;
+                    if (rawData['FO 96c']) docData['FO 96c'] = parseFloat(rawData['FO 96c']) || 0;
+                    if (rawData['Total FO']) docData['Total FO'] = parseFloat(rawData['Total FO']) || 0;
+                    if (rawData['BoQ Ext Pole']) docData['BoQ Ext Pole'] = parseFloat(rawData['BoQ Ext Pole']) || 0;
+                    if (rawData['Bobot']) docData['Bobot'] = parseFloat(rawData['Bobot']) || 0;
+                } else if (currentViewId === 'surge-fm-newpole-spk') {
+                    if (rawData['FO 96c_A']) docData['FO 96c_A'] = parseFloat(rawData['FO 96c_A']) || 0;
+                    if (rawData['FO 96c_B']) docData['FO 96c_B'] = parseFloat(rawData['FO 96c_B']) || 0;
+                    if (rawData['Total FO']) docData['Total FO'] = parseFloat(rawData['Total FO']) || 0;
+                    if (rawData['BoQ New Pole']) docData['BoQ New Pole'] = parseFloat(rawData['BoQ New Pole']) || 0;
+                    if (rawData['Bobot']) docData['Bobot'] = parseFloat(rawData['Bobot']) || 0;
+                } else if (currentViewId === 'ije-cao-ring-2-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-3b-spk' || currentViewId === 'ije-fm-ring-1-spk') {
+                    if (rawData['Harga Satuan']) docData['Harga Satuan'] = parseFloat(rawData['Harga Satuan']) || 0;
+                    if (rawData['Volume BoQ']) docData['Volume BoQ'] = parseFloat(rawData['Volume BoQ']) || 0;
+                    if (rawData['Total Nilai BoQ']) docData['Total Nilai BoQ'] = parseFloat(rawData['Total Nilai BoQ']) || 0;
+                    if (rawData['Bobot']) docData['Bobot'] = parseFloat(rawData['Bobot']) || 0;
+                } else if (currentViewId === 'surge-fm-expole-boq' || currentViewId === 'surge-fm-newpole-boq') {
+                    const segments = [
+                        'Manggarai - Citayam - Bogor', 'Bogor - Sukabumi', 'Manggarai - Jakarta Kota', 'Manggarai - Duri - Tangerang',
+                        'Tanah Abang - Serpong', 'Serpong - Rangkasbitung', 'Rangkasbitung - Serang', 'Serang - Krenceng - Merak',
+                        'Jatinegara - Manggarai - Tanjung Priok', 'Jatinegara - Cikarang', 'Cikarang - Cikampek', 'Cikampek - Haurgeulis',
+                        'Haurgeulis - Jatibarang', 'Jatibarang - Cirebon', 'Cikampek - Plered', 'Plered - Padalarang',
+                        'Padalarang - Lebakjero', 'Lebakjero - Cibatu', 'Cibatu - Garut', 'Cibatu - Tasikmalaya',
+                        'Sukabumi - Cianjur', 'Cianjur - Padalarang', 'Brumbung - Gundih', 'Gundih - Gambringan',
+                        'Purwokerto - Kroya', 'Kroya - Kebumen', 'Kebumen - Jenar', 'Jenar - Kedundang',
+                        'Kedundang - Tugu Jogja', 'Tugu Jogja - Klaten', 'Klaten - Purwosari', 'Purwosari - Wonogiri',
+                        'Purwosari - Gundih', 'Solo Balapan - Walikukun', 'Walikukun - Madiun', 'Kediri - Ngunut',
+                        'Ngunut - Wlingi', 'Wlingi - Malang'
+                    ];
+                    if (rawData['Harga Satuan']) docData['Harga Satuan'] = parseFloat(rawData['Harga Satuan']) || 0;
+                    segments.forEach(s => {
+                        if (rawData[s]) docData[s] = parseFloat(rawData[s]) || 0;
+                    });
+                } else if (currentViewId === 'ije-cao-ring-2-boq' || currentViewId === 'ije-cao-ring-4-boq' || currentViewId === 'ije-cao-ring-3a-boq' || currentViewId === 'ije-cao-ring-3b-boq' || currentViewId === 'ije-fm-ring-1-boq') {
+                    if (rawData['Harga Satuan']) docData['Harga Satuan'] = parseFloat(rawData['Harga Satuan']) || 0;
+                    if (rawData['Volume BoQ']) docData['Volume BoQ'] = parseFloat(rawData['Volume BoQ']) || 0;
+                    if (rawData['Total Nilai BoQ']) docData['Total Nilai BoQ'] = parseFloat(rawData['Total Nilai BoQ']) || 0;
+                } else if (currentViewId.endsWith('-rekon')) {
+                    if (rawData['Harga Satuan']) docData['Harga Satuan'] = parseFloat(rawData['Harga Satuan']) || 0;
+                    if (rawData['Volume Rekon']) docData['Volume Rekon'] = parseFloat(rawData['Volume Rekon']) || 0;
+                    if (rawData['Total Nilai Rekon']) docData['Total Nilai Rekon'] = parseFloat(rawData['Total Nilai Rekon']) || 0;
+                } else if (currentViewId === 'daftar-pembayaran') {
+                    if (rawData['Nilai Pembayaran']) docData['Nilai Pembayaran'] = parseFloat(rawData['Nilai Pembayaran']) || 0;
+                    if (rawData['Tanggal Pembayaran']) docData['Tanggal Pembayaran'] = Timestamp.fromDate(new Date(rawData['Tanggal Pembayaran']));
+                } else if (currentViewId === 'daftar-tagihan') {
+                    if (rawData['Nilai Invoice']) docData['Nilai Invoice'] = parseFloat(rawData['Nilai Invoice']) || 0;
+                    if (rawData['Nilai Pembayaran']) docData['Nilai Pembayaran'] = parseFloat(rawData['Nilai Pembayaran']) || 0;
+                    if (rawData['Tanggal Invoice']) docData['Tanggal Invoice'] = Timestamp.fromDate(new Date(rawData['Tanggal Invoice']));
+                    if (rawData['Tanggal Pembayaran']) docData['Tanggal Pembayaran'] = Timestamp.fromDate(new Date(rawData['Tanggal Pembayaran']));
+                } else {
+                    if (rawData['Nilai SPK']) docData['Nilai SPK'] = parseFloat(rawData['Nilai SPK']) || 0;
+                    if (rawData['Nilai Invoice']) docData['Nilai Invoice'] = parseFloat(rawData['Nilai Invoice']) || 0;
+                    if (rawData['Nilai Terbayar']) docData['Nilai Terbayar'] = parseFloat(rawData['Nilai Terbayar']) || 0;
+                    if (rawData['Tanggal SPK']) docData['Tanggal SPK'] = Timestamp.fromDate(new Date(rawData['Tanggal SPK']));
+                }
 
                 const config = menuConfig[currentViewId];
                 if (!config || !config.path) throw new Error('Path penyimpanan tidak ditemukan');
@@ -1738,25 +2717,85 @@
                 return new Date(dateVal).getFullYear();
             }).filter(y => y))].sort((a, b) => b - a);
 
-            // Extract unique values for specific filters (Semua Proyek)
+            // Extract unique values for specific filters
             let perusahaanList = [];
             let spkList = [];
             let statusList = [];
+            let tipeList = [];
+            let zonaList = [];
+            let yearsPO = [];
+            let supplierList = [];
+            let materialNameList = [];
+            let statusMaterialList = [];
+            let daopList = [];
+
             if (currentViewId === 'semua-proyek') {
                 perusahaanList = [...new Set(rawProjectData.map(item => item['Nama Perusahaan']).filter(v => v))].sort();
                 spkList = [...new Set(rawProjectData.map(item => item['Nama SPK']).filter(v => v))].sort();
                 statusList = [...new Set(rawProjectData.map(item => item['Status Proyek']).filter(v => v))].sort();
+            } else if (currentViewId === 'jrp-jobj-spk') {
+                tipeList = [...new Set(rawProjectData.map(item => item['Tipe']).filter(v => v))].sort();
+                zonaList = [...new Set(rawProjectData.map(item => item['Zona']).filter(v => v))].sort();
+            } else if (currentViewId === 'jrp-jobj-material' || currentViewId === 'ije-cao-ring-2-material' || currentViewId === 'ije-cao-ring-4-material' || currentViewId === 'ije-cao-ring-3a-material' || currentViewId === 'ije-cao-ring-3b-material' || currentViewId === 'ije-fm-ring-1-material' || currentViewId === 'surge-fm-expole-material' || currentViewId === 'surge-fm-newpole-material') {
+                yearsPO = [...new Set(rawProjectData.map(item => {
+                    const dateVal = item['Tanggal PO'];
+                    if (!dateVal) return null;
+                    if (dateVal.seconds) return new Date(dateVal.seconds * 1000).getFullYear();
+                    return new Date(dateVal).getFullYear();
+                }).filter(y => y))].sort((a, b) => b - a);
+                supplierList = [...new Set(rawProjectData.map(item => item['Nama Supplier']).filter(v => v))].sort();
+                materialNameList = [...new Set(rawProjectData.map(item => item['Nama Material']).filter(v => v))].sort();
+                statusMaterialList = [...new Set(rawProjectData.map(item => item['Status Material']).filter(v => v))].sort();
+            } else if (currentViewId === 'surge-fm-expole-spk' || currentViewId === 'surge-fm-newpole-spk') {
+                daopList = [...new Set(rawProjectData.map(item => item['DAOP']).filter(v => v))].sort();
+            }
+
+            let jabatanList = [];
+            let areaKerjaList = [];
+            if (currentViewId === 'daftar-karyawan' || currentViewId === 'daftar-pelaksana') {
+                jabatanList = [...new Set(rawProjectData.map(item => item['Jabatan']).filter(v => v))].sort();
+                areaKerjaList = [...new Set(rawProjectData.map(item => item['Area Kerja']).filter(v => v))].sort();
+            }
+
+            const isSPKView = currentViewId === 'jrp-jobj-spk';
+            const isBoQView = currentViewId === 'jrp-jobj-boq';
+            const isMaterialView = currentViewId === 'jrp-jobj-material' || currentViewId === 'ije-cao-ring-2-material' || currentViewId === 'ije-cao-ring-4-material' || currentViewId === 'ije-cao-ring-3a-material' || currentViewId === 'ije-cao-ring-3b-material' || currentViewId === 'ije-fm-ring-1-material' || currentViewId === 'surge-fm-expole-material' || currentViewId === 'surge-fm-newpole-material';
+            const isPembayaranView = currentViewId === 'daftar-pembayaran';
+            const isTagihanView = currentViewId === 'daftar-tagihan';
+            const isKaryawanView = currentViewId === 'daftar-karyawan' || currentViewId === 'daftar-pelaksana';
+            const hideMainFilters = isSPKView || isBoQView || isMaterialView || isTagihanView || isKaryawanView || currentViewId === 'ije-cao-ring-2-spk' || currentViewId === 'ije-cao-ring-2-boq' || currentViewId === 'ije-cao-ring-4-boq' || currentViewId === 'ije-cao-ring-3a-boq' || currentViewId === 'ije-cao-ring-3b-boq' || currentViewId === 'ije-fm-ring-1-boq' || currentViewId === 'surge-fm-expole-boq' || currentViewId === 'surge-fm-newpole-boq' || currentViewId === 'ije-cao-ring-2-material' || currentViewId === 'ije-cao-ring-4-material' || currentViewId === 'ije-cao-ring-3a-material' || currentViewId === 'ije-cao-ring-3b-material' || currentViewId === 'ije-fm-ring-1-material' || currentViewId === 'surge-fm-expole-material' || currentViewId === 'surge-fm-newpole-material' || currentViewId === 'ije-fm-ring-1-spk' || currentViewId === 'surge-fm-expole-spk' || currentViewId === 'surge-fm-newpole-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-2-rekon' || currentViewId === 'ije-cao-ring-4-rekon' || currentViewId === 'ije-cao-ring-3a-rekon' || currentViewId === 'ije-cao-ring-3b-rekon' || currentViewId === 'ije-fm-ring-1-rekon';
+
+            // Extract unique values for Tagihan filters
+            let yearsInvoice = [];
+            let yearsPembayaran = [];
+            let statusInvoiceList = [];
+            let statusPembayaranList = [];
+            if (isTagihanView) {
+                yearsInvoice = [...new Set(rawProjectData.map(item => {
+                    const dateVal = item['Tanggal Invoice'];
+                    if (!dateVal) return null;
+                    if (dateVal.seconds) return new Date(dateVal.seconds * 1000).getFullYear();
+                    return new Date(dateVal).getFullYear();
+                }).filter(y => y))].sort((a, b) => b - a);
+                yearsPembayaran = [...new Set(rawProjectData.map(item => {
+                    const dateVal = item['Tanggal Pembayaran'];
+                    if (!dateVal) return null;
+                    if (dateVal.seconds) return new Date(dateVal.seconds * 1000).getFullYear();
+                    return new Date(dateVal).getFullYear();
+                }).filter(y => y))].sort((a, b) => b - a);
+                statusInvoiceList = [...new Set(rawProjectData.map(item => item['Status Invoice']).filter(v => v))].sort();
+                statusPembayaranList = [...new Set(rawProjectData.map(item => item['Status Pembayaran']).filter(v => v))].sort();
             }
 
             let html = `
                 <div class="card" style="padding:0; overflow:hidden;">
                     <div class="filter-bar" style="padding: 10px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 10px; width: 100% !important;">
                         
-                        <!-- Baris Tunggal: Pencarian, Filter, dan Aksi -->
-                        <div class="filter-row" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 0.8fr 0.8fr 1.2fr 0.8fr 0.8fr 0.8fr; gap: 8px; width: 100%; align-items: end;">
-                            <!-- Pencarian -->
-                            <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
-                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: none;">Pencarian</span>
+                        <!-- Responsive Filter Row -->
+                        <div class="filter-row ${isSPKView ? 'filter-row-spk' : ''} ${isBoQView ? 'filter-row-boq' : ''} ${isTagihanView ? 'filter-row-tagihan' : ''} ${isKaryawanView ? 'filter-row-karyawan' : ''}">
+                            <!-- Item 1: Pencarian -->
+                            <div class="filter-item">
+                                <span class="filter-label">Pencarian</span>
                                 <div class="search-container" id="searchContainer" style="position: relative; width: 100%; display: flex; align-items: center;">
                                     <i class="fas fa-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 12px; pointer-events: none; z-index: 5;"></i>
                                     <input type="text" id="mainSearchInput" class="search-input" placeholder="Cari..." value="${activeFilters.search}" oninput="updateFilter('search', this.value); showSuggestions(this.value);" onfocus="showSuggestions(this.value)" autocomplete="off" style="width: 100%; padding: 7px 32px 7px 30px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #fff; outline: none; transition: border-color 0.2s, box-shadow 0.2s;">
@@ -1770,36 +2809,199 @@
                                 </div>
                             </div>
                             
-                            <!-- Filter Perusahaan -->
-                            <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
-                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: none;">Nama Perusahaan</span>
-                                <select class="filter-select" onchange="updateFilter('perusahaan', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
-                                    <option value="Semua Perusahaan">Semua</option>
-                                    ${perusahaanList.map(v => `<option value="${v}" ${activeFilters.perusahaan == v ? 'selected' : ''}>${v}</option>`).join('')}
-                                </select>
-                            </div>
+                            ${!hideMainFilters ? `
+                                <!-- Item 2: Tahun SPK / Pembayaran -->
+                                <div class="filter-item">
+                                    <span class="filter-label">${isPembayaranView ? 'Tahun Pembayaran' : 'Tahun SPK'}</span>
+                                    <select class="filter-select" onchange="updateFilter('tahun', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Tahun">Semua</option>
+                                        ${years.map(y => `<option value="${y}" ${activeFilters.tahun == y ? 'selected' : ''}>${y}</option>`).join('')}
+                                    </select>
+                                </div>
 
-                            <!-- Filter Nama SPK -->
-                            <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
-                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: none;">Nama SPK</span>
-                                <select class="filter-select" onchange="updateFilter('namaSPK', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
-                                    <option value="Semua SPK">Semua</option>
-                                    ${spkList.map(v => `<option value="${v}" ${activeFilters.namaSPK == v ? 'selected' : ''}>${v}</option>`).join('')}
-                                </select>
-                            </div>
+                                <!-- Item 3: Nama Perusahaan -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Nama Perusahaan</span>
+                                    <select class="filter-select" onchange="updateFilter('perusahaan', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Perusahaan">Semua</option>
+                                        ${perusahaanList.map(v => `<option value="${v}" ${activeFilters.perusahaan == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
 
-                            <!-- Filter Status -->
-                            <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
-                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: none;">Status</span>
-                                <select class="filter-select" onchange="updateFilter('statusProyek', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
-                                    <option value="Semua Status">Semua</option>
-                                    ${statusList.map(v => `<option value="${v}" ${activeFilters.statusProyek == v ? 'selected' : ''}>${v}</option>`).join('')}
-                                </select>
-                            </div>
+                                <!-- Item 4: Nama SPK -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Nama SPK</span>
+                                    <select class="filter-select" onchange="updateFilter('namaSPK', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua SPK">Semua</option>
+                                        ${spkList.map(v => `<option value="${v}" ${activeFilters.namaSPK == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
 
-                            <!-- Tampilkan -->
-                            <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
-                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: none;">Tampilkan</span>
+                                <!-- Item 5: Status Proyek -->
+                                ${!isPembayaranView ? `
+                                <div class="filter-item">
+                                    <span class="filter-label">Status Proyek</span>
+                                    <select class="filter-select" onchange="updateFilter('statusProyek', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Status">Semua</option>
+                                        ${statusList.map(v => `<option value="${v}" ${activeFilters.statusProyek == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                                ` : ''}
+                            ` : ''}
+
+                            ${isTagihanView ? `
+                                <!-- Tahun Invoice -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Tahun Invoice</span>
+                                    <select class="filter-select" onchange="updateFilter('tahunInvoice', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Tahun Invoice">Semua</option>
+                                        ${yearsInvoice.map(y => `<option value="${y}" ${activeFilters.tahunInvoice == y ? 'selected' : ''}>${y}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <!-- Bulan Invoice -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Bulan Invoice</span>
+                                    <select class="filter-select" onchange="updateFilter('bulanInvoice', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Bulan Invoice">Semua</option>
+                                        ${["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"].map(m => `<option value="${m}" ${activeFilters.bulanInvoice == m ? 'selected' : ''}>${m}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <!-- Tahun Pembayaran -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Tahun Pembayaran</span>
+                                    <select class="filter-select" onchange="updateFilter('tahunPembayaran', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Tahun Pembayaran">Semua</option>
+                                        ${yearsPembayaran.map(y => `<option value="${y}" ${activeFilters.tahunPembayaran == y ? 'selected' : ''}>${y}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <!-- Bulan Pembayaran -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Bulan Pembayaran</span>
+                                    <select class="filter-select" onchange="updateFilter('bulanPembayaran', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Bulan Pembayaran">Semua</option>
+                                        ${["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"].map(m => `<option value="${m}" ${activeFilters.bulanPembayaran == m ? 'selected' : ''}>${m}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <!-- Status Invoice -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Status Invoice</span>
+                                    <select class="filter-select" onchange="updateFilter('statusInvoice', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Status Invoice">Semua</option>
+                                        ${statusInvoiceList.map(v => `<option value="${v}" ${activeFilters.statusInvoice == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <!-- Status Pembayaran -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Status Pembayaran</span>
+                                    <select class="filter-select" onchange="updateFilter('statusPembayaran', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Status Pembayaran">Semua</option>
+                                        ${statusPembayaranList.map(v => `<option value="${v}" ${activeFilters.statusPembayaran == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                            ` : ''}
+
+                            ${isKaryawanView ? `
+                                <!-- Jabatan Filter -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Jabatan</span>
+                                    <select class="filter-select" onchange="updateFilter('jabatan', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Jabatan">Semua</option>
+                                        ${jabatanList.map(v => `<option value="${v}" ${activeFilters.jabatan == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <!-- Area Kerja Filter -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Area Kerja</span>
+                                    <select class="filter-select" onchange="updateFilter('areaKerja', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Area Kerja">Semua</option>
+                                        ${areaKerjaList.map(v => `<option value="${v}" ${activeFilters.areaKerja == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                            ` : ''}
+
+                            ${isPembayaranView ? `
+                                <!-- Item: Bulan Pembayaran -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Bulan Pembayaran</span>
+                                    <select class="filter-select" onchange="updateFilter('bulan', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Bulan">Semua</option>
+                                        ${["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"].map(m => `<option value="${m}" ${activeFilters.bulan == m ? 'selected' : ''}>${m}</option>`).join('')}
+                                    </select>
+                                </div>
+                            ` : ''}
+
+                            ${isSPKView ? `
+                                <!-- Item 2: Tipe -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Tipe</span>
+                                    <select class="filter-select" onchange="updateFilter('tipe', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Tipe">Semua</option>
+                                        ${tipeList.map(v => `<option value="${v}" ${activeFilters.tipe == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+
+                                <!-- Item 3: Zona -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Zona</span>
+                                    <select class="filter-select" onchange="updateFilter('zona', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Zona">Semua</option>
+                                        ${zonaList.map(v => `<option value="${v}" ${activeFilters.zona == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                            ` : ''}
+
+                            ${isMaterialView ? `
+                                <!-- Item 2: Tahun PO -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Tahun PO</span>
+                                    <select class="filter-select" onchange="updateFilter('tahunPO', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Tahun PO">Semua</option>
+                                        ${yearsPO.map(y => `<option value="${y}" ${activeFilters.tahunPO == y ? 'selected' : ''}>${y}</option>`).join('')}
+                                    </select>
+                                </div>
+
+                                <!-- Item 3: Nama Supplier -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Nama Supplier</span>
+                                    <select class="filter-select" onchange="updateFilter('supplier', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Supplier">Semua</option>
+                                        ${supplierList.map(v => `<option value="${v}" ${activeFilters.supplier == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+
+                                <!-- Item 4: Nama Material -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Nama Material</span>
+                                    <select class="filter-select" onchange="updateFilter('materialName', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Material">Semua</option>
+                                        ${materialNameList.map(v => `<option value="${v}" ${activeFilters.materialName == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+
+                                <!-- Item 5: Status Material -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Status Material</span>
+                                    <select class="filter-select" onchange="updateFilter('statusMaterial', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Status Material">Semua</option>
+                                        ${statusMaterialList.map(v => `<option value="${v}" ${activeFilters.statusMaterial == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                            ` : ''}
+
+                            ${currentViewId === 'surge-fm-expole-spk' || currentViewId === 'surge-fm-newpole-spk' ? `
+                                <!-- Item: Daop -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Daop</span>
+                                    <select class="filter-select" onchange="updateFilter('daop', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua DAOP">Semua</option>
+                                        ${daopList.map(v => `<option value="${v}" ${activeFilters.daop == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                            ` : ''}
+
+                            <!-- Item 6: Tampilkan -->
+                            <div class="filter-item">
+                                <span class="filter-label">Tampilkan</span>
                                 <select class="filter-select" onchange="updateFilter('entries', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                     <option value="Semua" ${activeFilters.entries == 'Semua' ? 'selected' : ''}>Semua</option>
                                     <option value="5" ${activeFilters.entries == '5' ? 'selected' : ''}>5 Data</option>
@@ -1810,19 +3012,28 @@
                                 </select>
                             </div>
 
-                            <!-- Aksi -->
-                            <button class="btn btn-primary" onclick="addData()" style="width: 100%; padding: 7px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #4f46e5; color: #fff; border: none;">
-                                <i class="fas fa-plus"></i> Tambah Data
-                            </button>
-                            <button class="btn btn-reset" onclick="resetFilters()" style="width: 100%; padding: 7px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb;">
-                                <i class="fas fa-undo"></i> Reset
-                            </button>
-                            <button class="btn btn-excel" onclick="exportToExcel()" style="width: 100%; padding: 7px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #ecfdf5; color: #059669; border: 1px solid #10b98140;">
-                                <i class="fas fa-file-excel"></i> Excel
-                            </button>
-                            <button class="btn btn-pdf" onclick="exportToPDF()" style="width: 100%; padding: 7px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #fef2f2; color: #dc2626; border: 1px solid #ef444440;">
-                                <i class="fas fa-file-pdf"></i> PDF
-                            </button>
+                            <!-- Group for Mobile Tightening -->
+                            <div class="action-group">
+                                <!-- Item 7: Tambah Data -->
+                                <button class="btn btn-primary btn-icon" onclick="addData()" data-tooltip="Tambah Data Baru" style="background: #4f46e5; color: #fff; border: 1px solid #4338ca;">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+
+                                <!-- Item 8: Reset -->
+                                <button class="btn btn-reset btn-icon" onclick="resetFilters()" data-tooltip="Reset Semua Filter" style="background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+
+                                <!-- Item 9: Excel -->
+                                <button class="btn btn-excel btn-icon" onclick="exportToExcel()" data-tooltip="Export ke Excel" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">
+                                    <i class="fas fa-file-excel"></i>
+                                </button>
+
+                                <!-- Item 10: PDF -->
+                                <button class="btn btn-pdf btn-icon" onclick="exportToPDF()" data-tooltip="Export ke PDF" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -2464,16 +3675,17 @@
                     if (target.classList.contains('filter-select')) {
                         const label = target.parentElement.querySelector('.filter-label');
                         let labelText = label ? label.innerText.trim() : 'Kategori';
-                        
+
                         // Map labels to requested professional names
                         const mapping = {
+                            'TAHUN SPK': 'Tahun SPK',
                             'PERUSAHAAN': 'Nama Perusahaan',
                             'NAMA PERUSAHAAN': 'Nama Perusahaan',
                             'NAMA SPK': 'Nama SPK',
                             'STATUS': 'Status Proyek',
                             'TAMPILKAN': 'Tampilkan'
                         };
-                        
+
                         labelText = mapping[labelText.toUpperCase()] || labelText;
                         text = `Filter ${labelText}`;
                     }
@@ -2542,52 +3754,7 @@
             </div>
             <form id="dataForm" onsubmit="saveData(event)">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label>Tanggal SPK</label>
-                        <input type="date" name="Tanggal SPK" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nomor SPK</label>
-                        <input type="text" name="Nomor SPK" placeholder="Contoh: 001/SPK/..." required>
-                    </div>
-                    <div class="form-group full">
-                        <label>Nama Perusahaan</label>
-                        <input type="text" name="Nama Perusahaan" placeholder="Masukkan nama perusahaan" required>
-                    </div>
-                    <div class="form-group full">
-                        <label>Nama SPK</label>
-                        <input type="text" name="Nama SPK" placeholder="Masukkan nama proyek/SPK" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nilai SPK</label>
-                        <input type="number" name="Nilai SPK" placeholder="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nilai Invoice</label>
-                        <input type="number" name="Nilai Invoice" placeholder="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nilai Terbayar</label>
-                        <input type="number" name="Nilai Terbayar" placeholder="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Status Proyek</label>
-                        <select name="Status Proyek" required>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Invoice">Invoice</option>
-                            <option value="Lunas">Lunas</option>
-                        </select>
-                    </div>
-                    <div class="form-group full">
-                        <label>URL Dokumen</label>
-                        <input type="url" name="URL Dokumen" placeholder="https://...">
-                    </div>
-                    <div class="form-group full">
-                        <label>Keterangan</label>
-                        <textarea name="Keterangan" rows="3"
-                            style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.875rem; outline: none; transition: border-color 0.2s;"
-                            placeholder="Masukkan keterangan tambahan..."></textarea>
-                    </div>
+                    <!-- Fields injected dynamically by addData() -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn"
