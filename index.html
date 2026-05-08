@@ -625,7 +625,48 @@
             gap: 8px;
             width: 100%;
             align-items: end;
-            grid-template-columns: 2fr repeat(6, 1fr) 0.8fr 36px 36px 36px 36px;
+            grid-template-columns: 2fr repeat(6, 1fr) 0.8fr auto;
+        }
+
+        .filter-row-tagihan .action-group {
+            display: flex !important;
+            gap: 4px;
+            justify-content: flex-start;
+            align-items: end;
+        }
+
+        /* Specific Grid for Daftar Karyawan */
+        .filter-row-karyawan {
+            display: grid;
+            gap: 8px;
+            width: 100%;
+            align-items: end;
+            grid-template-columns: 2fr 1.2fr 1.2fr 0.8fr auto;
+        }
+
+        .filter-row-karyawan .action-group {
+            display: flex !important;
+            gap: 4px;
+            justify-content: flex-start;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row-karyawan {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .filter-row-karyawan>.filter-item:nth-child(1) {
+                grid-column: span 2;
+            }
+
+            .filter-row-karyawan .action-group {
+                display: flex !important;
+                gap: 4px;
+                grid-column: span 3;
+                justify-content: flex-start;
+                align-items: end;
+            }
         }
 
         @media (max-width: 768px) {
@@ -645,36 +686,6 @@
                 align-items: end;
             }
 
-            /* Specific Grid for Daftar Karyawan */
-            .filter-row-karyawan {
-                display: grid;
-                gap: 8px;
-                width: 100%;
-                align-items: end;
-                grid-template-columns: 2fr 1.2fr 1.2fr 0.8fr 36px 36px 36px 36px;
-            }
-
-            .filter-row-karyawan .action-group {
-                display: contents;
-            }
-
-            @media (max-width: 768px) {
-                .filter-row-karyawan {
-                    grid-template-columns: repeat(4, 1fr);
-                }
-
-                .filter-row-karyawan>.filter-item:nth-child(1) {
-                    grid-column: span 2;
-                }
-
-                .filter-row-karyawan .action-group {
-                    display: flex !important;
-                    gap: 4px;
-                    grid-column: span 3;
-                    justify-content: flex-start;
-                    align-items: end;
-                }
-            }
 
             /* Specific Grid for Dashboard / Semua Proyek */
             .filter-row-dashboard {
