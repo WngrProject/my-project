@@ -734,6 +734,33 @@
             }
         }
 
+            }
+        }
+
+        /* Specific Grid for SURGE FM */
+        .filter-row-surge {
+            grid-template-columns: 1.5fr 1fr 0.8fr auto 1fr !important;
+        }
+
+        .filter-row-surge .action-group {
+            display: flex !important;
+            gap: 4px;
+            justify-content: flex-start;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row-surge {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+            .filter-row-surge > .filter-item:nth-child(1) {
+                grid-column: span 2 !important;
+            }
+            .filter-row-surge .action-group {
+                grid-column: span 2 !important;
+            }
+        }
+
         /* Modern Icon Button Style */
         .btn-icon {
             width: 36px !important;
@@ -2289,6 +2316,37 @@
                         <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
                     </div>
                 `;
+            } else if (viewId.includes('ije-cao-ring-') && viewId.endsWith('-spk')) {
+                return `
+                    <div class="form-group full">
+                        <label>Item Pekerjaan</label>
+                        <input type="text" name="Item Pekerjaan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Satuan</label>
+                        <input type="text" name="Satuan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Satuan</label>
+                        <input type="number" name="Harga Satuan" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Volume BoQ</label>
+                        <input type="number" name="Volume BoQ" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Nilai BoQ</label>
+                        <input type="number" name="Total Nilai BoQ" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bobot</label>
+                        <input type="number" step="0.01" name="Bobot" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="3" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
             } else if (viewId.endsWith('-rekon')) {
                 return `
                     <div class="form-group full">
@@ -2878,7 +2936,7 @@
             const isPembayaranView = currentViewId === 'daftar-pembayaran';
             const isTagihanView = currentViewId === 'daftar-tagihan';
             const isKaryawanView = currentViewId === 'daftar-karyawan' || currentViewId === 'daftar-pelaksana';
-            const hideMainFilters = isSPKView || isBoQView || isMaterialView || isTagihanView || isKaryawanView || currentViewId === 'ije-cao-ring-2-spk' || currentViewId === 'ije-cao-ring-2-boq' || currentViewId === 'ije-cao-ring-4-boq' || currentViewId === 'ije-cao-ring-3a-boq' || currentViewId === 'ije-cao-ring-3b-boq' || currentViewId === 'ije-fm-ring-1-boq' || currentViewId === 'surge-fm-expole-boq' || currentViewId === 'surge-fm-newpole-boq' || currentViewId === 'ije-cao-ring-2-material' || currentViewId === 'ije-cao-ring-4-material' || currentViewId === 'ije-cao-ring-3a-material' || currentViewId === 'ije-cao-ring-3b-material' || currentViewId === 'ije-fm-ring-1-material' || currentViewId === 'surge-fm-expole-material' || currentViewId === 'surge-fm-newpole-material' || currentViewId === 'ije-fm-ring-1-spk' || currentViewId === 'surge-fm-expole-spk' || currentViewId === 'surge-fm-newpole-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-2-rekon' || currentViewId === 'ije-cao-ring-4-rekon' || currentViewId === 'ije-cao-ring-3a-rekon' || currentViewId === 'ije-cao-ring-3b-rekon' || currentViewId === 'ije-fm-ring-1-rekon';
+            const hideMainFilters = isSPKView || isBoQView || isMaterialView || isTagihanView || isKaryawanView || currentViewId === 'ije-cao-ring-2-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-3b-spk' || currentViewId === 'ije-cao-ring-2-boq' || currentViewId === 'ije-cao-ring-4-boq' || currentViewId === 'ije-cao-ring-3a-boq' || currentViewId === 'ije-cao-ring-3b-boq' || currentViewId === 'ije-fm-ring-1-boq' || currentViewId === 'surge-fm-expole-boq' || currentViewId === 'surge-fm-newpole-boq' || currentViewId === 'ije-cao-ring-2-material' || currentViewId === 'ije-cao-ring-4-material' || currentViewId === 'ije-cao-ring-3a-material' || currentViewId === 'ije-cao-ring-3b-material' || currentViewId === 'ije-fm-ring-1-material' || currentViewId === 'surge-fm-expole-material' || currentViewId === 'surge-fm-newpole-material' || currentViewId === 'ije-fm-ring-1-spk' || currentViewId === 'surge-fm-expole-spk' || currentViewId === 'surge-fm-newpole-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-2-rekon' || currentViewId === 'ije-cao-ring-4-rekon' || currentViewId === 'ije-cao-ring-3a-rekon' || currentViewId === 'ije-cao-ring-3b-rekon' || currentViewId === 'ije-fm-ring-1-rekon';
 
             // Extract unique values for Tagihan filters
             let yearsInvoice = [];
@@ -2907,7 +2965,7 @@
                     <div class="filter-bar" style="padding: 10px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 10px; width: 100% !important;">
                         
                         <!-- Responsive Filter Row -->
-                        <div class="filter-row ${isSPKView ? 'filter-row-spk' : ''} ${isBoQView ? 'filter-row-boq' : ''} ${isTagihanView ? 'filter-row-tagihan' : ''} ${isKaryawanView ? 'filter-row-karyawan' : ''} ${currentViewId === 'semua-proyek' ? 'filter-row-dashboard' : ''} ${currentViewId === 'ije-cao-ring-2-spk' ? 'filter-row-ije' : ''}">
+                        <div class="filter-row ${isSPKView ? 'filter-row-spk' : ''} ${['jrp-jobj-boq', 'surge-fm-expole-boq', 'surge-fm-newpole-boq'].includes(currentViewId) ? 'filter-row-boq' : ''} ${isTagihanView ? 'filter-row-tagihan' : ''} ${isKaryawanView ? 'filter-row-karyawan' : ''} ${currentViewId === 'semua-proyek' ? 'filter-row-dashboard' : ''} ${['ije-cao-ring-2-spk', 'ije-cao-ring-4-spk', 'ije-cao-ring-3a-spk', 'ije-cao-ring-3b-spk', 'ije-fm-ring-1-spk', 'ije-cao-ring-2-boq', 'ije-cao-ring-4-boq', 'ije-cao-ring-3a-boq', 'ije-cao-ring-3b-boq', 'ije-fm-ring-1-boq'].includes(currentViewId) ? 'filter-row-ije' : ''} ${['surge-fm-expole-spk', 'surge-fm-newpole-spk'].includes(currentViewId) ? 'filter-row-surge' : ''}">
                             <!-- Item 1: Pencarian -->
                             <div class="filter-item">
                                 <span class="filter-label">Pencarian</span>
