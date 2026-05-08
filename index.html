@@ -528,7 +528,8 @@
             .overview-grid {
                 grid-template-columns: 1fr;
             }
-        /* Filter Bar Styles */
+        }
+
         /* Filter Bar Styles */
         .filter-bar {
             padding: 0.75rem;
@@ -652,6 +653,105 @@
         .btn-reset:hover {
             background-color: #e5e7eb;
             color: #ef4444;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalScale 0.3s ease-out;
+        }
+
+        @keyframes modalScale {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 1.25rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .modal-body .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .modal-body .form-group.full {
+            grid-column: span 2;
+        }
+
+        .modal-body label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .modal-body input, .modal-body select {
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .modal-body input:focus, .modal-body select:focus {
+            border-color: #4f46e5;
+        }
+
+        .modal-footer {
+            padding: 1.25rem;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
         }
     </style>
 </head>
@@ -864,7 +964,7 @@
     <!-- Firebase App (the core Firebase SDK) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCo-CYydpivABwE3NFJOaM45yT-nO1f4OY",
@@ -890,8 +990,15 @@
             perusahaan: 'Semua Perusahaan',
             namaSPK: 'Semua SPK',
             statusProyek: 'Semua Status',
-            entries: 10
+            entries: 'Semua'
         };
+
+        let activeSort = {
+            column: 'Tanggal SPK',
+            direction: 'asc'
+        };
+
+        let currentPage = 1;
 
         // Helper Functions
         function formatDate(val) {
@@ -1033,15 +1140,23 @@
             currentViewId = viewId;
             document.getElementById('pageTitle').innerText = title;
 
-            // Reset filters on view change
+            // Save state to localStorage for persistence on refresh
+            localStorage.setItem('lastView', JSON.stringify({ viewId, title, isSub }));
+
+            // Reset filters, sorting, and pagination on view change
             activeFilters = {
                 search: '',
                 tahun: 'Semua Tahun',
                 perusahaan: 'Semua Perusahaan',
                 namaSPK: 'Semua SPK',
                 statusProyek: 'Semua Status',
-                entries: 10
+                entries: 'Semua'
             };
+            activeSort = {
+                column: 'Tanggal SPK',
+                direction: 'asc'
+            };
+            currentPage = 1;
 
             // Handle Active state classes
             document.querySelectorAll('.nav-header').forEach(n => n.classList.remove('active'));
@@ -1099,13 +1214,12 @@
         window.applyFilters = function() {
             let filtered = [...rawProjectData];
 
-            // Search Filter
+            // Search Filter (Supports multiple words/AND logic)
             if (activeFilters.search) {
-                const query = activeFilters.search.toLowerCase();
+                const searchTerms = activeFilters.search.toLowerCase().split(/\s+/).filter(t => t.length > 0);
                 filtered = filtered.filter(item => {
-                    return Object.values(item).some(val => 
-                        String(val).toLowerCase().includes(query)
-                    );
+                    const itemString = Object.values(item).join(' ').toLowerCase();
+                    return searchTerms.every(term => itemString.includes(term));
                 });
             }
 
@@ -1136,17 +1250,116 @@
                 filtered = filtered.filter(item => item['Status Proyek'] === activeFilters.statusProyek);
             }
 
-            // Entries Filter (Pagination)
-            if (activeFilters.entries && activeFilters.entries !== 'Semua') {
-                const limit = parseInt(activeFilters.entries);
-                filtered = filtered.slice(0, limit);
+            // Sorting Logic
+            if (activeSort.column) {
+                filtered.sort((a, b) => {
+                    let valA = a[activeSort.column];
+                    let valB = b[activeSort.column];
+
+                    // Handle date comparison
+                    if (activeSort.column.toLowerCase().includes('tanggal')) {
+                        valA = valA && valA.seconds ? valA.seconds : new Date(valA).getTime() || 0;
+                        valB = valB && valB.seconds ? valB.seconds : new Date(valB).getTime() || 0;
+                    } 
+                    // Handle numeric comparison
+                    else if (activeSort.column.toLowerCase().includes('nilai')) {
+                        valA = parseFloat(valA) || 0;
+                        valB = parseFloat(valB) || 0;
+                    }
+                    // Handle string comparison
+                    else {
+                        valA = String(valA || '').toLowerCase();
+                        valB = String(valB || '').toLowerCase();
+                    }
+
+                    if (valA < valB) return activeSort.direction === 'asc' ? -1 : 1;
+                    if (valA > valB) return activeSort.direction === 'asc' ? 1 : -1;
+                    return 0;
+                });
             }
 
+            // Pagination Logic
+            if (activeFilters.entries && activeFilters.entries !== 'Semua') {
+                const limit = parseInt(activeFilters.entries);
+                const start = (currentPage - 1) * limit;
+                const end = start + limit;
+                
+                // Track total for pagination UI
+                window.totalFilteredItems = filtered.length;
+                window.totalPages = Math.ceil(filtered.length / limit);
+                
+                // If search resulted in no data, show alert
+                if (filtered.length === 0 && activeFilters.search) {
+                    alert('data tidak temukan !');
+                }
+
+                filtered = filtered.slice(start, end);
+            } else {
+                // If search resulted in no data (and no pagination limit), show alert
+                if (filtered.length === 0 && activeFilters.search) {
+                    alert('data tidak temukan !');
+                }
+                window.totalFilteredItems = filtered.length;
+                window.totalPages = 1;
+                currentPage = 1;
+            }
+
+            // Store focus state before rendering
+            const focusedId = document.activeElement ? document.activeElement.id : null;
+            const selectionStart = document.activeElement ? document.activeElement.selectionStart : null;
+            const selectionEnd = document.activeElement ? document.activeElement.selectionEnd : null;
+
             renderContent(menuConfig[currentViewId].type, filtered);
+
+            // Restore focus state after rendering
+            if (focusedId) {
+                const el = document.getElementById(focusedId);
+                if (el) {
+                    el.focus();
+                    if (selectionStart !== null) {
+                        el.setSelectionRange(selectionStart, selectionEnd);
+                    }
+                }
+            }
+        };
+
+        let searchTimeout = null;
+        window.updateFilter = function(key, val) {
+            activeFilters[key] = val;
+            currentPage = 1;
+
+            if (key === 'search') {
+                // Debounce search to prevent annoying rapid-fire alerts
+                if (searchTimeout) clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    applyFilters();
+                }, 500);
+            } else {
+                applyFilters();
+            }
+        };
+        
+        window.toggleSort = function(column) {
+            if (activeSort.column === column) {
+                activeSort.direction = activeSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                activeSort.column = column;
+                activeSort.direction = 'asc';
+            }
+            applyFilters();
+        };
+
+        window.changePage = function(dir) {
+            const next = currentPage + dir;
+            if (next >= 1 && next <= window.totalPages) {
+                currentPage = next;
+                applyFilters();
+            }
         };
 
         window.updateFilter = function(key, val) {
             activeFilters[key] = val;
+            currentPage = 1; // Reset to first page when filtering or searching
             applyFilters();
         };
 
@@ -1218,11 +1431,65 @@
                 statusProyek: 'Semua Status',
                 entries: 'Semua'
             };
+            activeSort = {
+                column: 'Tanggal SPK',
+                direction: 'asc'
+            };
+            currentPage = 1;
             applyFilters();
         };
 
         window.addData = function() {
-            alert('Fitur Tambah Data akan segera hadir!');
+            // Set current date as default for Tanggal SPK
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.querySelector('#dataForm [name="Tanggal SPK"]');
+            if (dateInput) dateInput.value = today;
+
+            document.getElementById('dataModal').classList.add('active');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('dataModal').classList.remove('active');
+            document.getElementById('dataForm').reset();
+        };
+
+        window.saveData = async function(e) {
+            if (e) e.preventDefault();
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            
+            try {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                btn.disabled = true;
+
+                const formData = new FormData(document.getElementById('dataForm'));
+                const rawData = Object.fromEntries(formData.entries());
+                
+                // Prepare data for Firestore
+                const docData = {
+                    ...rawData,
+                    'Nilai SPK': parseFloat(rawData['Nilai SPK']) || 0,
+                    'Nilai Invoice': parseFloat(rawData['Nilai Invoice']) || 0,
+                    'Nilai Terbayar': parseFloat(rawData['Nilai Terbayar']) || 0,
+                    'Tanggal SPK': rawData['Tanggal SPK'] ? Timestamp.fromDate(new Date(rawData['Tanggal SPK'])) : null,
+                    'CreatedAt': Timestamp.now()
+                };
+
+                const config = menuConfig[currentViewId];
+                if (!config || !config.path) throw new Error('Path penyimpanan tidak ditemukan');
+
+                await addDoc(collection(db, config.path), docData);
+                
+                alert('Data berhasil disimpan ke database!');
+                closeModal();
+            } catch (error) {
+                console.error('Error saving data:', error);
+                alert('Gagal menyimpan data: ' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         };
 
         function renderContent(type, data) {
@@ -1387,33 +1654,37 @@
 
             let html = `
                 <div class="card" style="padding:0; overflow:hidden;">
-                    <div class="filter-bar">
+                    <div class="filter-bar" style="padding: 10px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 10px; width: 100% !important;">
+                        
                         <!-- Baris 1: Pencarian + Nama Perusahaan + Nama SPK + Status Proyek -->
-                        <div class="filter-row filter-row-1">
-                            <div class="search-container">
-                                <i class="fas fa-search"></i>
-                                <input type="text" class="search-input" placeholder="Cari..." value="${activeFilters.search}" onkeyup="updateFilter('search', this.value)">
+                        <div class="filter-row" style="display: grid; grid-template-columns: 1.5fr 1fr 1.2fr 0.8fr; gap: 8px; width: 100%; align-items: end;">
+                            <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
+                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Pencarian</span>
+                                <div class="search-container" style="position: relative; width: 100%;">
+                                    <i class="fas fa-search" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 12px;"></i>
+                                    <input type="text" id="mainSearchInput" class="search-input" placeholder="Cari..." value="${activeFilters.search}" oninput="updateFilter('search', this.value)" style="width: 100%; padding: 6px 8px 6px 28px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #f9fafb; outline: none;">
+                                </div>
                             </div>
                             
-                            <div class="filter-item">
-                                <span class="filter-label">Perusahaan</span>
-                                <select class="filter-select" onchange="updateFilter('perusahaan', this.value)">
+                            <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
+                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Perusahaan</span>
+                                <select class="filter-select" onchange="updateFilter('perusahaan', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                     <option value="Semua Perusahaan">Semua</option>
                                     ${perusahaanList.map(v => `<option value="${v}" ${activeFilters.perusahaan == v ? 'selected' : ''}>${v}</option>`).join('')}
                                 </select>
                             </div>
 
-                            <div class="filter-item">
-                                <span class="filter-label">Nama SPK</span>
-                                <select class="filter-select" onchange="updateFilter('namaSPK', this.value)">
+                            <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
+                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Nama SPK</span>
+                                <select class="filter-select" onchange="updateFilter('namaSPK', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                     <option value="Semua SPK">Semua</option>
                                     ${spkList.map(v => `<option value="${v}" ${activeFilters.namaSPK == v ? 'selected' : ''}>${v}</option>`).join('')}
                                 </select>
                             </div>
 
-                            <div class="filter-item">
-                                <span class="filter-label">Status</span>
-                                <select class="filter-select" onchange="updateFilter('statusProyek', this.value)">
+                            <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
+                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Status</span>
+                                <select class="filter-select" onchange="updateFilter('statusProyek', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                     <option value="Semua Status">Semua</option>
                                     ${statusList.map(v => `<option value="${v}" ${activeFilters.statusProyek == v ? 'selected' : ''}>${v}</option>`).join('')}
                                 </select>
@@ -1421,10 +1692,10 @@
                         </div>
 
                         <!-- Baris 2: Tampilkan + Tambah Data + Reset + Excel + PDF -->
-                        <div class="filter-row filter-row-2">
-                            <div class="filter-item">
-                                <span class="filter-label">Tampilkan</span>
-                                <select class="filter-select" onchange="updateFilter('entries', this.value)">
+                        <div class="filter-row" style="display: grid; grid-template-columns: 1fr 1.2fr 1fr 1fr 1fr; gap: 8px; width: 100%; align-items: end;">
+                            <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
+                                <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Tampilkan</span>
+                                <select class="filter-select" onchange="updateFilter('entries', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                     <option value="Semua" ${activeFilters.entries == 'Semua' ? 'selected' : ''}>Semua</option>
                                     <option value="5" ${activeFilters.entries == '5' ? 'selected' : ''}>5 Data</option>
                                     <option value="10" ${activeFilters.entries == '10' ? 'selected' : ''}>10 Data</option>
@@ -1433,16 +1704,16 @@
                                     <option value="100" ${activeFilters.entries == '100' ? 'selected' : ''}>100 Data</option>
                                 </select>
                             </div>
-                            <button class="btn btn-primary" onclick="addData()">
+                            <button class="btn btn-primary" onclick="addData()" style="width: 100%; padding: 7px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #4f46e5; color: #fff; border: none;">
                                 <i class="fas fa-plus"></i> Tambah Data
                             </button>
-                            <button class="btn btn-reset" onclick="resetFilters()">
+                            <button class="btn btn-reset" onclick="resetFilters()" style="width: 100%; padding: 7px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb;">
                                 <i class="fas fa-undo"></i> Reset
                             </button>
-                            <button class="btn btn-excel" onclick="exportToExcel()">
+                            <button class="btn btn-excel" onclick="exportToExcel()" style="width: 100%; padding: 7px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #ecfdf5; color: #059669; border: 1px solid #10b98140;">
                                 <i class="fas fa-file-excel"></i> Excel
                             </button>
-                            <button class="btn btn-pdf" onclick="exportToPDF()">
+                            <button class="btn btn-pdf" onclick="exportToPDF()" style="width: 100%; padding: 7px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #fef2f2; color: #dc2626; border: 1px solid #ef444440;">
                                 <i class="fas fa-file-pdf"></i> PDF
                             </button>
                         </div>
@@ -1454,8 +1725,11 @@
                                 <tr>
                                     <th style="width: 50px; text-align: center;">No</th>
                                     ${headers.map(h => {
-                let textAlign = 'center';
-                return `<th style="text-align: ${textAlign};">${h.replace(/_/g, ' ')}</th>`;
+                const isSorted = activeSort.column === h;
+                const icon = isSorted ? (activeSort.direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort';
+                return `<th onclick="toggleSort('${h}')" style="text-align: center; cursor: pointer; user-select: none;">
+                            ${h.replace(/_/g, ' ')} <i class="fas ${icon}" style="margin-left: 4px; font-size: 0.7rem; ${isSorted ? 'color: var(--primary);' : 'color: #ccc;'}"></i>
+                        </th>`;
             }).join('')}
                                 </tr>
                             </thead>
@@ -1614,6 +1888,20 @@
                 });
                 html += `</tr>`;
             });
+
+            if (items.length === 0) {
+                html += `
+                    <tr>
+                        <td colspan="${headers.length + 1}" style="text-align: center; padding: 3rem; color: #64748b;">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                                <i class="fas fa-search" style="font-size: 2rem; color: #e2e8f0;"></i>
+                                <p style="font-weight: 500;">Oops! Data tidak ditemukan.</p>
+                                <button onclick="resetFilters()" class="btn btn-reset" style="width: auto; padding: 6px 15px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer;">Kembalikan ke Kondisi Default</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
 
             html += `</tbody>`;
 
@@ -1892,7 +2180,24 @@
                 html += `</tr></tfoot>`;
             }
 
-            html += `</table></div></div>`;
+            html += `</table></div>`;
+
+            // Pagination Footer
+            if (activeFilters.entries !== 'Semua') {
+                html += `
+                    <div class="pagination-footer" style="padding: 0.75rem; border-top: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: flex-start; gap: 0.5rem; background: #f9fafb;">
+                        <button class="btn btn-secondary" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled style="opacity: 0.5; cursor: not-allowed; width: 32px; height: 32px; padding: 0; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"' : 'style="width: 32px; height: 32px; padding: 0; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"'} title="Sebelumnya">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-secondary" onclick="changePage(1)" ${currentPage >= window.totalPages ? 'disabled style="opacity: 0.5; cursor: not-allowed; width: 32px; height: 32px; padding: 0; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"' : 'style="width: 32px; height: 32px; padding: 0; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"'} title="Selanjutnya">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <span style="font-size: 0.85rem; font-weight: 600; color: #64748b; margin-left: 0.5rem;">${currentPage} dari ${window.totalPages || 1}</span>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
             return html;
         }
 
@@ -1962,6 +2267,18 @@
                             <div class="value">${Math.ceil(total * 0.6)}</div>
                         </div>
                     </div>
+
+                    ${activeFilters.entries !== 'Semua' ? `
+                    <div class="pagination-footer" style="padding: 0.75rem; border-top: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; gap: 1rem; background: #f9fafb;">
+                        <button class="btn btn-secondary" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : 'style="width: auto; padding: 5px 15px; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"'}>
+                            <i class="fas fa-chevron-left"></i> Sebelumnya
+                        </button>
+                        <span style="font-size: 0.8rem; font-weight: 600; color: #6b7280;">Halaman ${currentPage} dari ${window.totalPages || 1}</span>
+                        <button class="btn btn-secondary" onclick="changePage(1)" ${currentPage >= window.totalPages ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : 'style="width: auto; padding: 5px 15px; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"'}>
+                            Selanjutnya <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    ` : ''}
                 </div>
 
                 <div class="card">
@@ -2017,12 +2334,91 @@
             });
         }
 
-        // Initialize default view
+        // Initialize default view or restore last view
         window.onload = () => {
+            const savedView = localStorage.getItem('lastView');
+            if (savedView) {
+                const { viewId, title, isSub } = JSON.parse(savedView);
+                // Find the corresponding navigation element
+                let targetEl = null;
+                if (isSub) {
+                    targetEl = document.querySelector(`.submenu li[onclick*="'${viewId}'"]`);
+                } else {
+                    targetEl = document.querySelector(`.nav-header[onclick*="'${viewId}'"]`);
+                }
+                
+                if (targetEl) {
+                    loadView(viewId, title, targetEl, isSub);
+                    return;
+                }
+            }
+            
+            // Fallback to overview
             loadView('overview', 'Overview', document.querySelector('.nav-header.active'));
         };
 
     </script>
+    <!-- Modal Edit Data -->
+    <div class="modal-overlay" id="dataModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Data</h2>
+                <button onclick="closeModal()" style="background:none; border:none; cursor:pointer; color:#64748b; font-size:1.5rem;">&times;</button>
+            </div>
+            <form id="dataForm" onsubmit="saveData(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Tanggal SPK</label>
+                        <input type="date" name="Tanggal SPK" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor SPK</label>
+                        <input type="text" name="Nomor SPK" placeholder="Contoh: 001/SPK/..." required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Nama Perusahaan</label>
+                        <input type="text" name="Nama Perusahaan" placeholder="Masukkan nama perusahaan" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Nama SPK</label>
+                        <input type="text" name="Nama SPK" placeholder="Masukkan nama proyek/SPK" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nilai SPK</label>
+                        <input type="number" name="Nilai SPK" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nilai Invoice</label>
+                        <input type="number" name="Nilai Invoice" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nilai Terbayar</label>
+                        <input type="number" name="Nilai Terbayar" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status Proyek</label>
+                        <select name="Status Proyek" required>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Invoice">Invoice</option>
+                            <option value="Lunas">Lunas</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label>URL Dokumen</label>
+                        <input type="url" name="URL Dokumen" placeholder="https://...">
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.875rem; outline: none; transition: border-color 0.2s;" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" style="background:#fff; border:1px solid #cbd5e1; color:#64748b; width:auto; padding:0.75rem 1.5rem;" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="width:auto; padding:0.75rem 1.5rem;">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>
