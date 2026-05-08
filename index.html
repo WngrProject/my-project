@@ -1217,10 +1217,20 @@
             // Search Filter (Supports multiple words/AND logic)
             if (activeFilters.search) {
                 const searchTerms = activeFilters.search.toLowerCase().split(/\s+/).filter(t => t.length > 0);
-                filtered = filtered.filter(item => {
+                const searchResult = filtered.filter(item => {
                     const itemString = Object.values(item).join(' ').toLowerCase();
                     return searchTerms.every(term => itemString.includes(term));
                 });
+
+                if (searchResult.length === 0) {
+                    alert('data tidak temukan !');
+                    activeFilters.search = '';
+                    const searchInput = document.getElementById('mainSearchInput');
+                    if (searchInput) searchInput.value = '';
+                    // Continue with unfiltered data (filtered remains the same as before search filter)
+                } else {
+                    filtered = searchResult;
+                }
             }
 
             // Year Filter
@@ -1437,6 +1447,57 @@
             };
             currentPage = 1;
             applyFilters();
+        };
+
+        window.showSuggestions = function(query) {
+            const list = document.getElementById('searchSuggestions');
+            if (!list) return;
+
+            if (!query || query.length < 1) {
+                list.style.display = 'none';
+                return;
+            }
+
+            // Collect unique values from relevant columns for suggestions
+            const suggestions = new Set();
+            rawProjectData.forEach(item => {
+                ['Nama Perusahaan', 'Nama SPK', 'Nomor SPK', 'Status Proyek'].forEach(col => {
+                    if (item[col]) suggestions.add(String(item[col]));
+                });
+            });
+
+            const filtered = [...suggestions]
+                .filter(s => s.toLowerCase().includes(query.toLowerCase()))
+                .slice(0, 10); // Limit to 10 suggestions
+
+            if (filtered.length > 0) {
+                list.innerHTML = filtered.map(s => `
+                    <div style="padding: 8px 12px; cursor: pointer; font-size: 13px; color: #475569; transition: background 0.2s;" 
+                         onmouseover="this.style.background='#f1f5f9'" 
+                         onmouseout="this.style.background='#fff'"
+                         onclick="selectSuggestion('${s.replace(/'/g, "\\'")}')">
+                        ${s}
+                    </div>
+                `).join('');
+                list.style.display = 'block';
+            } else {
+                list.style.display = 'none';
+            }
+        };
+
+        window.selectSuggestion = function(val) {
+            const input = document.getElementById('mainSearchInput');
+            if (input) input.value = val;
+            activeFilters.search = val; // Update state directly to avoid double filter
+            applyFilters();
+            hideSuggestions();
+        };
+
+        window.hideSuggestions = function() {
+            setTimeout(() => {
+                const list = document.getElementById('searchSuggestions');
+                if (list) list.style.display = 'none';
+            }, 200); // Small delay to allow click event to fire
         };
 
         window.addData = function() {
@@ -1660,9 +1721,16 @@
                         <div class="filter-row" style="display: grid; grid-template-columns: 1.5fr 1fr 1.2fr 0.8fr; gap: 8px; width: 100%; align-items: end;">
                             <div class="filter-item" style="display: flex; flex-direction: column; gap: 4px;">
                                 <span class="filter-label" style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Pencarian</span>
-                                <div class="search-container" style="position: relative; width: 100%;">
-                                    <i class="fas fa-search" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 12px;"></i>
-                                    <input type="text" id="mainSearchInput" class="search-input" placeholder="Cari..." value="${activeFilters.search}" oninput="updateFilter('search', this.value)" style="width: 100%; padding: 6px 8px 6px 28px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #f9fafb; outline: none;">
+                                <div class="search-container" id="searchContainer" style="position: relative; width: 100%; display: flex; align-items: center;">
+                                    <i class="fas fa-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 12px; pointer-events: none; z-index: 5;"></i>
+                                    <input type="text" id="mainSearchInput" class="search-input" placeholder="Cari..." value="${activeFilters.search}" oninput="updateFilter('search', this.value); showSuggestions(this.value);" onfocus="showSuggestions(this.value)" autocomplete="off" style="width: 100%; padding: 7px 32px 7px 30px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #fff; outline: none; transition: border-color 0.2s, box-shadow 0.2s;">
+                                    ${activeFilters.search ? `
+                                        <button onclick="updateFilter('search', ''); hideSuggestions();" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; color: #94a3b8; padding: 0; display: flex; align-items: center; justify-content: center; z-index: 10; transition: color 0.2s;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
+                                            <i class="fas fa-times-circle" style="font-size: 14px; position: relative; left: auto; top: auto; transform: none;"></i>
+                                        </button>
+                                    ` : ''}
+                                    <div id="searchSuggestions" style="position: absolute; top: calc(100% + 5px); left: 0; width: 100%; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 100; max-height: 200px; overflow-y: auto; display: none;">
+                                    </div>
                                 </div>
                             </div>
                             
@@ -1888,20 +1956,6 @@
                 });
                 html += `</tr>`;
             });
-
-            if (items.length === 0) {
-                html += `
-                    <tr>
-                        <td colspan="${headers.length + 1}" style="text-align: center; padding: 3rem; color: #64748b;">
-                            <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                                <i class="fas fa-search" style="font-size: 2rem; color: #e2e8f0;"></i>
-                                <p style="font-weight: 500;">Oops! Data tidak ditemukan.</p>
-                                <button onclick="resetFilters()" class="btn btn-reset" style="width: auto; padding: 6px 15px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer;">Kembalikan ke Kondisi Default</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }
 
             html += `</tbody>`;
 
