@@ -64,8 +64,8 @@
             background-color: var(--bg-body);
             color: var(--text-main);
             display: flex;
-            min-height: 100vh;
-            overflow-x: hidden;
+            height: 100vh;
+            overflow: hidden;
         }
 
         /* Loading Overlay */
@@ -319,7 +319,8 @@
             margin-left: var(--sidebar-width);
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            height: 100vh;
+            min-height: 0;
             transition: margin-left var(--dur-slow) var(--ease-expo-out),
                         width var(--dur-slow) var(--ease-expo-out);
             width: calc(100% - var(--sidebar-width));
@@ -398,6 +399,10 @@
         .content-area {
             padding: 0.75rem;
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow-y: auto;
         }
 
         /* Card Styles */
@@ -408,6 +413,17 @@
             border: 1px solid var(--border-color);
             padding: 0.75rem;
             margin-bottom: 0.75rem;
+        }
+
+        #viewContainer > .card:last-child {
+            margin-bottom: 0;
+        }
+
+        #viewContainer > .card:only-child {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
 
         /* Overview Specifics */
@@ -468,17 +484,24 @@
         /* Table Styles */
         .table-responsive {
             overflow-x: auto;
+            overflow-y: auto;
+            flex-grow: 1;
+            min-height: 0;
             width: 100%;
         }
 
         .data-table {
-            width: 100%;
-            border-collapse: collapse;
+            width: auto;
+            border-collapse: separate;
+            border-spacing: 0;
             text-align: left;
             white-space: nowrap;
         }
 
         .data-table th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
             background-color: #f8fafc;
             padding: 0.5rem;
             font-size: 0.75rem;
@@ -488,6 +511,14 @@
             letter-spacing: 0.05em;
             border-bottom: 1px solid var(--border-color);
             text-align: center;
+        }
+
+        .data-table tfoot td, .data-table tfoot th {
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+            background-color: var(--bg-surface);
+            box-shadow: inset 0 2px 0 var(--border-color);
         }
 
         .data-table td {
@@ -1648,7 +1679,7 @@
     <!-- Firebase App (the core Firebase SDK) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, Timestamp, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCo-CYydpivABwE3NFJOaM45yT-nO1f4OY",
@@ -2193,6 +2224,8 @@
             }
 
             // Pagination Logic
+            window.currentExportData = filtered; // Store for exporting all filtered data
+
             if (activeFilters.entries && activeFilters.entries !== 'Semua') {
                 const limit = parseInt(activeFilters.entries);
                 const start = (currentPage - 1) * limit;
@@ -2281,35 +2314,105 @@
             const config = menuConfig[currentViewId];
             if (!config || config.type !== 'table') return;
 
-            const table = document.querySelector('.data-table');
-            if (!table) return;
-
-            // Use XLSX to convert table to workbook
-            const wb = XLSX.utils.table_to_book(table, { raw: true });
-            const ws = wb.Sheets[wb.SheetNames[0]];
-
-            // Find the total row and replace values with SUBTOTAL formulas
-            // This is the "SUBTOTAL" request part
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            const lastRow = range.e.r;
-
-            for (let c = range.s.c; c <= range.e.c; c++) {
-                const cellAddress = XLSX.utils.encode_cell({ r: lastRow, c: c });
-                const cell = ws[cellAddress];
-
-                // If it's a total cell (identified by having a value that we want to subtotal)
-                // We'll check the header to see if it's a numeric column
-                const headerAddress = XLSX.utils.encode_cell({ r: 0, c: c });
-                const header = ws[headerAddress] ? String(ws[headerAddress].v).toLowerCase() : '';
-
-                if (header.includes('nilai') || header.includes('harga') || header.includes('pembayaran') || header.includes('total') || header.includes('fo')) {
-                    const colLetter = XLSX.utils.encode_col(c);
-                    // SUBTOTAL(9, ...) where 9 is SUM function, excludes filtered rows
-                    cell.f = `SUBTOTAL(9,${colLetter}2:${colLetter}${lastRow})`;
-                    cell.t = 'n'; // Numeric
-                }
+            const data = window.currentExportData || [];
+            if (data.length === 0) {
+                alert("Tidak ada data untuk dieksport.");
+                return;
             }
 
+            const headers = window.currentExportHeaders || [];
+            if (headers.length === 0) return;
+
+            // Helper to parse date for Excel (DD-MM-YYYY)
+            function getExcelDate(val) {
+                if (!val || val === '-') return '-';
+                try {
+                    let date;
+                    if (val && typeof val === 'object' && val.seconds !== undefined) {
+                        date = new Date(val.seconds * 1000);
+                    } else if (val && typeof val.toDate === 'function') {
+                        date = val.toDate();
+                    } else {
+                        date = new Date(val);
+                    }
+                    if (isNaN(date.getTime())) return val;
+                    return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
+                } catch (e) { return val; }
+            }
+
+            const aoa = [headers];
+
+            data.forEach((item, index) => {
+                const row = [];
+                headers.forEach(h => {
+                    let val = item[h];
+                    if (val === undefined || val === null) val = '-';
+
+                    if (h.toLowerCase().includes('tanggal')) {
+                        if (val !== '-') {
+                            row.push({ t: 's', v: getExcelDate(val) });
+                        } else {
+                            row.push(val);
+                        }
+                    } else if (h === 'URL Dokumen') {
+                        if (val !== '-' && val) {
+                            row.push({ t: 's', v: val });
+                        } else {
+                            row.push('-');
+                        }
+                    } else if (['nilai', 'harga', 'pembayaran', 'total', 'fo'].some(keyword => h.toLowerCase().includes(keyword))) {
+                        if (val !== '-') {
+                            const num = parseFloat(String(val).replace(/,/g, ''));
+                            if (!isNaN(num)) {
+                                row.push({ t: 'n', v: num, z: '#,##0.00' });
+                            } else {
+                                row.push(val);
+                            }
+                        } else {
+                            row.push({ t: 'n', v: 0, z: '#,##0.00' });
+                        }
+                    } else if (h === 'Bobot') {
+                        if (val !== '-') {
+                            const num = parseFloat(String(val).replace(/,/g, ''));
+                            if (!isNaN(num)) {
+                                row.push({ t: 'n', v: num, z: '0.00%' });
+                            } else {
+                                row.push(val);
+                            }
+                        } else {
+                            row.push({ t: 'n', v: 0, z: '0.00%' });
+                        }
+                    } else {
+                        row.push(val);
+                    }
+                });
+                aoa.push(row);
+            });
+
+            // Add SUBTOTAL row at bottom
+            const lastRow = aoa.length;
+            const totalRow = [];
+            let hasTotal = false;
+            headers.forEach((h, c) => {
+                if (['nilai', 'harga', 'pembayaran', 'total', 'fo'].some(keyword => h.toLowerCase().includes(keyword))) {
+                    const colLetter = XLSX.utils.encode_col(c);
+                    totalRow.push({ f: `SUBTOTAL(9,${colLetter}2:${colLetter}${lastRow})`, t: 'n', z: '#,##0.00' });
+                    hasTotal = true;
+                } else if (c === 0) {
+                    totalRow.push('Total');
+                } else {
+                    totalRow.push('');
+                }
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+            if (hasTotal) {
+                XLSX.utils.sheet_add_aoa(ws, [totalRow], { origin: -1 });
+            }
+
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
             XLSX.writeFile(wb, `${currentViewId}_${new Date().getTime()}.xlsx`);
         };
 
@@ -2438,7 +2541,104 @@
             }, 200); // Small delay to allow click event to fire
         };
 
+        window.viewData = function (id) {
+            const items = window.currentExportData || [];
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+
+            const modalBody = document.querySelector('#dataModal .modal-body');
+            let html = '<table class="data-table" style="width:100%; border-collapse:collapse;">';
+            for (const key in item) {
+                if (key === 'id') continue;
+                let val = item[key];
+                if (val && val.toDate) val = val.toDate().toLocaleDateString('id-ID');
+                html += `<tr><td style="font-weight:bold; width:40%; padding:0.5rem; border-bottom:1px solid var(--border-color);">${key}</td><td style="padding:0.5rem; border-bottom:1px solid var(--border-color);">${val}</td></tr>`;
+            }
+            html += '</table>';
+            modalBody.innerHTML = html;
+            
+            document.querySelector('#dataModal h2').innerText = 'View Data';
+            const btnSubmit = document.querySelector('#dataModal button[type="submit"]');
+            if(btnSubmit) btnSubmit.style.display = 'none';
+            
+            document.getElementById('dataModal').classList.add('active');
+        };
+
+        window.editData = function (id) {
+            window.editDocId = id;
+            const items = window.currentExportData || [];
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+
+            const modalBody = document.querySelector('#dataModal .modal-body');
+            if (modalBody) {
+                modalBody.innerHTML = generateFormFields(currentViewId);
+            }
+
+            const form = document.getElementById('dataForm');
+            if (form) {
+                for (const key in item) {
+                    const input = form.elements[key];
+                    if (input) {
+                        let val = item[key];
+                        if (val && val.toDate) {
+                            val = val.toDate().toISOString().split('T')[0];
+                        }
+                        input.value = val;
+                    }
+                }
+            }
+
+            document.querySelector('#dataModal h2').innerText = 'Edit Data';
+            const btnSubmit = document.querySelector('#dataModal button[type="submit"]');
+            if(btnSubmit) {
+                btnSubmit.style.display = '';
+                btnSubmit.innerText = 'Perbarui';
+            }
+
+            document.getElementById('dataModal').classList.add('active');
+        };
+
+        window.deleteDataId = null;
+
+        window.deleteData = function (id) {
+            window.deleteDataId = id;
+            document.getElementById('deleteModal').classList.add('active');
+        };
+
+        window.closeDeleteModal = function () {
+            document.getElementById('deleteModal').classList.remove('active');
+            window.deleteDataId = null;
+        };
+
+        window.confirmDeleteData = async function(btn) {
+            if (!window.deleteDataId) return;
+            const originalText = btn.innerHTML;
+            try {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghapus...';
+                btn.disabled = true;
+                const config = menuConfig[currentViewId];
+                if (!config || !config.path) throw new Error('Path tidak ditemukan');
+                await deleteDoc(doc(db, config.path, window.deleteDataId));
+                alert('Data berhasil dihapus');
+                window.closeDeleteModal();
+            } catch (e) {
+                console.error('Error delete data:', e);
+                alert('Gagal menghapus data: ' + e.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
         window.addData = function () {
+            window.editDocId = null;
+            document.querySelector('#dataModal h2').innerText = 'Tambah Data';
+            const btnSubmit = document.querySelector('#dataModal button[type="submit"]');
+            if(btnSubmit) {
+                btnSubmit.style.display = '';
+                btnSubmit.innerText = 'Simpan';
+            }
             const modalBody = document.querySelector('#dataModal .modal-body');
             if (modalBody) {
                 modalBody.innerHTML = generateFormFields(currentViewId);
@@ -3109,7 +3309,15 @@
 
         window.closeModal = function () {
             document.getElementById('dataModal').classList.remove('active');
-            document.getElementById('dataForm').reset();
+            const form = document.getElementById('dataForm');
+            if (form) form.reset();
+            window.editDocId = null;
+            document.querySelector('#dataModal h2').innerText = 'Data';
+            const btnSubmit = document.querySelector('#dataModal button[type="submit"]');
+            if(btnSubmit) {
+                btnSubmit.style.display = '';
+                btnSubmit.innerText = 'Simpan';
+            }
         };
 
         window.saveData = async function (e) {
@@ -3223,9 +3431,14 @@
                 const config = menuConfig[currentViewId];
                 if (!config || !config.path) throw new Error('Path penyimpanan tidak ditemukan');
 
-                await addDoc(collection(db, config.path), docData);
+                if (window.editDocId) {
+                    await updateDoc(doc(db, config.path, window.editDocId), docData);
+                    alert('Data berhasil diperbarui!');
+                } else {
+                    await addDoc(collection(db, config.path), docData);
+                    alert('Data berhasil disimpan ke database!');
+                }
 
-                alert('Data berhasil disimpan ke database!');
                 closeModal();
             } catch (error) {
                 console.error('Error saving data:', error);
@@ -3405,6 +3618,8 @@
                     k.toLowerCase() !== 'id'
                 );
             }
+
+            window.currentExportHeaders = headers;
 
             // Extract unique years for the filter
             const years = [...new Set(rawProjectData.map(item => {
@@ -3746,6 +3961,7 @@
                             ${h.replace(/_/g, ' ')} <i class="fas ${icon}" style="margin-left: 4px; font-size: 0.7rem; ${isSorted ? 'color: var(--primary);' : 'color: #ccc;'}"></i>
                         </th>`;
             }).join('')}
+                                    <th style="text-align: center; width: 120px;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -3901,6 +4117,14 @@
 
                     html += `<td style="${style}">${val}</td>`;
                 });
+                const docId = item.id || '';
+                html += `<td style="text-align: center; white-space: nowrap;">
+                            <div style="display: flex; gap: 4px; justify-content: center;">
+                                <button class="btn-icon" onclick="viewData('${docId}')" style="width: 28px !important; height: 28px !important; background: #eff6ff; color: #3b82f6; border-color: #bfdbfe;" title="View"><i class="fas fa-eye" style="font-size: 0.75rem !important;"></i></button>
+                                <button class="btn-icon" onclick="editData('${docId}')" style="width: 28px !important; height: 28px !important; background: #fefce8; color: #eab308; border-color: #fef08a;" title="Edit"><i class="fas fa-edit" style="font-size: 0.75rem !important;"></i></button>
+                                <button class="btn-icon" onclick="deleteData('${docId}')" style="width: 28px !important; height: 28px !important; background: #fef2f2; color: #ef4444; border-color: #fecaca;" title="Delete"><i class="fas fa-trash" style="font-size: 0.75rem !important;"></i></button>
+                            </div>
+                         </td>`;
                 html += `</tr>`;
             });
 
@@ -3934,7 +4158,7 @@
                     }
                     html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
                 });
-                html += `</tr></tfoot>`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
             } else if (viewsWithTotalNilaiBoQ.includes(currentViewId)) {
                 let totals = { 'Total Nilai BoQ': 0, 'Bobot': 0 };
                 items.forEach(item => {
@@ -3958,7 +4182,7 @@
                     }
                     html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
                 });
-                html += `</tr></tfoot>`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
             } else if (currentViewId === 'surge-fm-expole-spk') {
                 let totals = { 'FO 48c': 0, 'FO 96c': 0, 'Total FO': 0, 'BoQ Ext Pole': 0, 'Bobot': 0 };
                 items.forEach(item => {
@@ -3982,7 +4206,7 @@
                     }
                     html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
                 });
-                html += `</tr></tfoot>`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
             } else if (currentViewId === 'surge-fm-newpole-spk') {
                 let totals = { 'FO 96c_A': 0, 'FO 96c_B': 0, 'Total FO': 0, 'BoQ New Pole': 0, 'Bobot': 0 };
                 items.forEach(item => {
@@ -4006,7 +4230,7 @@
                     }
                     html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
                 });
-                html += `</tr></tfoot>`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
             } else if (currentViewId === 'jrp-jobj-spk') {
                 let totals = { 'HP BoQ': 0, 'Nilai BoQ': 0, 'Bobot': 0 };
                 items.forEach(item => {
@@ -4030,7 +4254,7 @@
                     }
                     html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
                 });
-                html += `</tr></tfoot>`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
             } else if (currentViewId === 'jrp-jobj-boq') {
                 const clusters = [
                     'Discovery Alton', 'Discovery Cielo', 'Discovery Terra', 'Discovery Amore', 'Discovery Serenity',
@@ -4073,7 +4297,7 @@
                     }
                     html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
                 });
-                html += `</tr></tfoot>`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
             }
 
             // Calculate totals for IJE Rekon views
@@ -4101,7 +4325,7 @@
                     }
                     html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
                 });
-                html += `</tr></tfoot>`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
             }
 
             // Calculate totals for Material views
@@ -4126,7 +4350,7 @@
                     }
                     html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
                 });
-                html += `</tr></tfoot>`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
             }
 
             // Calculate totals for Daftar Pembayaran
@@ -4151,7 +4375,7 @@
                     }
                     html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
                 });
-                html += `</tr></tfoot>`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
             }
 
             // Calculate totals for Daftar Tagihan
@@ -4178,7 +4402,7 @@
                     }
                     html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
                 });
-                html += `</tr></tfoot>`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
             }
 
             html += `</table></div>`;
@@ -4690,6 +4914,28 @@
                         style="width:auto; padding:0.75rem 1.5rem;">Simpan</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Confirm Delete -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Konfirmasi Hapus</h2>
+                <button onclick="closeDeleteModal()"
+                    style="background:none; border:none; cursor:pointer; color:#64748b; font-size:1.5rem;">&times;</button>
+            </div>
+            <div class="modal-body" style="display: block;">
+                <p>Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn"
+                    style="background:#fff; border:1px solid #cbd5e1; color:#64748b; width:auto; padding:0.75rem 1.5rem;"
+                    onclick="closeDeleteModal()">Batal</button>
+                <button type="button" class="btn btn-primary" id="btnConfirmDelete"
+                    style="background:#ef4444; border-color:#ef4444; width:auto; padding:0.75rem 1.5rem;"
+                    onclick="confirmDeleteData(this)">Setuju untuk Delete</button>
+            </div>
         </div>
     </div>
 </body>
