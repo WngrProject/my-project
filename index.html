@@ -5358,9 +5358,11 @@
                 const colors = ['#6366f1','#3b82f6','#06b6d4','#10b981','#f59e0b','#f97316','#ef4444','#ec4899','#8b5cf6','#14b8a6'];
                 dashCharts.push(new Chart(ctx1, {
                     type: 'bar',
-                    data: { labels, datasets: [{ label: 'Nilai SPK', data: values, backgroundColor: colors.map(c => c + 'cc'), borderColor: colors, borderWidth: 1, borderRadius: 6, borderSkipped: false }] },
+                    data: { labels, datasets: [{ label: 'Nilai SPK', data: values, backgroundColor: colors.map(c => c + 'cc'), hoverBackgroundColor: colors, hoverBorderWidth: 2, borderColor: colors, borderWidth: 1, borderRadius: 6, borderSkipped: false }] },
                     options: {
                         indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        animation: { duration: 1500, easing: 'easeOutQuart' },
+                        hover: { animationDuration: 400 },
                         plugins: { 
                             legend: { display: false }, 
                             tooltip: { 
@@ -5378,32 +5380,82 @@
             // Chart 2: Status Proyek (Doughnut)
             const ctx2 = document.getElementById('dashChartStatus');
             if (ctx2) {
-                const lunas = proyek.filter(p => (p['Status Proyek']||'').toLowerCase().includes('lunas')).length;
-                const progress = proyek.filter(p => (p['Status Proyek']||'').toLowerCase().includes('progress')).length;
-                const inv = proyek.length - lunas - progress;
+                const statusCounts = {};
+                proyek.forEach(p => {
+                    let rawStatus = (p['Status Proyek'] || 'Tanpa Status').trim();
+                    let status = rawStatus;
+                    
+                    // Normalisasi status inti
+                    if (rawStatus.toLowerCase().includes('lunas')) status = 'Lunas';
+                    else if (rawStatus.toLowerCase().includes('progress')) status = 'In Progress';
+                    else if (rawStatus.toLowerCase().includes('invoice')) status = 'Invoice';
+                    
+                    statusCounts[status] = (statusCounts[status] || 0) + 1;
+                });
+
+                // Urutkan: Lunas (1), Invoice (2), In Progress (3), lainnya di bawah
+                const orderWeight = { 'Lunas': 1, 'Invoice': 2, 'In Progress': 3 };
+                const labels = Object.keys(statusCounts).sort((a, b) => {
+                    const wA = orderWeight[a] || 99;
+                    const wB = orderWeight[b] || 99;
+                    if (wA !== wB) return wA - wB;
+                    return a.localeCompare(b);
+                });
+                
+                const data = labels.map(l => statusCounts[l]);
+
+                // Pemetaan Warna Tetap
+                const colorMap = { 'Lunas': '#10b981', 'Invoice': '#6366f1', 'In Progress': '#f59e0b' };
+                const fallbackColors = ['#06b6d4','#f97316','#ef4444','#ec4899','#8b5cf6','#14b8a6','#3b82f6'];
+                let colorIdx = 0;
+                const backgroundColors = labels.map(l => {
+                    if (colorMap[l]) return colorMap[l];
+                    return fallbackColors[colorIdx++ % fallbackColors.length];
+                });
+
                 dashCharts.push(new Chart(ctx2, {
                     type: 'doughnut',
-                    data: { labels: ['Lunas','In Progress','Invoice'], datasets: [{ data: [lunas, progress, inv], backgroundColor: ['#10b981','#f59e0b','#6366f1'], borderWidth: 0, hoverOffset: 8 }] },
+                    data: { labels: labels, datasets: [{ data: data, backgroundColor: backgroundColors, borderWidth: 0, hoverOffset: 8 }] },
                     options: {
                         responsive: true, maintainAspectRatio: false, cutout: '65%',
                         plugins: {
-                            legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 12, weight: 500 } } },
+                            legend: { position: 'right', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 12, weight: 500 } } },
                             tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + ' proyek' } }
                         }
                     },
                     plugins: [{
                         id: 'centerText',
                         beforeDraw: (chart) => {
-                            const { ctx: c, width, height } = chart;
+                            const { ctx: c, chartArea } = chart;
+                            if (!chartArea) return;
+                            const centerX = (chartArea.left + chartArea.right) / 2;
+                            const centerY = (chartArea.top + chartArea.bottom) / 2;
+                            
+                            // Animasi Angka Total
+                            if (chart._centerTotal === undefined) {
+                                chart._centerTotal = 0;
+                                const startTime = performance.now();
+                                const duration = 1200;
+                                const animate = (now) => {
+                                    const elapsed = now - startTime;
+                                    const progress = Math.min(elapsed / duration, 1);
+                                    const eased = 1 - Math.pow(1 - progress, 3);
+                                    chart._centerTotal = Math.round(proyek.length * eased);
+                                    chart.draw();
+                                    if (progress < 1) requestAnimationFrame(animate);
+                                };
+                                requestAnimationFrame(animate);
+                            }
+
                             c.save();
                             c.font = '800 1.8rem "Segoe UI"';
                             c.fillStyle = '#111827';
                             c.textAlign = 'center';
                             c.textBaseline = 'middle';
-                            c.fillText(proyek.length, width/2, height/2 - 8);
+                            c.fillText(chart._centerTotal, centerX, centerY - 8);
                             c.font = '500 0.7rem "Segoe UI"';
                             c.fillStyle = '#6b7280';
-                            c.fillText('Total', width/2, height/2 + 16);
+                            c.fillText('Total', centerX, centerY + 16);
                             c.restore();
                         }
                     }]
@@ -5438,10 +5490,13 @@
                             return g;
                         },
                         fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#fff',
-                        pointBorderColor: '#6366f1', pointBorderWidth: 2, pointHoverRadius: 7
+                        pointBorderColor: '#6366f1', pointBorderWidth: 2, pointHoverRadius: 7,
+                        pointHoverBackgroundColor: '#6366f1', pointHoverBorderColor: '#fff', pointHoverBorderWidth: 3
                     }] },
                     options: {
                         responsive: true, maintainAspectRatio: false,
+                        animation: { duration: 1500, easing: 'easeOutQuart' },
+                        hover: { animationDuration: 400 },
                         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Rp ' + formatCurrency(ctx.raw) } } },
                         scales: { y: { beginAtZero: true, ticks: { callback: v => { if (v>=1e9) return (v/1e9).toFixed(1)+'M'; if (v>=1e6) return (v/1e6).toFixed(0)+'Jt'; return v; } }, grid: { borderDash: [3,3] } }, x: { grid: { display: false } } }
                     }
@@ -5459,11 +5514,13 @@
                 dashCharts.push(new Chart(ctx4, {
                     type: 'bar',
                     data: { labels: labels4, datasets: [
-                        { label: 'Nilai Invoice', data: invVals, backgroundColor: '#6366f1cc', borderRadius: 4 },
-                        { label: 'Nilai Terbayar', data: bayarVals, backgroundColor: '#10b981cc', borderRadius: 4 }
+                        { label: 'Nilai Invoice', data: invVals, backgroundColor: '#6366f1cc', hoverBackgroundColor: '#6366f1', hoverBorderWidth: 1, borderColor: '#6366f1', borderWidth: 1, borderRadius: 4 },
+                        { label: 'Nilai Terbayar', data: bayarVals, backgroundColor: '#10b981cc', hoverBackgroundColor: '#10b981', hoverBorderWidth: 1, borderColor: '#10b981', borderWidth: 1, borderRadius: 4 }
                     ] },
                     options: {
                         responsive: true, maintainAspectRatio: false,
+                        animation: { duration: 1500, easing: 'easeOutQuart' },
+                        hover: { animationDuration: 400 },
                         plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 11 } } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': Rp ' + formatCurrency(ctx.raw) } } },
                         scales: { y: { beginAtZero: true, ticks: { callback: v => { if (v>=1e9) return (v/1e9).toFixed(1)+'M'; if (v>=1e6) return (v/1e6).toFixed(0)+'Jt'; return v; } }, grid: { borderDash: [3,3] } }, x: { grid: { display: false } } }
                     }
