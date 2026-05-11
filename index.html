@@ -1690,6 +1690,7 @@
             <div class="login-logo">
                 <i class="fas fa-chart-line"></i>
             </div>
+            <div id="loginAppTitle" style="font-size: 1.1rem; font-weight: 800; color: var(--primary); margin-bottom: 0.25rem; letter-spacing: 0.5px; text-transform: uppercase;"></div>
             <h2 class="login-title">Selamat Datang</h2>
             <p class="login-subtitle">Silakan masuk ke akun Anda</p>
             <form class="login-form" id="loginForm">
@@ -2074,6 +2075,17 @@
                     innerIcon.style.fontSize = '1rem';
                 }
                 
+                // Sinkronisasi teks judul aplikasi dari sidebar ke halaman login
+                const loginAppTitle = document.getElementById('loginAppTitle');
+                if (loginAppTitle) {
+                    // Ambil teks murni dari sidebarHeader (mengabaikan tag HTML seperti icon)
+                    const titleText = Array.from(sidebarHeader.childNodes)
+                        .filter(node => node.nodeType === Node.TEXT_NODE)
+                        .map(node => node.textContent.trim())
+                        .join('');
+                    loginAppTitle.innerText = titleText || 'MY-PROYEK';
+                }
+
                 sidebarHeader.insertBefore(miniLogo, sidebarHeader.firstChild);
             }
 
