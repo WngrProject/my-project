@@ -5352,10 +5352,8 @@
             const ctx1 = document.getElementById('dashChartSPK');
             if (ctx1) {
                 const sorted = [...proyek].sort((a,b) => parseNum(b['Nilai SPK']) - parseNum(a['Nilai SPK'])).slice(0, 10);
-                const labels = sorted.map(p => {
-                    const name = p['Nama SPK'] || p['Nama Perusahaan'] || 'N/A';
-                    return name.length > 25 ? name.substring(0,22) + '...' : name;
-                });
+                const originalLabels = sorted.map(p => p['Nama SPK'] || p['Nama Perusahaan'] || 'N/A');
+                const labels = originalLabels.map(name => name.length > 25 ? name.substring(0,22) + '...' : name);
                 const values = sorted.map(p => parseNum(p['Nilai SPK']));
                 const colors = ['#6366f1','#3b82f6','#06b6d4','#10b981','#f59e0b','#f97316','#ef4444','#ec4899','#8b5cf6','#14b8a6'];
                 dashCharts.push(new Chart(ctx1, {
@@ -5363,7 +5361,15 @@
                     data: { labels, datasets: [{ label: 'Nilai SPK', data: values, backgroundColor: colors.map(c => c + 'cc'), borderColor: colors, borderWidth: 1, borderRadius: 6, borderSkipped: false }] },
                     options: {
                         indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Rp ' + formatCurrency(ctx.raw) } } },
+                        plugins: { 
+                            legend: { display: false }, 
+                            tooltip: { 
+                                callbacks: { 
+                                    title: ctx => originalLabels[ctx[0].dataIndex],
+                                    label: ctx => 'Rp ' + formatCurrency(ctx.raw) 
+                                } 
+                            } 
+                        },
                         scales: { x: { ticks: { callback: v => { if (v >= 1e9) return (v/1e9).toFixed(1)+'M'; if (v >= 1e6) return (v/1e6).toFixed(0)+'Jt'; return v; } }, grid: { borderDash: [3,3] } }, y: { grid: { display: false } } }
                     }
                 }));
