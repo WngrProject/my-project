@@ -1501,10 +1501,213 @@
             animation-delay: 450ms;
         }
 
+        /* === LOGIN OVERLAY === */
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f8fafc;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity var(--dur-normal) var(--ease-expo-out), visibility var(--dur-normal) var(--ease-expo-out);
+        }
+        #loginOverlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .login-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem 3rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            text-align: center;
+            animation: slideUp var(--dur-slow) var(--ease-expo-out);
+        }
+        .login-logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            color: #fff;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.3);
+        }
+        .login-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        .login-subtitle {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .login-form .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+        .login-form label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.5rem;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-size: 0.95rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: var(--transition);
+        }
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 0.85rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .login-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.3);
+        }
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        .login-error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* === TOAST NOTIFICATION === */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+        .toast {
+            background: #ffffff;
+            color: #1e293b;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            pointer-events: auto;
+        }
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .toast-error .toast-icon {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+        .toast-success .toast-icon {
+            background: #d1fae5;
+            color: #10b981;
+        }
+        .toast-content {
+            flex-grow: 1;
+        }
+        .toast-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 0.15rem;
+        }
+        .toast-message {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h2 class="login-title">Selamat Datang</h2>
+            <p class="login-subtitle">Silakan masuk ke akun Anda</p>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="loginUsername">Nama Pengguna</label>
+                    <input type="text" id="loginUsername" required autocomplete="username" placeholder="Masukkan nama pengguna">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Kata Sandi</label>
+                    <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="Masukkan kata sandi">
+                </div>
+                <div class="login-error" id="loginError">Nama Pengguna atau Kata Sandi salah.</div>
+                <button type="submit" class="login-btn" id="loginSubmitBtn">
+                    <span class="btn-text">Masuk</span>
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -1699,11 +1902,16 @@
                 </button>
                 <h1 class="page-title" id="pageTitle">Overview</h1>
             </div>
-            <div class="header-right">
-                <div class="profile-btn">
-                    <span class="avatar">A</span>
-                    <span style="font-weight: 500; display: none;">Admin</span>
+            <div class="header-right" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="profile-btn" id="topbarProfileBtn" style="position: relative; cursor: pointer;">
+                    <div class="avatar" id="topbarAvatar" style="overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <span id="topbarAvatarText">A</span>
+                    </div>
+                    <span id="topbarName" style="font-weight: 600; font-size: 0.95rem;">Loading...</span>
                 </div>
+                <button id="logoutBtn" class="btn" style="background: transparent; border: 1px solid #e2e8f0; color: #ef4444; padding: 0.4rem 0.8rem; display: flex; align-items: center; gap: 0.4rem; font-weight: 600;">
+                    <i class="fas fa-sign-out-alt"></i> Keluar
+                </button>
             </div>
         </header>
 
@@ -1724,7 +1932,7 @@
     <!-- Firebase App (the core Firebase SDK) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, Timestamp, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, Timestamp, doc, updateDoc, deleteDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCo-CYydpivABwE3NFJOaM45yT-nO1f4OY",
@@ -1740,6 +1948,160 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // === SESSION & RBAC SYSTEM ===
+        let currentUser = null;
+
+        function showToast(title, message, type = 'error') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const icon = type === 'success' ? '<i class="fas fa-check"></i>' : '<i class="fas fa-exclamation-triangle"></i>';
+            toast.innerHTML = `
+                <div class="toast-icon">${icon}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            container.appendChild(toast);
+            
+            // Trigger animation
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    toast.classList.add('show');
+                });
+            });
+
+            // Remove after 3.5s
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400); // Wait for transition
+            }, 3500);
+        }
+
+        function applyUserSession(user) {
+            currentUser = user;
+            const mainWrapper = document.querySelector('.main-wrapper');
+            const sidebar = document.querySelector('.sidebar');
+            const loginOverlay = document.getElementById('loginOverlay');
+            
+            // Update Topbar
+            const topbarName = document.getElementById('topbarName');
+            const topbarAvatar = document.getElementById('topbarAvatar');
+            const topbarProfileBtn = document.getElementById('topbarProfileBtn');
+            
+            if (topbarName) topbarName.innerText = user['Nama Lengkap'] || user['Nama Pengguna'];
+            
+            if (topbarAvatar) {
+                if (user['URL Dokumen']) {
+                    topbarAvatar.innerHTML = `<img src="${user['URL Dokumen']}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="Avatar">`;
+                } else {
+                    topbarAvatar.innerHTML = `<span id="topbarAvatarText">${(user['Nama Lengkap'] || user['Nama Pengguna']).charAt(0).toUpperCase()}</span>`;
+                }
+            }
+
+            if (topbarProfileBtn) {
+                const phone = user['Nomor Telepon'] || '-';
+                const email = user['Email'] || '-';
+                topbarProfileBtn.setAttribute('data-tooltip', `Telepon: ${phone}\nEmail: ${email}`);
+            }
+
+            // Show App, Hide Login
+            loginOverlay.classList.add('hidden');
+            mainWrapper.style.display = '';
+            sidebar.style.display = '';
+        }
+
+        function checkSession() {
+            const saved = localStorage.getItem('userSession');
+            const mainWrapper = document.querySelector('.main-wrapper');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (saved) {
+                try {
+                    const user = JSON.parse(saved);
+                    applyUserSession(user);
+                } catch(e) {
+                    localStorage.removeItem('userSession');
+                    mainWrapper.style.display = 'none';
+                    sidebar.style.display = 'none';
+                }
+            } else {
+                // Not logged in
+                mainWrapper.style.display = 'none';
+                sidebar.style.display = 'none';
+                document.getElementById('loginOverlay').classList.remove('hidden');
+            }
+        }
+
+        // Initialize session check
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSession();
+
+            // Login Submit
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const username = document.getElementById('loginUsername').value;
+                    const pass = document.getElementById('loginPassword').value;
+                    const errorEl = document.getElementById('loginError');
+                    const btnSubmit = document.getElementById('loginSubmitBtn');
+                    const btnText = btnSubmit.querySelector('.btn-text');
+
+                    errorEl.style.display = 'none';
+                    btnSubmit.disabled = true;
+                    btnText.innerText = 'Memverifikasi...';
+
+                    try {
+                        const q = query(
+                            collection(db, 'pengguna'), 
+                            where('Nama Pengguna', '==', username)
+                        );
+                        const querySnapshot = await getDocs(q);
+
+                        if (!querySnapshot.empty) {
+                            // User found
+                            const userData = querySnapshot.docs[0].data();
+                            
+                            // Check password carefully since DB might store it as number or string
+                            if (String(userData.Password) === pass) {
+                                localStorage.setItem('userSession', JSON.stringify(userData));
+                                applyUserSession(userData);
+                                loginForm.reset();
+                            } else {
+                                // Wrong password
+                                errorEl.innerText = 'Kata Sandi salah.';
+                                errorEl.style.display = 'block';
+                            }
+                        } else {
+                            // User not found
+                            errorEl.innerText = 'Nama Pengguna tidak ditemukan.';
+                            errorEl.style.display = 'block';
+                        }
+                    } catch (error) {
+                        console.error("Login error:", error);
+                        errorEl.innerText = "Terjadi kesalahan server. Coba lagi.";
+                        errorEl.style.display = 'block';
+                    } finally {
+                        btnSubmit.disabled = false;
+                        btnText.innerText = 'Masuk';
+                    }
+                });
+            }
+
+            // Logout Event
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    localStorage.removeItem('userSession');
+                    currentUser = null;
+                    location.reload(); // Reload to clear all states and show login
+                });
+            }
+        });
 
         // UI State
         let currentViewId = 'overview';
@@ -2787,6 +3149,13 @@
         };
 
         window.editData = function (id) {
+            if (!currentUser) return;
+            const role = currentUser.Role || 'Guest';
+            if (role !== 'Super Admin' && role !== 'Admin') {
+                showToast('Akses Ditolak', 'Anda tidak memiliki izin untuk mengedit data.', 'error');
+                return;
+            }
+
             window.editDocId = id;
             const items = window.currentExportData || [];
             const item = items.find(i => i.id === id);
@@ -2824,6 +3193,13 @@
         window.deleteDataId = null;
 
         window.deleteData = function (id) {
+            if (!currentUser) return;
+            const role = currentUser.Role || 'Guest';
+            if (role !== 'Super Admin') {
+                showToast('Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus data.', 'error');
+                return;
+            }
+
             window.deleteDataId = id;
             document.getElementById('deleteModal').classList.add('active');
         };
@@ -2854,6 +3230,13 @@
         };
 
         window.addData = function () {
+            if (!currentUser) return;
+            const role = currentUser.Role || 'Guest';
+            if (role !== 'Super Admin') {
+                showToast('Akses Ditolak', 'Anda tidak memiliki izin untuk menambah data.', 'error');
+                return;
+            }
+
             window.editDocId = null;
             document.querySelector('#dataModal h2').innerText = 'Tambah Data';
             const btnSubmit = document.querySelector('#dataModal button[type="submit"]');
