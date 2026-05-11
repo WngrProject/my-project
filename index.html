@@ -1995,17 +1995,27 @@
             if (topbarName) topbarName.innerText = user['Nama Lengkap'] || user['Nama Pengguna'];
             
             if (topbarAvatar) {
-                if (user['URL Dokumen']) {
-                    topbarAvatar.innerHTML = `<img src="${user['URL Dokumen']}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="Avatar">`;
+                let urlDokumen = user['URL Dokumen'];
+                
+                // Format ulang otomatis jika itu adalah link Google Drive
+                if (typeof urlDokumen === 'string' && urlDokumen.includes('drive.google.com')) {
+                    const match = urlDokumen.match(/[-\w]{25,}(?!.*[-\w]{25,})/);
+                    if (match) {
+                        urlDokumen = `https://drive.google.com/uc?export=view&id=${match[0]}`;
+                    }
+                }
+
+                if (urlDokumen && urlDokumen !== 'NaN' && urlDokumen !== '-' && typeof urlDokumen === 'string') {
+                    topbarAvatar.innerHTML = `<img src="${urlDokumen}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="Avatar" onerror="this.parentElement.innerHTML='<span id=\\'topbarAvatarText\\'>${(user['Nama Lengkap'] || user['Nama Pengguna']).charAt(0).toUpperCase()}</span>'">`;
                 } else {
                     topbarAvatar.innerHTML = `<span id="topbarAvatarText">${(user['Nama Lengkap'] || user['Nama Pengguna']).charAt(0).toUpperCase()}</span>`;
                 }
             }
 
-            if (topbarProfileBtn) {
+            if (topbarName) {
                 const phone = user['Nomor Telepon'] || '-';
                 const email = user['Email'] || '-';
-                topbarProfileBtn.setAttribute('data-tooltip', `Telepon: ${phone}\nEmail: ${email}`);
+                topbarName.setAttribute('data-tooltip', `Telepon: ${phone}\nEmail: ${email}`);
             }
 
             // Show App, Hide Login
@@ -2071,6 +2081,11 @@
                                 localStorage.setItem('userSession', JSON.stringify(userData));
                                 applyUserSession(userData);
                                 loginForm.reset();
+                                
+                                // Force default view to Overview upon successful login
+                                if (window.loadView) {
+                                    window.loadView('overview', 'Overview', null);
+                                }
                             } else {
                                 // Wrong password
                                 errorEl.innerText = 'Kata Sandi salah.';
@@ -5415,7 +5430,7 @@
         document.body.appendChild(tooltip);
 
         document.addEventListener('mouseover', (e) => {
-            const target = e.target.closest('button:not(#menuToggle), .btn:not(#menuToggle), .filter-select, .filter-item, th[onclick]');
+            const target = e.target.closest('button:not(#menuToggle), .btn:not(#menuToggle), .filter-select, .filter-item, th[onclick], #topbarName');
             if (target) {
                 let text = target.getAttribute('data-tooltip') || target.getAttribute('title') || '';
 
