@@ -1715,7 +1715,7 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <i class="fas fa-cubes"></i> My-Proyek
+            <i class="fas fa-chart-line"></i> My-Proyek
         </div>
         <ul class="nav-menu">
             <!-- Dashboard Section -->
@@ -2048,6 +2048,34 @@
 
         // Initialize session check
         document.addEventListener('DOMContentLoaded', () => {
+            // Otomatis menyinkronkan logo sidebar dengan logo login
+            const loginLogoNode = document.querySelector('.login-logo');
+            const sidebarHeader = document.querySelector('.sidebar-header');
+            
+            if (loginLogoNode && sidebarHeader) {
+                const oldIcon = sidebarHeader.querySelector('i');
+                if (oldIcon) oldIcon.remove();
+
+                const miniLogo = loginLogoNode.cloneNode(true);
+                // Skala ulang untuk header
+                miniLogo.style.width = '32px';
+                miniLogo.style.height = '32px';
+                miniLogo.style.minWidth = '32px';
+                miniLogo.style.fontSize = '1.1rem';
+                miniLogo.style.borderRadius = '8px';
+                miniLogo.style.margin = '0 12px 0 0';
+                miniLogo.style.boxShadow = '0 4px 10px -2px rgba(99, 102, 241, 0.4)';
+                
+                // Mencegah konflik dengan CSS ".sidebar-header i" yang memiliki margin-right
+                const innerIcon = miniLogo.querySelector('i');
+                if (innerIcon) {
+                    innerIcon.style.margin = '0';
+                    innerIcon.style.fontSize = '1rem';
+                }
+                
+                sidebarHeader.insertBefore(miniLogo, sidebarHeader.firstChild);
+            }
+
             checkSession();
 
             // Login Submit
