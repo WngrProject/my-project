@@ -876,6 +876,31 @@
             }
         }
 
+        /* Specific Grid for JRP JOBJ - Bon Material */
+        .filter-row-bon {
+            grid-template-columns: 2fr 0.8fr 1.2fr 0.8fr 36px 36px 36px 36px auto !important;
+        }
+
+        .filter-row-bon .action-group {
+            display: contents !important;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row-bon {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .filter-row-bon > .filter-item:nth-child(1) {
+                grid-column: span 2 !important;
+            }
+            .filter-row-bon .action-group {
+                display: flex !important;
+                gap: 4px;
+                grid-column: span 2 !important;
+                justify-content: flex-start;
+                align-items: end;
+            }
+        }
+
 
         .btn-icon {
             width: 28px !important;
@@ -1746,6 +1771,7 @@
                     <li onclick="loadView('jrp-jobj-boq', 'JRP JOBJ - BoQ', this, true)">BoQ</li>
                     <li onclick="loadView('jrp-jobj-rekon', 'JRP JOBJ - Rekon', this, true)">Rekon</li>
                     <li onclick="loadView('jrp-jobj-material', 'JRP JOBJ - Material', this, true)">PO Material</li>
+                    <li onclick="loadView('jrp-jobj-bon-material', 'JRP JOBJ - Bon Material', this, true)">Bon Material</li>
                     <li onclick="loadView('jrp-jobj-maps', 'JRP JOBJ - Maps', this, true)">Maps</li>
                 </ul>
             </li>
@@ -2407,10 +2433,14 @@
                 statusInvoice: 'Semua Status Invoice',
                 statusPembayaran: 'Semua Status Pembayaran',
                 jabatan: 'Semua Jabatan',
-                areaKerja: 'Semua Area Kerja'
+                areaKerja: 'Semua Area Kerja',
+                tahunSJ: 'Semua Tahun SJ'
             };
             activeSort = {
-                column: 'Tanggal SPK',
+                column: (viewId === 'jrp-jobj-bon-material') ? 'Tanggal SJ' : 
+                        (viewId === 'daftar-pembayaran' ? 'Tanggal Pembayaran' : 
+                        (viewId === 'daftar-tagihan' ? 'Tanggal Invoice' : 
+                        (viewId.endsWith('-material') ? 'Tanggal PO' : 'Tanggal SPK'))),
                 direction: 'asc'
             };
             currentPage = 1;
@@ -2640,6 +2670,16 @@
             // DAOP Filter
             if (activeFilters.daop && activeFilters.daop !== 'Semua DAOP') {
                 filtered = filtered.filter(item => item['DAOP'] === activeFilters.daop);
+            }
+
+            // Tahun SJ Filter
+            if (activeFilters.tahunSJ && activeFilters.tahunSJ !== 'Semua Tahun SJ') {
+                filtered = filtered.filter(item => {
+                    const dateVal = item['Tanggal SJ'];
+                    if (!dateVal) return false;
+                    let year = dateVal.seconds ? new Date(dateVal.seconds * 1000).getFullYear().toString() : new Date(dateVal).getFullYear().toString();
+                    return year === activeFilters.tahunSJ;
+                });
             }
 
             // Specific filters for Daftar Tagihan
@@ -3505,6 +3545,49 @@
                         <textarea name="Keterangan" rows="2" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
                     </div>
                 `;
+            } else if (viewId === 'jrp-jobj-bon-material') {
+                return `
+                    <div class="form-group">
+                        <label>Tanggal SJ</label>
+                        <input type="date" name="Tanggal SJ" required>
+                    </div>
+                    <div class="form-group">
+                        <label>No Surat Jalan</label>
+                        <input type="text" name="No Surat Jalan" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Nama Material</label>
+                        <input type="text" name="Nama Material" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Satuan</label>
+                        <input type="text" name="Satuan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Volume</label>
+                        <input type="text" name="Volume" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Gudang</label>
+                        <input type="text" name="Gudang">
+                    </div>
+                    <div class="form-group">
+                        <label>User</label>
+                        <input type="text" name="User">
+                    </div>
+                    <div class="form-group full">
+                        <label>Nama Proyek</label>
+                        <input type="text" name="Nama Proyek">
+                    </div>
+                    <div class="form-group full">
+                        <label>Nama Lokasi</label>
+                        <input type="text" name="Nama Lokasi">
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan</label>
+                        <textarea name="Keterangan" rows="2" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+                `;
             } else if (viewId === 'surge-fm-expole-spk') {
                 return `
                     <div class="form-group">
@@ -4079,6 +4162,9 @@
                     if (rawData['Harga Satuan']) docData['Harga Satuan'] = parseFloat(rawData['Harga Satuan']) || 0;
                     if (rawData['Total Harga']) docData['Total Harga'] = parseFloat(rawData['Total Harga']) || 0;
                     if (rawData['Tanggal PO']) docData['Tanggal PO'] = Timestamp.fromDate(new Date(rawData['Tanggal PO']));
+                } else if (currentViewId === 'jrp-jobj-bon-material') {
+                    if (rawData['Volume']) docData['Volume'] = parseFloat(rawData['Volume']) || 0;
+                    if (rawData['Tanggal SJ']) docData['Tanggal SJ'] = Timestamp.fromDate(new Date(rawData['Tanggal SJ']));
                 } else if (currentViewId === 'surge-fm-expole-spk') {
                     if (rawData['FO 48c']) docData['FO 48c'] = parseFloat(rawData['FO 48c']) || 0;
                     if (rawData['FO 96c']) docData['FO 96c'] = parseFloat(rawData['FO 96c']) || 0;
@@ -4261,6 +4347,11 @@
                     'Nama Cluster', 'Tipe', 'HP BoQ', 'Zona',
                     'Nilai BoQ', 'Bobot', 'Keterangan'
                 ];
+            } else if (currentViewId === 'jrp-jobj-bon-material') {
+                headers = [
+                    'Tanggal SJ', 'No Surat Jalan', 'Nama Material', 'Satuan',
+                    'Volume', 'Gudang', 'User', 'Nama Proyek', 'Nama Lokasi', 'Keterangan'
+                ];
             } else if (currentViewId.endsWith('-spk')) {
                 headers = [
                     'Item Pekerjaan', 'Satuan', 'Harga Satuan', 'Volume BoQ',
@@ -4348,6 +4439,7 @@
             let materialNameList = [];
             let statusMaterialList = [];
             let daopList = [];
+            let yearsSJ = [];
 
             if (currentViewId === 'semua-proyek') {
                 perusahaanList = [...new Set(rawProjectData.map(item => item['Nama Perusahaan']).filter(v => v))].sort();
@@ -4368,6 +4460,13 @@
                 statusMaterialList = [...new Set(rawProjectData.map(item => item['Status Material']).filter(v => v))].sort();
             } else if (currentViewId === 'surge-fm-expole-spk' || currentViewId === 'surge-fm-newpole-spk') {
                 daopList = [...new Set(rawProjectData.map(item => item['DAOP']).filter(v => v))].sort();
+            } else if (currentViewId === 'jrp-jobj-bon-material') {
+                yearsSJ = [...new Set(rawProjectData.map(item => {
+                    const dateVal = item['Tanggal SJ'];
+                    if (!dateVal) return null;
+                    return dateVal.seconds ? new Date(dateVal.seconds * 1000).getFullYear() : new Date(dateVal).getFullYear();
+                }).filter(y => y))].sort((a, b) => b - a);
+                materialNameList = [...new Set(rawProjectData.map(item => item['Nama Material']).filter(v => v))].sort();
             }
 
             let jabatanList = [];
@@ -4383,7 +4482,7 @@
             const isPembayaranView = currentViewId === 'daftar-pembayaran';
             const isTagihanView = currentViewId === 'daftar-tagihan';
             const isKaryawanView = currentViewId === 'daftar-karyawan' || currentViewId === 'daftar-pelaksana';
-            const hideMainFilters = isSPKView || isBoQView || isMaterialView || isTagihanView || isKaryawanView || currentViewId === 'ije-cao-ring-2-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-3b-spk' || currentViewId === 'ije-cao-ring-2-boq' || currentViewId === 'ije-cao-ring-4-boq' || currentViewId === 'ije-cao-ring-3a-boq' || currentViewId === 'ije-cao-ring-3b-boq' || currentViewId === 'ije-fm-ring-1-boq' || currentViewId === 'surge-fm-expole-boq' || currentViewId === 'surge-fm-newpole-boq' || currentViewId === 'ije-cao-ring-2-material' || currentViewId === 'ije-cao-ring-4-material' || currentViewId === 'ije-cao-ring-3a-material' || currentViewId === 'ije-cao-ring-3b-material' || currentViewId === 'ije-fm-ring-1-material' || currentViewId === 'surge-fm-expole-material' || currentViewId === 'surge-fm-newpole-material' || currentViewId === 'ije-fm-ring-1-spk' || currentViewId === 'surge-fm-expole-spk' || currentViewId === 'surge-fm-newpole-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-2-rekon' || currentViewId === 'ije-cao-ring-4-rekon' || currentViewId === 'ije-cao-ring-3a-rekon' || currentViewId === 'ije-cao-ring-3b-rekon' || currentViewId === 'ije-fm-ring-1-rekon';
+            const hideMainFilters = isSPKView || isBoQView || isMaterialView || isTagihanView || isKaryawanView || currentViewId === 'jrp-jobj-bon-material' || currentViewId === 'ije-cao-ring-2-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-3b-spk' || currentViewId === 'ije-cao-ring-2-boq' || currentViewId === 'ije-cao-ring-4-boq' || currentViewId === 'ije-cao-ring-3a-boq' || currentViewId === 'ije-cao-ring-3b-boq' || currentViewId === 'ije-fm-ring-1-boq' || currentViewId === 'surge-fm-expole-boq' || currentViewId === 'surge-fm-newpole-boq' || currentViewId === 'ije-cao-ring-2-material' || currentViewId === 'ije-cao-ring-4-material' || currentViewId === 'ije-cao-ring-3a-material' || currentViewId === 'ije-cao-ring-3b-material' || currentViewId === 'ije-fm-ring-1-material' || currentViewId === 'surge-fm-expole-material' || currentViewId === 'surge-fm-newpole-material' || currentViewId === 'ije-fm-ring-1-spk' || currentViewId === 'surge-fm-expole-spk' || currentViewId === 'surge-fm-newpole-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-2-rekon' || currentViewId === 'ije-cao-ring-4-rekon' || currentViewId === 'ije-cao-ring-3a-rekon' || currentViewId === 'ije-cao-ring-3b-rekon' || currentViewId === 'ije-fm-ring-1-rekon';
 
             // Extract unique values for Tagihan filters
             let yearsInvoice = [];
@@ -4412,7 +4511,7 @@
                     <div class="filter-bar" style="padding: 10px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 10px; width: 100% !important;">
                         
                         <!-- Responsive Filter Row -->
-                        <div class="filter-row ${isSPKView ? 'filter-row-spk' : ''} ${['jrp-jobj-boq', 'surge-fm-expole-boq', 'surge-fm-newpole-boq'].includes(currentViewId) ? 'filter-row-boq' : ''} ${isTagihanView ? 'filter-row-tagihan' : ''} ${isKaryawanView ? 'filter-row-karyawan' : ''} ${currentViewId === 'semua-proyek' ? 'filter-row-dashboard' : ''} ${['ije-cao-ring-2-spk', 'ije-cao-ring-4-spk', 'ije-cao-ring-3a-spk', 'ije-cao-ring-3b-spk', 'ije-fm-ring-1-spk', 'ije-cao-ring-2-boq', 'ije-cao-ring-4-boq', 'ije-cao-ring-3a-boq', 'ije-cao-ring-3b-boq', 'ije-fm-ring-1-boq'].includes(currentViewId) ? 'filter-row-ije' : ''} ${['surge-fm-expole-spk', 'surge-fm-newpole-spk'].includes(currentViewId) ? 'filter-row-surge' : ''} ${['ije-cao-ring-2-rekon', 'ije-cao-ring-4-rekon', 'ije-cao-ring-3a-rekon', 'ije-cao-ring-3b-rekon', 'ije-fm-ring-1-rekon'].includes(currentViewId) ? 'filter-row-rekon' : ''}">
+                        <div class="filter-row ${isSPKView ? 'filter-row-spk' : ''} ${currentViewId === 'jrp-jobj-bon-material' ? 'filter-row-bon' : ''} ${['jrp-jobj-boq', 'surge-fm-expole-boq', 'surge-fm-newpole-boq'].includes(currentViewId) ? 'filter-row-boq' : ''} ${isTagihanView ? 'filter-row-tagihan' : ''} ${isKaryawanView ? 'filter-row-karyawan' : ''} ${currentViewId === 'semua-proyek' ? 'filter-row-dashboard' : ''} ${['ije-cao-ring-2-spk', 'ije-cao-ring-4-spk', 'ije-cao-ring-3a-spk', 'ije-cao-ring-3b-spk', 'ije-fm-ring-1-spk', 'ije-cao-ring-2-boq', 'ije-cao-ring-4-boq', 'ije-cao-ring-3a-boq', 'ije-cao-ring-3b-boq', 'ije-fm-ring-1-boq'].includes(currentViewId) ? 'filter-row-ije' : ''} ${['surge-fm-expole-spk', 'surge-fm-newpole-spk'].includes(currentViewId) ? 'filter-row-surge' : ''} ${['ije-cao-ring-2-rekon', 'ije-cao-ring-4-rekon', 'ije-cao-ring-3a-rekon', 'ije-cao-ring-3b-rekon', 'ije-fm-ring-1-rekon'].includes(currentViewId) ? 'filter-row-rekon' : ''}">
                             <!-- Item 1: Pencarian -->
                             <div class="filter-item">
                                 <span class="filter-label">Pencarian</span>
@@ -4546,6 +4645,25 @@
                                     <select class="filter-select" onchange="updateFilter('bulan', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                         <option value="Semua Bulan">Semua</option>
                                         ${["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"].map(m => `<option value="${m}" ${activeFilters.bulan == m ? 'selected' : ''}>${m}</option>`).join('')}
+                                    </select>
+                                </div>
+                            ` : ''}
+
+                            ${currentViewId === 'jrp-jobj-bon-material' ? `
+                                <!-- Tahun SJ Filter -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Tahun SJ</span>
+                                    <select class="filter-select" onchange="updateFilter('tahunSJ', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Tahun SJ">Semua</option>
+                                        ${yearsSJ.map(y => `<option value="${y}" ${activeFilters.tahunSJ == y ? 'selected' : ''}>${y}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <!-- Nama Material Filter -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Nama Material</span>
+                                    <select class="filter-select" onchange="updateFilter('materialName', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Material">Semua</option>
+                                        ${materialNameList.map(v => `<option value="${v}" ${activeFilters.materialName == v ? 'selected' : ''}>${v}</option>`).join('')}
                                     </select>
                                 </div>
                             ` : ''}
@@ -4780,6 +4898,16 @@
                             style = 'text-align: right;';
                         } else if (h === 'Bobot') {
                             val = formatPercent(val);
+                            style = 'text-align: right;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId === 'jrp-jobj-bon-material') {
+                        if (h === 'Tanggal SJ') {
+                            val = formatDate(val);
+                            style = 'text-align: right;';
+                        } else if (h === 'Volume') {
+                            val = formatCurrency(val);
                             style = 'text-align: right;';
                         } else {
                             style = 'text-align: left;';
