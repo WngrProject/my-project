@@ -1131,8 +1131,8 @@
         /* Custom Tooltip */
         .custom-tooltip {
             position: fixed;
-            background: rgba(15, 23, 42, 0.9);
-            color: #ffffff;
+            background: rgba(186, 230, 253, 0.2);
+            color: #000000;
             padding: 8px 16px;
             border-radius: 10px;
             font-size: 0.8rem;
@@ -2212,7 +2212,7 @@
 
         function formatCurrency(val) {
             if (val === undefined || val === null || val === '-') return '0.00';
-            const num = parseFloat(val);
+            const num = parseFloat(String(val).replace(/,/g, ''));
             if (isNaN(num)) return val;
             return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
@@ -3231,7 +3231,11 @@
                         if (val && val.toDate) {
                             val = val.toDate().toISOString().split('T')[0];
                         }
-                        input.value = val;
+                        if (['Nilai SPK', 'Nilai Invoice', 'Nilai Terbayar'].includes(key) && currentViewId === 'semua-proyek') {
+                            input.value = formatCurrency(val);
+                        } else {
+                            input.value = val;
+                        }
                     }
                 }
             }
@@ -3939,15 +3943,15 @@
                 </div>
                 <div class="form-group">
                     <label>Nilai SPK</label>
-                    <input type="number" name="Nilai SPK" placeholder="0" required>
+                    <input type="text" name="Nilai SPK" placeholder="0.00" required onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
                 </div>
                 <div class="form-group">
                     <label>Nilai Invoice</label>
-                    <input type="number" name="Nilai Invoice" placeholder="0" required>
+                    <input type="text" name="Nilai Invoice" placeholder="0.00" required onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
                 </div>
                 <div class="form-group">
                     <label>Nilai Terbayar</label>
-                    <input type="number" name="Nilai Terbayar" placeholder="0" required>
+                    <input type="text" name="Nilai Terbayar" placeholder="0.00" required onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
                 </div>
                 <div class="form-group">
                     <label>Status Proyek</label>
@@ -4083,9 +4087,9 @@
                     if (rawData['Tanggal Invoice']) docData['Tanggal Invoice'] = Timestamp.fromDate(new Date(rawData['Tanggal Invoice']));
                     if (rawData['Tanggal Pembayaran']) docData['Tanggal Pembayaran'] = Timestamp.fromDate(new Date(rawData['Tanggal Pembayaran']));
                 } else {
-                    if (rawData['Nilai SPK']) docData['Nilai SPK'] = parseFloat(rawData['Nilai SPK']) || 0;
-                    if (rawData['Nilai Invoice']) docData['Nilai Invoice'] = parseFloat(rawData['Nilai Invoice']) || 0;
-                    if (rawData['Nilai Terbayar']) docData['Nilai Terbayar'] = parseFloat(rawData['Nilai Terbayar']) || 0;
+                    if (rawData['Nilai SPK']) docData['Nilai SPK'] = parseFloat(String(rawData['Nilai SPK']).replace(/,/g, '')) || 0;
+                    if (rawData['Nilai Invoice']) docData['Nilai Invoice'] = parseFloat(String(rawData['Nilai Invoice']).replace(/,/g, '')) || 0;
+                    if (rawData['Nilai Terbayar']) docData['Nilai Terbayar'] = parseFloat(String(rawData['Nilai Terbayar']).replace(/,/g, '')) || 0;
                     if (rawData['Tanggal SPK']) docData['Tanggal SPK'] = Timestamp.fromDate(new Date(rawData['Tanggal SPK']));
                 }
 
@@ -5540,6 +5544,7 @@
                 const isTableView = menuConfig[currentViewId] && (menuConfig[currentViewId].type === 'table' || currentViewId === 'overview');
                 const isInContentArea = target.closest('.content-area');
                 if (isInContentArea && isTableView) return;
+                if (target.closest('#dataModal')) return;
                 let text = target.getAttribute('data-tooltip') || target.getAttribute('title') || '';
 
                 if (!text) {
