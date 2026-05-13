@@ -1892,6 +1892,23 @@
                     <li onclick="loadView('daftar-pelaksana', 'Daftar Pelaksana', this, true)">Daftar Pelaksana</li>
                 </ul>
             </li>
+ 
+            <li class="nav-item has-submenu">
+                <div class="nav-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-file-alt"></i> <span>Dokumen</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li onclick="loadView('dokumen-jrp-jobj', 'Dokumen JRP JOBJ', this, true)">JRP JOBJ</li>
+                    <li onclick="loadView('dokumen-ije-cao-ring-2', 'Dokumen IJE CAO Ring 2', this, true)">IJE CAO Ring 2</li>
+                    <li onclick="loadView('dokumen-ije-cao-ring-4', 'Dokumen IJE CAO Ring 4', this, true)">IJE CAO Ring 4</li>
+                    <li onclick="loadView('dokumen-ije-cao-ring-3a', 'Dokumen IJE CAO Ring 3a', this, true)">IJE CAO Ring 3a</li>
+                    <li onclick="loadView('dokumen-ije-cao-ring-3b', 'Dokumen IJE CAO Ring 3b', this, true)">IJE CAO Ring 3b</li>
+                    <li onclick="loadView('dokumen-ije-fm-ring-1', 'Dokumen IJE FM Ring 1', this, true)">IJE FM Ring 1</li>
+                    <li onclick="loadView('dokumen-surge-fm-expole', 'Dokumen SURGE FM Ex Pole', this, true)">SURGE FM Ex Pole</li>
+                    <li onclick="loadView('dokumen-surge-fm-newpole', 'Dokumen SURGE FM New Pole', this, true)">SURGE FM New Pole</li>
+                </ul>
+            </li>
         </ul>
     </aside>
 
@@ -2274,7 +2291,8 @@
             const s = status.toLowerCase();
             if (s.includes('selesai')) { bgColor = '#dcfce7'; textColor = '#16a34a'; }
             else if (s.includes('jalan') || s.includes('proses')) { bgColor = '#fef9c3'; textColor = '#ca8a04'; }
-            else if (s.includes('tunda') || s.includes('henti')) { bgColor = '#fee2e2'; textColor = '#ef4444'; }
+            else if (s.includes('tunda') || s.includes('henti') || s === 'nok') { bgColor = '#fee2e2'; textColor = '#ef4444'; }
+            else if (s.includes('lunas') || s === 'ok') { bgColor = '#dcfce7'; textColor = '#16a34a'; }
             return `<span style="padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; background: ${bgColor}; color: ${textColor}; display: inline-block;">${status}</span>`;
         }
 
@@ -2392,7 +2410,16 @@
             'daftar-tagihan': { path: 'daftar-tagihan', type: 'table' },
 
             'daftar-karyawan': { path: 'daftar-karyawan', type: 'table' },
-            'daftar-pelaksana': { path: 'daftar-pelaksana', type: 'table' }
+            'daftar-pelaksana': { path: 'daftar-pelaksana', type: 'table' },
+ 
+            'dokumen-jrp-jobj': { path: 'dokumen-jrp-jobj', type: 'table' },
+            'dokumen-ije-cao-ring-2': { path: 'dokumen-ije-cao-ring-2', type: 'table' },
+            'dokumen-ije-cao-ring-4': { path: 'dokumen-ije-cao-ring-4', type: 'table' },
+            'dokumen-ije-cao-ring-3a': { path: 'dokumen-ije-cao-ring-3a', type: 'table' },
+            'dokumen-ije-cao-ring-3b': { path: 'dokumen-ije-cao-ring-3b', type: 'table' },
+            'dokumen-ije-fm-ring-1': { path: 'dokumen-ije-fm-ring-1', type: 'table' },
+            'dokumen-surge-fm-expole': { path: 'dokumen-surge-fm-expole', type: 'table' },
+            'dokumen-surge-fm-newpole': { path: 'dokumen-surge-fm-newpole', type: 'table' }
         };
 
         let currentListener = null;
@@ -3818,11 +3845,15 @@
                         <label>Nama SPK</label>
                         <input type="text" name="Nama SPK" placeholder="Masukkan nama proyek/SPK" required>
                     </div>
+                    <div class="form-group full">
+                        <label>Nama Lokasi</label>
+                        <input type="text" name="Nama Lokasi" placeholder="Masukkan nama lokasi">
+                    </div>
                     <div class="form-group">
                         <label>Status</label>
                         <select name="Status" required>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Lunas">Lunas</option>
+                            <option value="OK">OK</option>
+                            <option value="NOK">NOK</option>
                         </select>
                     </div>
                     <div class="form-group full">
@@ -4247,7 +4278,7 @@
             } else if (currentViewId === 'daftar-pembayaran') {
                 headers = [
                     'Tanggal Pembayaran', 'Nilai Pembayaran', 'Nama Perusahaan',
-                    'Nama SPK', 'Status', 'Keterangan'
+                    'Nama SPK', 'Nama Lokasi', 'Status', 'Keterangan'
                 ];
             } else if (currentViewId === 'daftar-tagihan') {
                 headers = [
@@ -4733,6 +4764,9 @@
                         } else if (h === 'Nilai Pembayaran') {
                             val = formatCurrency(val);
                             style = 'text-align: right;';
+                        } else if (h === 'Status') {
+                            val = renderStatusBadge(val);
+                            style = 'text-align: center;';
                         } else {
                             style = 'text-align: left;';
                         }
