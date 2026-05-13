@@ -5536,6 +5536,10 @@
         document.addEventListener('mouseover', (e) => {
             const target = e.target.closest('button:not(#menuToggle), .btn:not(#menuToggle), .filter-select, .filter-item, th[onclick], #topbarName');
             if (target) {
+                // Hilangkan tooltip pada content area jika navigasi berisi tabel data
+                const isTableView = menuConfig[currentViewId] && (menuConfig[currentViewId].type === 'table' || currentViewId === 'overview');
+                const isInContentArea = target.closest('.content-area');
+                if (isInContentArea && isTableView) return;
                 let text = target.getAttribute('data-tooltip') || target.getAttribute('title') || '';
 
                 if (!text) {
