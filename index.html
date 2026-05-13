@@ -1105,22 +1105,17 @@
         }
 
         .modal-body input,
-        .modal-body select,
-        .modal-body textarea {
+        .modal-body select {
             padding: 0.5rem 0.65rem;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            color: #111827;
+            font-size: 0.8rem;
             outline: none;
             transition: border-color 0.2s;
-            font-family: inherit;
         }
 
         .modal-body input:focus,
-        .modal-body select:focus,
-        .modal-body textarea:focus {
+        .modal-body select:focus {
             border-color: #4f46e5;
         }
 
@@ -1897,23 +1892,6 @@
                     <li onclick="loadView('daftar-pelaksana', 'Daftar Pelaksana', this, true)">Daftar Pelaksana</li>
                 </ul>
             </li>
- 
-            <li class="nav-item has-submenu">
-                <div class="nav-header" onclick="toggleSubmenu(this)">
-                    <i class="fas fa-file-alt"></i> <span>Dokumen</span>
-                    <i class="fas fa-chevron-down toggle-icon"></i>
-                </div>
-                <ul class="submenu">
-                    <li onclick="loadView('dokumen-jrp-jobj', 'Dokumen JRP JOBJ', this, true)">JRP JOBJ</li>
-                    <li onclick="loadView('dokumen-ije-cao-ring-2', 'Dokumen IJE CAO Ring 2', this, true)">IJE CAO Ring 2</li>
-                    <li onclick="loadView('dokumen-ije-cao-ring-4', 'Dokumen IJE CAO Ring 4', this, true)">IJE CAO Ring 4</li>
-                    <li onclick="loadView('dokumen-ije-cao-ring-3a', 'Dokumen IJE CAO Ring 3a', this, true)">IJE CAO Ring 3a</li>
-                    <li onclick="loadView('dokumen-ije-cao-ring-3b', 'Dokumen IJE CAO Ring 3b', this, true)">IJE CAO Ring 3b</li>
-                    <li onclick="loadView('dokumen-ije-fm-ring-1', 'Dokumen IJE FM Ring 1', this, true)">IJE FM Ring 1</li>
-                    <li onclick="loadView('dokumen-surge-fm-expole', 'Dokumen SURGE FM Ex Pole', this, true)">SURGE FM Ex Pole</li>
-                    <li onclick="loadView('dokumen-surge-fm-newpole', 'Dokumen SURGE FM New Pole', this, true)">SURGE FM New Pole</li>
-                </ul>
-            </li>
         </ul>
     </aside>
 
@@ -2296,26 +2274,8 @@
             const s = status.toLowerCase();
             if (s.includes('selesai')) { bgColor = '#dcfce7'; textColor = '#16a34a'; }
             else if (s.includes('jalan') || s.includes('proses')) { bgColor = '#fef9c3'; textColor = '#ca8a04'; }
-            else if (s.includes('tunda') || s.includes('henti') || s === 'nok' || s.includes('reject')) { bgColor = '#fee2e2'; textColor = '#ef4444'; }
-            else if (s.includes('lunas') || s === 'ok') { bgColor = '#dcfce7'; textColor = '#16a34a'; }
-            else if (s.includes('submit')) { bgColor = '#dbeafe'; textColor = '#2563eb'; }
-            else if (s.includes('revisi') || s.includes('parsial')) { bgColor = '#ffedd5'; textColor = '#ea580c'; }
-            else if (s.includes('belum')) { bgColor = '#f3f4f6'; textColor = '#374151'; }
+            else if (s.includes('tunda') || s.includes('henti')) { bgColor = '#fee2e2'; textColor = '#ef4444'; }
             return `<span style="padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; background: ${bgColor}; color: ${textColor}; display: inline-block;">${status}</span>`;
-        }
-
-        function isNumericField(name) {
-            if (!name) return false;
-            const n = name.toLowerCase();
-            if (n.includes('bobot') || n.includes('tanggal') || n.includes('no') || n.includes('nomor') || n.includes('tel') || n.includes('ktp') || n.includes('rekening') || n.includes('id') || n.includes('url') || n.includes('email') || n.includes('alamat')) {
-                if (n === 'harga satuan' || n.includes('nilai') || n.includes('total')) return true;
-                return false;
-            }
-            const keywords = ['nilai', 'harga', 'volume', 'fo', 'boq', 'rekon', 'spk', 'terbayar', 'invoice', 'pembayaran'];
-            if (keywords.some(k => n.includes(k))) return true;
-            // Check for segment names (SURGE)
-            if (n.includes('manggarai') || n.includes('bogor') || n.includes('solo') || n.includes('malang')) return true;
-            return false;
         }
 
         function formatPercent(val) {
@@ -2432,16 +2392,7 @@
             'daftar-tagihan': { path: 'daftar-tagihan', type: 'table' },
 
             'daftar-karyawan': { path: 'daftar-karyawan', type: 'table' },
-            'daftar-pelaksana': { path: 'daftar-pelaksana', type: 'table' },
- 
-            'dokumen-jrp-jobj': { path: 'dokumen-jrp-jobj', type: 'table' },
-            'dokumen-ije-cao-ring-2': { path: 'dokumen-ije-cao-ring-2', type: 'table' },
-            'dokumen-ije-cao-ring-4': { path: 'dokumen-ije-cao-ring-4', type: 'table' },
-            'dokumen-ije-cao-ring-3a': { path: 'dokumen-ije-cao-ring-3a', type: 'table' },
-            'dokumen-ije-cao-ring-3b': { path: 'dokumen-ije-cao-ring-3b', type: 'table' },
-            'dokumen-ije-fm-ring-1': { path: 'dokumen-ije-fm-ring-1', type: 'table' },
-            'dokumen-surge-fm-expole': { path: 'dokumen-surge-fm-expole', type: 'table' },
-            'dokumen-surge-fm-newpole': { path: 'dokumen-surge-fm-newpole', type: 'table' }
+            'daftar-pelaksana': { path: 'daftar-pelaksana', type: 'table' }
         };
 
         let currentListener = null;
@@ -3331,9 +3282,7 @@
                         if (val && val.toDate) {
                             val = val.toDate().toISOString().split('T')[0];
                         }
-                        if (key.toLowerCase().includes('tanggal')) {
-                            input.value = val;
-                        } else if (isNumericField(key)) {
+                        if (['Nilai SPK', 'Nilai Invoice', 'Nilai Terbayar'].includes(key) && currentViewId === 'semua-proyek') {
                             input.value = formatCurrency(val);
                         } else {
                             input.value = val;
@@ -3440,27 +3389,27 @@
                 return `
                     <div class="form-group full">
                         <label>Nama Cluster</label>
-                        <input type="text" name="Nama Cluster" placeholder="Masukkan nama cluster" required>
+                        <input type="text" name="Nama Cluster" placeholder="Masukkan nama cluster">
                     </div>
                     <div class="form-group">
                         <label>Tipe</label>
-                        <input type="text" name="Tipe" placeholder="Masukkan tipe" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Zona</label>
-                        <input type="text" name="Zona" placeholder="Masukkan zona" required>
+                        <input type="text" name="Tipe" placeholder="Masukkan tipe">
                     </div>
                     <div class="form-group">
                         <label>HP BoQ</label>
-                        <input type="text" name="HP BoQ" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="HP BoQ" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Zona</label>
+                        <input type="text" name="Zona" placeholder="Masukkan zona">
                     </div>
                     <div class="form-group">
                         <label>Nilai BoQ</label>
-                        <input type="text" name="Nilai BoQ" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Nilai BoQ" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Bobot</label>
-                        <input type="number" step="0.0001" name="Bobot" placeholder="0.00" required>
+                        <input type="text" name="Bobot" placeholder="0.00000000000000000000" pattern="[0-9,]+(\.[0-9]{1,20})?" title="Format: 1,000.00000000000000000000">
                     </div>
                     <div class="form-group full">
                         <label>Keterangan</label>
@@ -3489,7 +3438,7 @@
                 let clusterFields = clusters.map(c => `
                     <div class="form-group">
                         <label>${c}</label>
-                        <input type="text" name="${c}" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="number" name="${c}" placeholder="0">
                     </div>
                 `).join('');
 
@@ -3504,11 +3453,11 @@
                     </div>
                     <div class="form-group">
                         <label>Harga Satuan Feeder</label>
-                        <input type="text" name="Harga Satuan Feeder" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="number" name="Harga Satuan Feeder" placeholder="0">
                     </div>
                     <div class="form-group">
                         <label>Harga Satuan Distribusi</label>
-                        <input type="text" name="Harga Satuan Distribusi" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="number" name="Harga Satuan Distribusi" placeholder="0">
                     </div>
                     ${clusterFields}
                     <div class="form-group full">
@@ -3520,19 +3469,19 @@
                 return `
                     <div class="form-group">
                         <label>Tanggal PO</label>
-                        <input type="date" name="Tanggal PO" required>
+                        <input type="date" name="Tanggal PO">
                     </div>
                     <div class="form-group">
                         <label>Nomor PO Material</label>
-                        <input type="text" name="Nomor PO Material" placeholder="Masukkan nomor PO" required>
+                        <input type="text" name="Nomor PO Material" placeholder="Masukkan nomor PO">
                     </div>
                     <div class="form-group full">
                         <label>Nama Supplier</label>
-                        <input type="text" name="Nama Supplier" placeholder="Masukkan nama supplier" required>
+                        <input type="text" name="Nama Supplier" placeholder="Masukkan nama supplier">
                     </div>
                     <div class="form-group full">
                         <label>Nama Material</label>
-                        <input type="text" name="Nama Material" placeholder="Masukkan nama material" required>
+                        <input type="text" name="Nama Material" placeholder="Masukkan nama material">
                     </div>
                     <div class="form-group full">
                         <label>Spesifikasi Material</label>
@@ -3540,23 +3489,23 @@
                     </div>
                     <div class="form-group">
                         <label>Satuan</label>
-                        <input type="text" name="Satuan" placeholder="Pcs/Mtr/Lot" required>
+                        <input type="text" name="Satuan" placeholder="Pcs/Mtr/Lot">
                     </div>
                     <div class="form-group">
                         <label>Volume</label>
-                        <input type="text" name="Volume" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Volume" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Harga Satuan</label>
-                        <input type="text" name="Harga Satuan" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Harga Satuan" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Total Harga</label>
-                        <input type="text" name="Total Harga" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="text" name="Total Harga" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Status Material</label>
-                        <select name="Status Material" required>
+                        <select name="Status Material">
                             <option value="Ordered">Ordered</option>
                             <option value="In Transit">In Transit</option>
                             <option value="Received">Received</option>
@@ -3583,23 +3532,23 @@
                     </div>
                     <div class="form-group">
                         <label>FO 48c</label>
-                        <input type="text" name="FO 48c" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="text" name="FO 48c" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>FO 96c</label>
-                        <input type="text" name="FO 96c" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="text" name="FO 96c" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Total FO</label>
-                        <input type="text" name="Total FO" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="text" name="Total FO" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>BoQ Ext Pole</label>
-                        <input type="text" name="BoQ Ext Pole" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="text" name="BoQ Ext Pole" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Bobot</label>
-                        <input type="number" step="0.0001" name="Bobot" placeholder="0.00">
+                        <input type="text" name="Bobot" placeholder="0.00000000000000000000" pattern="[0-9,]+(\.[0-9]{1,20})?" title="Format: 1,000.00000000000000000000">
                     </div>
                     <div class="form-group full">
                         <label>Keterangan</label>
@@ -3618,23 +3567,23 @@
                     </div>
                     <div class="form-group">
                         <label>FO 96c_A</label>
-                        <input type="text" name="FO 96c_A" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="text" name="FO 96c_A" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>FO 96c_B</label>
-                        <input type="text" name="FO 96c_B" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="text" name="FO 96c_B" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Total FO</label>
-                        <input type="text" name="Total FO" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="text" name="Total FO" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>BoQ New Pole</label>
-                        <input type="text" name="BoQ New Pole" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="text" name="BoQ New Pole" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Bobot</label>
-                        <input type="number" step="0.0001" name="Bobot" placeholder="0.00">
+                        <input type="text" name="Bobot" placeholder="0.00000000000000000000" pattern="[0-9,]+(\.[0-9]{1,20})?" title="Format: 1,000.00000000000000000000">
                     </div>
                     <div class="form-group full">
                         <label>Keterangan</label>
@@ -3645,27 +3594,27 @@
                 return `
                     <div class="form-group full">
                         <label>Item Pekerjaan</label>
-                        <input type="text" name="Item Pekerjaan" required>
+                        <input type="text" name="Item Pekerjaan">
                     </div>
                     <div class="form-group">
                         <label>Satuan</label>
-                        <input type="text" name="Satuan" required>
+                        <input type="text" name="Satuan">
                     </div>
                     <div class="form-group">
                         <label>Harga Satuan</label>
-                        <input type="text" name="Harga Satuan" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Harga Satuan" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Volume BoQ</label>
-                        <input type="text" name="Volume BoQ" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Volume BoQ" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Total Nilai BoQ</label>
-                        <input type="text" name="Total Nilai BoQ" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Total Nilai BoQ" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Bobot</label>
-                        <input type="number" step="0.0001" name="Bobot" placeholder="0.00" required>
+                        <input type="text" name="Bobot" placeholder="0.00000000000000000000" pattern="[0-9,]+(\.[0-9]{1,20})?" title="Format: 1,000.00000000000000000000">
                     </div>
                     <div class="form-group full">
                         <label>Keterangan</label>
@@ -3688,7 +3637,7 @@
                 let segmentFields = segments.map(s => `
                     <div class="form-group">
                         <label>${s}</label>
-                        <input type="text" name="${s}" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                        <input type="number" name="${s}" placeholder="0">
                     </div>
                 `).join('');
 
@@ -3703,7 +3652,7 @@
                     </div>
                     <div class="form-group">
                         <label>Harga Satuan</label>
-                        <input type="text" name="Harga Satuan" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="number" name="Harga Satuan" placeholder="0" required>
                     </div>
                     ${segmentFields}
                     <div class="form-group full">
@@ -3715,19 +3664,19 @@
                 return `
                     <div class="form-group">
                         <label>Tanggal PO</label>
-                        <input type="date" name="Tanggal PO" required>
+                        <input type="date" name="Tanggal PO">
                     </div>
                     <div class="form-group">
                         <label>Nomor PO Material</label>
-                        <input type="text" name="Nomor PO Material" required>
+                        <input type="text" name="Nomor PO Material">
                     </div>
                     <div class="form-group full">
                         <label>Nama Supplier</label>
-                        <input type="text" name="Nama Supplier" required>
+                        <input type="text" name="Nama Supplier">
                     </div>
                     <div class="form-group full">
                         <label>Nama Material</label>
-                        <input type="text" name="Nama Material" required>
+                        <input type="text" name="Nama Material">
                     </div>
                     <div class="form-group full">
                         <label>Spesifikasi Material</label>
@@ -3735,23 +3684,23 @@
                     </div>
                     <div class="form-group">
                         <label>Satuan</label>
-                        <input type="text" name="Satuan" required>
+                        <input type="text" name="Satuan">
                     </div>
                     <div class="form-group">
                         <label>Volume</label>
-                        <input type="text" name="Volume" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Volume" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Harga Satuan</label>
-                        <input type="text" name="Harga Satuan" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Harga Satuan" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Total Harga</label>
-                        <input type="text" name="Total Harga" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Total Harga" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Status Material</label>
-                        <select name="Status Material" required>
+                        <select name="Status Material">
                             <option value="In Progress">In Progress</option>
                             <option value="Dikirim">Dikirim</option>
                             <option value="Diterima">Diterima</option>
@@ -3770,23 +3719,23 @@
                 return `
                     <div class="form-group full">
                         <label>Item Pekerjaan</label>
-                        <input type="text" name="Item Pekerjaan" required>
+                        <input type="text" name="Item Pekerjaan">
                     </div>
                     <div class="form-group">
                         <label>Satuan</label>
-                        <input type="text" name="Satuan" required>
+                        <input type="text" name="Satuan">
                     </div>
                     <div class="form-group">
                         <label>Harga Satuan</label>
-                        <input type="text" name="Harga Satuan" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Harga Satuan" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Volume BoQ</label>
-                        <input type="text" name="Volume BoQ" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Volume BoQ" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Total Nilai BoQ</label>
-                        <input type="text" name="Total Nilai BoQ" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Total Nilai BoQ" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group full">
                         <label>Keterangan</label>
@@ -3805,15 +3754,15 @@
                     </div>
                     <div class="form-group">
                         <label>Harga Satuan</label>
-                        <input type="text" name="Harga Satuan" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="number" name="Harga Satuan" placeholder="0" required>
                     </div>
                     <div class="form-group">
                         <label>Volume BoQ</label>
-                        <input type="text" name="Volume BoQ" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="number" name="Volume BoQ" placeholder="0" required>
                     </div>
                     <div class="form-group">
                         <label>Total Nilai BoQ</label>
-                        <input type="text" name="Total Nilai BoQ" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="number" name="Total Nilai BoQ" placeholder="0" required>
                     </div>
                     <div class="form-group">
                         <label>Bobot</label>
@@ -3828,23 +3777,23 @@
                 return `
                     <div class="form-group full">
                         <label>Item Pekerjaan</label>
-                        <input type="text" name="Item Pekerjaan" required>
+                        <input type="text" name="Item Pekerjaan">
                     </div>
                     <div class="form-group">
                         <label>Satuan</label>
-                        <input type="text" name="Satuan" required>
+                        <input type="text" name="Satuan">
                     </div>
                     <div class="form-group">
                         <label>Harga Satuan</label>
-                        <input type="text" name="Harga Satuan" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Harga Satuan" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Volume Rekon</label>
-                        <input type="text" name="Volume Rekon" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Volume Rekon" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Total Nilai Rekon</label>
-                        <input type="text" name="Total Nilai Rekon" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Total Nilai Rekon" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group full">
                         <label>Keterangan</label>
@@ -3855,27 +3804,23 @@
                 return `
                     <div class="form-group">
                         <label>Tanggal Pembayaran</label>
-                        <input type="date" name="Tanggal Pembayaran" required>
+                        <input type="date" name="Tanggal Pembayaran">
                     </div>
                     <div class="form-group">
                         <label>Nilai Pembayaran</label>
-                        <input type="text" name="Nilai Pembayaran" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Nilai Pembayaran" placeholder="0.00" pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group full">
                         <label>Nama Perusahaan</label>
-                        <input type="text" name="Nama Perusahaan" placeholder="Masukkan nama perusahaan" required>
+                        <input type="text" name="Nama Perusahaan" placeholder="Masukkan nama perusahaan">
                     </div>
                     <div class="form-group full">
                         <label>Nama SPK</label>
-                        <input type="text" name="Nama SPK" placeholder="Masukkan nama proyek/SPK" required>
-                    </div>
-                    <div class="form-group full">
-                        <label>Nama Lokasi</label>
-                        <input type="text" name="Nama Lokasi" placeholder="Masukkan nama lokasi">
+                        <input type="text" name="Nama SPK" placeholder="Masukkan nama proyek/SPK">
                     </div>
                     <div class="form-group">
                         <label>Status</label>
-                        <select name="Status" required>
+                        <select name="Status">
                             <option value="OK">OK</option>
                             <option value="NOK">NOK</option>
                         </select>
@@ -3913,26 +3858,26 @@
                     </div>
                     <div class="form-group">
                         <label>Nilai Invoice</label>
-                        <input type="text" name="Nilai Invoice" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Nilai Invoice" placeholder="0.00" required pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Status Invoice</label>
                         <select name="Status Invoice" required>
-                            <option value="Submit">Submit</option>
-                            <option value="Revisi">Revisi</option>
                             <option value="Reject">Reject</option>
+                            <option value="Revisi">Revisi</option>
+                            <option value="Submit">Submit</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Nilai Pembayaran</label>
-                        <input type="text" name="Nilai Pembayaran" placeholder="0.00" onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')" required>
+                        <input type="text" name="Nilai Pembayaran" placeholder="0.00" required pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                     </div>
                     <div class="form-group">
                         <label>Status Pembayaran</label>
                         <select name="Status Pembayaran" required>
                             <option value="Belum dibayar">Belum dibayar</option>
-                            <option value="Parsial">Parsial</option>
-                            <option value="Lunas">Lunas</option>
+                            <option value="Sudah dibayar">Sudah dibayar</option>
+                            <option value="Dicicil">Dicicil</option>
                         </select>
                     </div>
                     <div class="form-group full">
@@ -4060,15 +4005,15 @@
                 </div>
                 <div class="form-group">
                     <label>Nilai SPK</label>
-                    <input type="text" name="Nilai SPK" placeholder="0.00" required onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                    <input type="text" name="Nilai SPK" placeholder="0.00" required pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                 </div>
                 <div class="form-group">
                     <label>Nilai Invoice</label>
-                    <input type="text" name="Nilai Invoice" placeholder="0.00" required onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                    <input type="text" name="Nilai Invoice" placeholder="0.00" required pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                 </div>
                 <div class="form-group">
                     <label>Nilai Terbayar</label>
-                    <input type="text" name="Nilai Terbayar" placeholder="0.00" required onblur="this.value = formatCurrency(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                    <input type="text" name="Nilai Terbayar" placeholder="0.00" required pattern="[0-9,]+(\.[0-9]{2})?" title="Format: 1,000.00">
                 </div>
                 <div class="form-group">
                     <label>Status Proyek</label>
@@ -4122,29 +4067,91 @@
                 };
 
                 // Convert numbers and dates
-                // Global parse for numeric fields
-                for (const key in rawData) {
-                    if (isNumericField(key)) {
-                        docData[key] = parseFloat(String(rawData[key]).replace(/,/g, '')) || 0;
-                    }
-                }
-                
-                // Specific conversions for dates and exceptions
                 if (currentViewId === 'jrp-jobj-spk') {
+                    if (rawData['HP BoQ']) docData['HP BoQ'] = parseFloat(rawData['HP BoQ']) || 0;
+                    if (rawData['Nilai BoQ']) docData['Nilai BoQ'] = parseFloat(rawData['Nilai BoQ']) || 0;
                     if (rawData['Bobot']) docData['Bobot'] = parseFloat(rawData['Bobot']) || 0;
+                } else if (currentViewId === 'jrp-jobj-boq') {
+                    const clusters = [
+                        'Feeder', 'Discovery Alton', 'Discovery Cielo', 'Discovery Terra',
+                        'Discovery Amore', 'Discovery Serenity', 'Discovery Eola',
+                        'Discovery Flamine', 'Discovery Conserva', 'Discovery Fiore',
+                        'Discovery Lumina', 'Discovery Altezza', 'Discovery Aluvia',
+                        'Emerald Avenue 1 Ruko', 'Kebayoran Square', 'Ruko Kebayoran Arcade',
+                        'Kebayoran Arcade 2', 'Kebayoran Arcade 3', 'Kebayoran Arcade 5',
+                        'CBD Emerald', 'Emerald Home', 'Kebayoran Terrace', 'Kebayoran View',
+                        'Kebayoran Essence', 'Kebayoran Piazza', 'Kebayoran Harmony',
+                        'Kebayoran Villas', 'Kebayoran Garden', 'Kebayoran Heights',
+                        'Kebayoran Village', 'Kebayoran Infinity', 'Kebayoran Symphoni',
+                        'Emerald Avenue 2 Ruko', 'Dharmawangsa', 'Bursa Mobil',
+                        'Bukit Menteng', 'Emerald Garden', 'Emerald Residence',
+                        'Emerald Townhouse', 'Althia Park', 'Mahagoni Park',
+                        'Cluster Vazza Plumeria', 'Emerald View',
+                        'Emerald Terrace', 'Botanica Aralia'
+                    ];
+                    const numericFields = ['Harga Satuan Feeder', 'Harga Satuan Distribusi', ...clusters];
+                    numericFields.forEach(f => {
+                        if (rawData[f]) docData[f] = parseFloat(rawData[f]) || 0;
+                    });
                 } else if (currentViewId === 'jrp-jobj-material' || currentViewId === 'ije-cao-ring-2-material' || currentViewId === 'ije-cao-ring-4-material' || currentViewId === 'ije-cao-ring-3a-material' || currentViewId === 'ije-cao-ring-3b-material' || currentViewId === 'ije-fm-ring-1-material' || currentViewId === 'surge-fm-expole-material' || currentViewId === 'surge-fm-newpole-material') {
+                    if (rawData['Volume']) docData['Volume'] = parseFloat(rawData['Volume']) || 0;
+                    if (rawData['Harga Satuan']) docData['Harga Satuan'] = parseFloat(rawData['Harga Satuan']) || 0;
+                    if (rawData['Total Harga']) docData['Total Harga'] = parseFloat(rawData['Total Harga']) || 0;
                     if (rawData['Tanggal PO']) docData['Tanggal PO'] = Timestamp.fromDate(new Date(rawData['Tanggal PO']));
                 } else if (currentViewId === 'surge-fm-expole-spk') {
+                    if (rawData['FO 48c']) docData['FO 48c'] = parseFloat(rawData['FO 48c']) || 0;
+                    if (rawData['FO 96c']) docData['FO 96c'] = parseFloat(rawData['FO 96c']) || 0;
+                    if (rawData['Total FO']) docData['Total FO'] = parseFloat(rawData['Total FO']) || 0;
+                    if (rawData['BoQ Ext Pole']) docData['BoQ Ext Pole'] = parseFloat(rawData['BoQ Ext Pole']) || 0;
                     if (rawData['Bobot']) docData['Bobot'] = parseFloat(rawData['Bobot']) || 0;
                 } else if (currentViewId === 'surge-fm-newpole-spk') {
+                    if (rawData['FO 96c_A']) docData['FO 96c_A'] = parseFloat(rawData['FO 96c_A']) || 0;
+                    if (rawData['FO 96c_B']) docData['FO 96c_B'] = parseFloat(rawData['FO 96c_B']) || 0;
+                    if (rawData['Total FO']) docData['Total FO'] = parseFloat(rawData['Total FO']) || 0;
+                    if (rawData['BoQ New Pole']) docData['BoQ New Pole'] = parseFloat(rawData['BoQ New Pole']) || 0;
                     if (rawData['Bobot']) docData['Bobot'] = parseFloat(rawData['Bobot']) || 0;
                 } else if (currentViewId === 'ije-cao-ring-2-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-3b-spk' || currentViewId === 'ije-fm-ring-1-spk') {
+                    if (rawData['Harga Satuan']) docData['Harga Satuan'] = parseFloat(rawData['Harga Satuan']) || 0;
+                    if (rawData['Volume BoQ']) docData['Volume BoQ'] = parseFloat(rawData['Volume BoQ']) || 0;
+                    if (rawData['Total Nilai BoQ']) docData['Total Nilai BoQ'] = parseFloat(rawData['Total Nilai BoQ']) || 0;
                     if (rawData['Bobot']) docData['Bobot'] = parseFloat(rawData['Bobot']) || 0;
+                } else if (currentViewId === 'surge-fm-expole-boq' || currentViewId === 'surge-fm-newpole-boq') {
+                    const segments = [
+                        'Manggarai - Citayam - Bogor', 'Bogor - Sukabumi', 'Manggarai - Jakarta Kota', 'Manggarai - Duri - Tangerang',
+                        'Tanah Abang - Serpong', 'Serpong - Rangkasbitung', 'Rangkasbitung - Serang', 'Serang - Krenceng - Merak',
+                        'Jatinegara - Manggarai - Tanjung Priok', 'Jatinegara - Cikarang', 'Cikarang - Cikampek', 'Cikampek - Haurgeulis',
+                        'Haurgeulis - Jatibarang', 'Jatibarang - Cirebon', 'Cikampek - Plered', 'Plered - Padalarang',
+                        'Padalarang - Lebakjero', 'Lebakjero - Cibatu', 'Cibatu - Garut', 'Cibatu - Tasikmalaya',
+                        'Sukabumi - Cianjur', 'Cianjur - Padalarang', 'Brumbung - Gundih', 'Gundih - Gambringan',
+                        'Purwokerto - Kroya', 'Kroya - Kebumen', 'Kebumen - Jenar', 'Jenar - Kedundang',
+                        'Kedundang - Tugu Jogja', 'Tugu Jogja - Klaten', 'Klaten - Purwosari', 'Purwosari - Wonogiri',
+                        'Purwosari - Gundih', 'Solo Balapan - Walikukun', 'Walikukun - Madiun', 'Kediri - Ngunut',
+                        'Ngunut - Wlingi', 'Wlingi - Malang'
+                    ];
+                    if (rawData['Harga Satuan']) docData['Harga Satuan'] = parseFloat(rawData['Harga Satuan']) || 0;
+                    segments.forEach(s => {
+                        if (rawData[s]) docData[s] = parseFloat(rawData[s]) || 0;
+                    });
+                } else if (currentViewId === 'ije-cao-ring-2-boq' || currentViewId === 'ije-cao-ring-4-boq' || currentViewId === 'ije-cao-ring-3a-boq' || currentViewId === 'ije-cao-ring-3b-boq' || currentViewId === 'ije-fm-ring-1-boq') {
+                    if (rawData['Harga Satuan']) docData['Harga Satuan'] = parseFloat(rawData['Harga Satuan']) || 0;
+                    if (rawData['Volume BoQ']) docData['Volume BoQ'] = parseFloat(rawData['Volume BoQ']) || 0;
+                    if (rawData['Total Nilai BoQ']) docData['Total Nilai BoQ'] = parseFloat(rawData['Total Nilai BoQ']) || 0;
+                } else if (currentViewId.endsWith('-rekon')) {
+                    if (rawData['Harga Satuan']) docData['Harga Satuan'] = parseFloat(rawData['Harga Satuan']) || 0;
+                    if (rawData['Volume Rekon']) docData['Volume Rekon'] = parseFloat(rawData['Volume Rekon']) || 0;
+                    if (rawData['Total Nilai Rekon']) docData['Total Nilai Rekon'] = parseFloat(rawData['Total Nilai Rekon']) || 0;
                 } else if (currentViewId === 'daftar-pembayaran') {
+                    if (rawData['Nilai Pembayaran']) docData['Nilai Pembayaran'] = parseFloat(rawData['Nilai Pembayaran']) || 0;
                     if (rawData['Tanggal Pembayaran']) docData['Tanggal Pembayaran'] = Timestamp.fromDate(new Date(rawData['Tanggal Pembayaran']));
                 } else if (currentViewId === 'daftar-tagihan') {
+                    if (rawData['Nilai Invoice']) docData['Nilai Invoice'] = parseFloat(rawData['Nilai Invoice']) || 0;
+                    if (rawData['Nilai Pembayaran']) docData['Nilai Pembayaran'] = parseFloat(rawData['Nilai Pembayaran']) || 0;
                     if (rawData['Tanggal Invoice']) docData['Tanggal Invoice'] = Timestamp.fromDate(new Date(rawData['Tanggal Invoice']));
+                    if (rawData['Tanggal Pembayaran']) docData['Tanggal Pembayaran'] = Timestamp.fromDate(new Date(rawData['Tanggal Pembayaran']));
                 } else {
+                    if (rawData['Nilai SPK']) docData['Nilai SPK'] = parseFloat(String(rawData['Nilai SPK']).replace(/,/g, '')) || 0;
+                    if (rawData['Nilai Invoice']) docData['Nilai Invoice'] = parseFloat(String(rawData['Nilai Invoice']).replace(/,/g, '')) || 0;
+                    if (rawData['Nilai Terbayar']) docData['Nilai Terbayar'] = parseFloat(String(rawData['Nilai Terbayar']).replace(/,/g, '')) || 0;
                     if (rawData['Tanggal SPK']) docData['Tanggal SPK'] = Timestamp.fromDate(new Date(rawData['Tanggal SPK']));
                 }
 
@@ -4237,7 +4244,7 @@
             } else if (currentViewId === 'daftar-pembayaran') {
                 headers = [
                     'Tanggal Pembayaran', 'Nilai Pembayaran', 'Nama Perusahaan',
-                    'Nama SPK', 'Nama Lokasi', 'Status', 'Keterangan'
+                    'Nama SPK', 'Status', 'Keterangan'
                 ];
             } else if (currentViewId === 'daftar-tagihan') {
                 headers = [
@@ -4723,9 +4730,6 @@
                         } else if (h === 'Nilai Pembayaran') {
                             val = formatCurrency(val);
                             style = 'text-align: right;';
-                        } else if (h === 'Status') {
-                            val = renderStatusBadge(val);
-                            style = 'text-align: center;';
                         } else {
                             style = 'text-align: left;';
                         }
