@@ -5146,7 +5146,30 @@
                     html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
                 });
                 html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
+            } else if (currentViewId === 'jrp-jobj-bon-material') {
+                let totalVolume = 0;
+                items.forEach(item => {
+                    totalVolume += parseFloat(String(item['Volume']).replace(/,/g, '')) || 0;
+                });
+
+                html += `<tfoot><tr style="background: var(--bg-surface); font-weight: 700; border-top: 2px solid var(--border-color);">`;
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // View/Edit column
+                html += `<td style="text-align: center; padding: 0.5rem;"></td>`; // No column
+                headers.forEach(h => {
+                    let val = '';
+                    let style = '';
+                    if (h === 'Tanggal SJ') {
+                        val = 'Total';
+                        style = 'text-align: left;';
+                    } else if (h === 'Volume') {
+                        val = formatCurrency(totalVolume);
+                        style = 'text-align: right;';
+                    }
+                    html += `<td style="${style} padding: 0.5rem;">${val}</td>`;
+                });
+                html += `<td style="text-align: center; padding: 0.5rem;"></td></tr></tfoot>`;
             }
+
 
             // Calculate totals for IJE Rekon views
             const viewsWithTotalNilaiRekon = [
@@ -5178,7 +5201,7 @@
             }
 
             // Calculate totals for Material views
-            if (currentViewId.endsWith('-material')) {
+            if (currentViewId.endsWith('-material') && !currentViewId.includes('bon-material')) {
                 let totalHarga = 0;
                 items.forEach(item => {
                     const val = parseFloat(String(item['Total Harga']).replace(/,/g, '')) || 0;
