@@ -878,7 +878,7 @@
 
         /* Specific Grid for JRP JOBJ - Bon Material */
         .filter-row-bon {
-            grid-template-columns: 2fr 0.8fr 1.2fr 0.8fr 36px 36px 36px 36px auto !important;
+            grid-template-columns: 2fr 0.8fr 1.2fr 0.8fr 36px 36px 36px 36px !important;
         }
 
         .filter-row-bon .action-group {
@@ -887,7 +887,7 @@
 
         @media (max-width: 768px) {
             .filter-row-bon {
-                grid-template-columns: repeat(2, 1fr) !important;
+                grid-template-columns: repeat(4, 1fr) !important;
             }
             .filter-row-bon > .filter-item:nth-child(1) {
                 grid-column: span 2 !important;
@@ -895,7 +895,24 @@
             .filter-row-bon .action-group {
                 display: flex !important;
                 gap: 4px;
+                grid-column: span 1 !important;
+                justify-content: flex-start;
+                align-items: end;
+            }
+        }
+
+        /* Desktop/Tablet: 2 rows layout for Bon Material */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .filter-row-bon {
+                grid-template-columns: repeat(4, 1fr) !important;
+            }
+            .filter-row-bon > .filter-item:nth-child(1) {
                 grid-column: span 2 !important;
+            }
+            .filter-row-bon .action-group {
+                display: flex !important;
+                gap: 4px;
+                grid-column: span 1 !important;
                 justify-content: flex-start;
                 align-items: end;
             }
@@ -2883,7 +2900,7 @@
                         date = new Date(val);
                     }
                     if (isNaN(date.getTime())) return val;
-                    return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
+                    return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
                 } catch (e) { return val; }
             }
 
