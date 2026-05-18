@@ -4083,6 +4083,56 @@
                         <textarea name="Keterangan" rows="2" class="form-control" placeholder="Masukkan keterangan tambahan..."></textarea>
                     </div>
                 `;
+            } else if (viewId === 'daftar-absensi') {
+                return `
+                    <div class="form-group">
+                        <label>Tanggal</label>
+                        <input type="date" name="Tanggal" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Karyawan</label>
+                        <input type="text" name="Nama Karyawan" placeholder="Masukkan nama karyawan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>NIK</label>
+                        <input type="text" name="NIK" placeholder="Masukkan NIK" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nama PM</label>
+                        <input type="text" name="Nama PM" placeholder="Masukkan nama PM">
+                    </div>
+                    <div class="form-group full">
+                        <label>Lokasi Kerja</label>
+                        <input type="text" name="Lokasi Kerja" placeholder="Masukkan lokasi kerja">
+                    </div>
+                    <div class="form-group full">
+                        <label>Keterangan/Project</label>
+                        <input type="text" name="Keterangan/Project" placeholder="Masukkan keterangan atau nama project">
+                    </div>
+                    <div class="form-group">
+                        <label>Check In</label>
+                        <input type="time" name="Check In" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Check Out</label>
+                        <input type="time" name="Check Out" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Jam Kerja</label>
+                        <input type="text" name="Total Jam Kerja" placeholder="Contoh: 8 jam" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="Status" required>
+                            <option value="">Pilih Status</option>
+                            <option value="Hadir">Hadir</option>
+                            <option value="Izin">Izin</option>
+                            <option value="Sakit">Sakit</option>
+                            <option value="Alpa">Alpa</option>
+                            <option value="Cuti">Cuti</option>
+                        </select>
+                    </div>
+                `;
             }
 
             // Default fields (Semua Proyek)
