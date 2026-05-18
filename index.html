@@ -608,296 +608,85 @@
             }
         }
 
-        /* Filter Bar Styles */
+        /* Filter Bar Styles - Universal 2 Row Layout */
         .filter-bar {
-            padding: 0.75rem;
+            padding: 0.5rem;
             background: #ffffff;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.5rem;
             width: 100%;
         }
 
+        /* Universal Filter Row - Always 2 rows */
         .filter-row {
             display: grid;
-            gap: 8px;
+            gap: 6px;
             width: 100%;
             align-items: end;
-            /* Desktop/Tablet: Fixed width for icon buttons */
-            grid-template-columns: 2fr 0.8fr 1fr 1fr 0.9fr 0.8fr 36px 36px 36px 36px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-auto-flow: dense;
         }
 
-        /* Specific Grid for JRP JOBJ - SPK (8 items) */
-        .filter-row-spk {
-            grid-template-columns: 1.5fr 0.8fr 0.8fr 0.7fr 36px 36px 36px 36px !important;
-        }
-
-        @media (max-width: 768px) {
-            .filter-row-spk {
-                grid-template-columns: repeat(4, 1fr) !important;
-            }
-
-            .filter-row-spk>.filter-item:nth-child(1) {
-                grid-column: span 2 !important;
-            }
-
-            .filter-row-spk .action-group {
-                display: flex !important;
-                gap: 4px;
-                grid-column: span 2 !important;
-                justify-content: flex-start;
-                align-items: end;
-            }
-        }
-
-        /* Specific Grid for JRP JOBJ - BoQ (6 items) */
-        .filter-row-boq {
-            grid-template-columns: 2fr 0.8fr 36px 36px 36px 36px !important;
-        }
-
-        @media (max-width: 768px) {
-            .filter-row-boq {
-                grid-template-columns: 1fr 1fr !important;
-            }
-
-            .filter-row-boq>.filter-item:nth-child(1) {
-                grid-column: span 2 !important;
-            }
-
-            .filter-row-boq .action-group {
-                display: flex !important;
-                gap: 4px;
-                grid-column: span 1 !important;
-                justify-content: flex-start;
-                align-items: end;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .filter-row {
-                /* Mobile: tetap 5 kolom */
-                grid-template-columns: repeat(5, 1fr);
-            }
-
-            .filter-row> :nth-child(1) {
-                grid-column: auto;
-            }
-
-            .action-group {
-                display: flex !important;
-                gap: 8px;
-                grid-column: span 4;
-                justify-content: flex-start;
-                align-items: end;
-            }
-        }
-
-        /* Desktop/Tablet behavior for action group */
-        .action-group {
-            display: contents;
-        }
-
-        /* Specific Grid for Daftar Tagihan */
-        .filter-row-tagihan {
-            display: grid;
-            gap: 8px;
-            width: 100%;
-            align-items: end;
-            grid-template-columns: 2fr repeat(6, 1fr) 0.8fr auto;
-        }
-
-        .filter-row-tagihan .action-group {
+        /* Force action buttons to second row */
+        .filter-row .action-group {
+            grid-column: 1 / -1;
             display: flex !important;
-            gap: 4px;
+            gap: 6px;
             justify-content: flex-start;
-            align-items: end;
+            align-items: center;
         }
 
-        /* Specific Grid for Daftar Karyawan */
-        .filter-row-karyawan {
-            display: grid;
-            gap: 8px;
-            width: 100%;
-            align-items: end;
-            grid-template-columns: 2fr 1.2fr 1.2fr 0.8fr auto;
-        }
-
-        .filter-row-karyawan .action-group {
-            display: flex !important;
-            gap: 4px;
-            justify-content: flex-start;
-            align-items: end;
-        }
-
-        @media (max-width: 768px) {
-            .filter-row-karyawan {
-                grid-template-columns: repeat(4, 1fr);
-            }
-
-            .filter-row-karyawan>.filter-item:nth-child(1) {
-                grid-column: span 2;
-            }
-
-            .filter-row-karyawan .action-group {
-                display: flex !important;
-                gap: 4px;
-                grid-column: span 3;
-                justify-content: flex-start;
-                align-items: end;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .filter-row-tagihan {
-                grid-template-columns: repeat(6, 1fr);
-            }
-
-            .filter-row-tagihan>.filter-item:nth-child(1) {
-                grid-column: span 2;
-            }
-
-            .filter-row-tagihan .action-group {
-                display: flex !important;
-                gap: 4px;
-                grid-column: span 3;
-                justify-content: flex-start;
-                align-items: end;
-            }
-
-
-            /* Specific Grid for Dashboard / Semua Proyek */
-            .filter-row-dashboard {
-                display: grid;
-                gap: 8px;
-                width: 100%;
-                align-items: end;
-                grid-template-columns: 1.5fr 0.7fr 1fr 1fr 0.9fr 0.7fr 36px 36px 36px 36px;
-            }
-
-            .filter-row-dashboard .action-group {
-                display: contents;
-            }
-
-            @media (max-width: 768px) {
-                .filter-row-dashboard {
-                    grid-template-columns: repeat(4, 1fr);
-                }
-
-                .filter-row-dashboard>.filter-item:nth-child(1) {
-                    grid-column: span 2;
-                }
-
-                .filter-row-dashboard .action-group {
-                    display: flex !important;
-                    gap: 4px;
-                    grid-column: span 1;
-                    justify-content: flex-start;
-                    align-items: end;
-                }
-            }
-        }
-
-        /* Specific Grid for IJE / Compact Views */
-        .filter-row-ije {
-            grid-template-columns: 1.5fr 0.8fr auto 1fr !important;
-        }
-
-        .filter-row-ije .action-group {
-            display: flex !important;
-            gap: 4px;
-            justify-content: flex-start;
-            align-items: end;
-        }
-
-        @media (max-width: 768px) {
-            .filter-row-ije {
-                grid-template-columns: 1fr 1fr !important;
-            }
-
-            .filter-row-ije>.filter-item:nth-child(1) {
-                grid-column: span 2 !important;
-            }
-
-            .filter-row-ije .action-group {
-                grid-column: span 1 !important;
-            }
-        }
-
-            }
-        }
-
-        /* Specific Grid for SURGE FM */
-        .filter-row-surge {
-            grid-template-columns: 1.5fr 1fr 0.8fr auto 1fr !important;
-        }
-
-        .filter-row-surge .action-group {
-            display: flex !important;
-            gap: 4px;
-            justify-content: flex-start;
-            align-items: end;
-        }
-
-        @media (max-width: 768px) {
-            .filter-row-surge {
-                grid-template-columns: repeat(3, 1fr) !important;
-            }
-            .filter-row-surge > .filter-item:nth-child(1) {
-                grid-column: span 2 !important;
-            }
-            .filter-row-surge .action-group {
-                grid-column: span 2 !important;
-            }
-        }
-
-        /* Specific Grid for IJE Rekon views (search + entries + 4 icon buttons) */
-        .filter-row-rekon {
-            grid-template-columns: 2fr 0.8fr 36px 36px 36px 36px !important;
-        }
-
-        .filter-row-rekon .action-group {
-            display: contents !important;
-        }
-
-        @media (max-width: 768px) {
-            .filter-row-rekon {
-                grid-template-columns: 1fr 1fr !important;
-            }
-            .filter-row-rekon > .filter-item:nth-child(1) {
-                grid-column: span 2 !important;
-            }
-            .filter-row-rekon .action-group {
-                display: flex !important;
-                gap: 4px;
-                grid-column: span 1 !important;
-                justify-content: flex-start;
-                align-items: end;
-            }
-        }
-
-        /* Specific Grid for JRP JOBJ - Bon Material */
+        /* All specific filter row classes inherit base behavior */
+        .filter-row-spk,
+        .filter-row-boq,
+        .filter-row-tagihan,
+        .filter-row-karyawan,
+        .filter-row-dashboard,
+        .filter-row-ije,
+        .filter-row-surge,
+        .filter-row-rekon,
         .filter-row-bon {
-            grid-template-columns: 2fr 0.8fr 1.2fr 0.8fr 36px 36px 36px 36px !important;
+            display: grid;
+            gap: 6px;
+            width: 100%;
+            align-items: end;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         }
 
+        /* Force all action groups to second row */
+        .filter-row-spk .action-group,
+        .filter-row-boq .action-group,
+        .filter-row-tagihan .action-group,
+        .filter-row-karyawan .action-group,
+        .filter-row-dashboard .action-group,
+        .filter-row-ije .action-group,
+        .filter-row-surge .action-group,
+        .filter-row-rekon .action-group,
         .filter-row-bon .action-group {
-            display: contents !important;
+            grid-column: 1 / -1 !important;
+            display: flex !important;
+            gap: 6px;
+            justify-content: flex-start;
+            align-items: center;
         }
 
+        /* Responsive adjustments */
         @media (max-width: 768px) {
+            .filter-row,
+            .filter-row-spk,
+            .filter-row-boq,
+            .filter-row-tagihan,
+            .filter-row-karyawan,
+            .filter-row-dashboard,
+            .filter-row-ije,
+            .filter-row-surge,
+            .filter-row-rekon,
             .filter-row-bon {
-                grid-template-columns: repeat(4, 1fr) !important;
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             }
-            .filter-row-bon > .filter-item:nth-child(1) {
-                grid-column: span 2 !important;
-            }
-            .filter-row-bon .action-group {
-                display: flex !important;
-                gap: 4px;
-                grid-column: span 1 !important;
-                justify-content: flex-start;
-                align-items: end;
+        }
             }
         }
 
