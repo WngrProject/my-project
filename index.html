@@ -4363,6 +4363,9 @@
                 lokasiKerjaList = [...new Set(rawProjectData.map(item => item['Lokasi Kerja']).filter(v => v))].sort();
                 projectList = [...new Set(rawProjectData.map(item => item['Keterangan/Project']).filter(v => v))].sort();
                 hadirList = [...new Set(rawProjectData.map(item => item['Status']).filter(v => v))].sort();
+            } else if (currentViewId === 'daftar-pembayaran') {
+                perusahaanList = [...new Set(rawProjectData.map(item => item['Nama Perusahaan']).filter(v => v))].sort();
+                spkList = [...new Set(rawProjectData.map(item => item['Nama SPK']).filter(v => v))].sort();
             }
 
             const isSPKView = currentViewId === 'jrp-jobj-spk';
@@ -4483,22 +4486,6 @@
                                     <select class="filter-select" onchange="updateFilter('bulanInvoice', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                         <option value="Semua Bulan Invoice">Semua</option>
                                         ${["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"].map(m => `<option value="${m}" ${activeFilters.bulanInvoice == m ? 'selected' : ''}>${m}</option>`).join('')}
-                                    </select>
-                                </div>
-                                <!-- Tahun Pembayaran -->
-                                <div class="filter-item">
-                                    <span class="filter-label">Tahun Pembayaran</span>
-                                    <select class="filter-select" onchange="updateFilter('tahunPembayaran', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
-                                        <option value="Semua Tahun Pembayaran">Semua</option>
-                                        ${yearsPembayaran.map(y => `<option value="${y}" ${activeFilters.tahunPembayaran == y ? 'selected' : ''}>${y}</option>`).join('')}
-                                    </select>
-                                </div>
-                                <!-- Bulan Pembayaran -->
-                                <div class="filter-item">
-                                    <span class="filter-label">Bulan Pembayaran</span>
-                                    <select class="filter-select" onchange="updateFilter('bulanPembayaran', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
-                                        <option value="Semua Bulan Pembayaran">Semua</option>
-                                        ${["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"].map(m => `<option value="${m}" ${activeFilters.bulanPembayaran == m ? 'selected' : ''}>${m}</option>`).join('')}
                                     </select>
                                 </div>
                                 <!-- Status Invoice -->
