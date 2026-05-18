@@ -2751,13 +2751,28 @@
                 }
             }
 
-            // Specific filters for Daftar Karyawan & Pelaksana
+            // Specific filters for Daftar Karyawan & Pelaksana & Absensi
             if (currentViewId === 'daftar-karyawan' || currentViewId === 'daftar-pelaksana') {
                 if (activeFilters.jabatan && activeFilters.jabatan !== 'Semua Jabatan') {
                     filtered = filtered.filter(item => item['Jabatan'] === activeFilters.jabatan);
                 }
                 if (activeFilters.areaKerja && activeFilters.areaKerja !== 'Semua Area Kerja') {
                     filtered = filtered.filter(item => item['Area Kerja'] === activeFilters.areaKerja);
+                }
+            }
+
+            if (currentViewId === 'daftar-absensi') {
+                if (activeFilters.namaPM && activeFilters.namaPM !== 'Semua Nama PM') {
+                    filtered = filtered.filter(item => item['Nama PM'] === activeFilters.namaPM);
+                }
+                if (activeFilters.lokasiKerja && activeFilters.lokasiKerja !== 'Semua Lokasi Kerja') {
+                    filtered = filtered.filter(item => item['Lokasi Kerja'] === activeFilters.lokasiKerja);
+                }
+                if (activeFilters.project && activeFilters.project !== 'Semua Project') {
+                    filtered = filtered.filter(item => item['Keterangan/Project'] === activeFilters.project);
+                }
+                if (activeFilters.hadir && activeFilters.hadir !== 'Semua Hadir') {
+                    filtered = filtered.filter(item => item['Status'] === activeFilters.hadir);
                 }
             }
 
@@ -4498,9 +4513,19 @@
 
             let jabatanList = [];
             let areaKerjaList = [];
+            let namaPMList = [];
+            let lokasiKerjaList = [];
+            let projectList = [];
+            let hadirList = [];
+            
             if (currentViewId === 'daftar-karyawan' || currentViewId === 'daftar-pelaksana') {
                 jabatanList = [...new Set(rawProjectData.map(item => item['Jabatan']).filter(v => v))].sort();
                 areaKerjaList = [...new Set(rawProjectData.map(item => item['Area Kerja']).filter(v => v))].sort();
+            } else if (currentViewId === 'daftar-absensi') {
+                namaPMList = [...new Set(rawProjectData.map(item => item['Nama PM']).filter(v => v))].sort();
+                lokasiKerjaList = [...new Set(rawProjectData.map(item => item['Lokasi Kerja']).filter(v => v))].sort();
+                projectList = [...new Set(rawProjectData.map(item => item['Keterangan/Project']).filter(v => v))].sort();
+                hadirList = [...new Set(rawProjectData.map(item => item['Status']).filter(v => v))].sort();
             }
 
             const isSPKView = currentViewId === 'jrp-jobj-spk';
@@ -4646,7 +4671,7 @@
                                 </div>
                             ` : ''}
 
-                            ${isKaryawanView ? `
+                            ${(currentViewId === 'daftar-karyawan' || currentViewId === 'daftar-pelaksana') ? `
                                 <!-- Jabatan Filter -->
                                 <div class="filter-item">
                                     <span class="filter-label">Jabatan</span>
@@ -4661,6 +4686,41 @@
                                     <select class="filter-select" onchange="updateFilter('areaKerja', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
                                         <option value="Semua Area Kerja">Semua</option>
                                         ${areaKerjaList.map(v => `<option value="${v}" ${activeFilters.areaKerja == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                            ` : ''}
+
+                            ${currentViewId === 'daftar-absensi' ? `
+                                <!-- Nama PM Filter -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Nama PM</span>
+                                    <select class="filter-select" onchange="updateFilter('namaPM', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Nama PM">Semua</option>
+                                        ${namaPMList.map(v => `<option value="${v}" ${activeFilters.namaPM == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <!-- Lokasi Kerja Filter -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Lokasi Kerja</span>
+                                    <select class="filter-select" onchange="updateFilter('lokasiKerja', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Lokasi Kerja">Semua</option>
+                                        ${lokasiKerjaList.map(v => `<option value="${v}" ${activeFilters.lokasiKerja == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <!-- Project Filter -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Project</span>
+                                    <select class="filter-select" onchange="updateFilter('project', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Project">Semua</option>
+                                        ${projectList.map(v => `<option value="${v}" ${activeFilters.project == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <!-- Hadir Filter -->
+                                <div class="filter-item">
+                                    <span class="filter-label">Hadir</span>
+                                    <select class="filter-select" onchange="updateFilter('hadir', this.value)" style="width: 100%; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; outline: none;">
+                                        <option value="Semua Hadir">Semua</option>
+                                        ${hadirList.map(v => `<option value="${v}" ${activeFilters.hadir == v ? 'selected' : ''}>${v}</option>`).join('')}
                                     </select>
                                 </div>
                             ` : ''}
