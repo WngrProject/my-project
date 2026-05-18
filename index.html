@@ -1918,6 +1918,7 @@
                 <ul class="submenu">
                     <li onclick="loadView('daftar-karyawan', 'Daftar Karyawan', this, true)">Daftar Karyawan</li>
                     <li onclick="loadView('daftar-pelaksana', 'Daftar Pelaksana', this, true)">Daftar Pelaksana</li>
+                    <li onclick="loadView('daftar-absensi', 'Daftar Absensi', this, true)">Daftar Absensi</li>
                 </ul>
             </li>
         </ul>
@@ -2420,7 +2421,8 @@
             'daftar-tagihan': { path: 'daftar-tagihan', type: 'table' },
 
             'daftar-karyawan': { path: 'daftar-karyawan', type: 'table' },
-            'daftar-pelaksana': { path: 'daftar-pelaksana', type: 'table' }
+            'daftar-pelaksana': { path: 'daftar-pelaksana', type: 'table' },
+            'daftar-absensi': { path: 'daftar-absensi', type: 'table' }
         };
 
         let currentListener = null;
@@ -3189,6 +3191,8 @@
                 cols = ['Nama Karyawan', 'Jabatan', 'No ID Karyawan', 'Area Kerja'];
             } else if (currentViewId === 'daftar-pelaksana') {
                 cols = ['Nama Mandor', 'Jabatan', 'Area Kerja'];
+            } else if (currentViewId === 'daftar-absensi') {
+                cols = ['Tanggal', 'Nama Karyawan', 'NIK', 'Nama PM', 'Lokasi Kerja', 'Status'];
             } else if (currentViewId === 'daftar-pembayaran') {
                 cols = ['Nama Perusahaan', 'Nama SPK', 'Status'];
             } else if (currentViewId === 'jrp-jobj-spk') {
@@ -4349,6 +4353,12 @@
                     'Alamat Lengkap', 'No Rekening', 'Email',
                     'Area Kerja', 'URL Dokumen', 'Keterangan'
                 ];
+            } else if (currentViewId === 'daftar-absensi') {
+                headers = [
+                    'Tanggal', 'Nama Karyawan', 'NIK', 'Nama PM',
+                    'Lokasi Kerja', 'Keterangan/Project', 'Check In', 'Check Out',
+                    'Total Jam Kerja', 'Status'
+                ];
             } else if (currentViewId === 'surge-fm-newpole-spk') {
                 headers = [
                     'DAOP', 'Segmen', 'FO 96c_A', 'FO 96c_B',
@@ -4498,7 +4508,7 @@
             const isMaterialView = currentViewId === 'jrp-jobj-material' || currentViewId === 'ije-cao-ring-2-material' || currentViewId === 'ije-cao-ring-4-material' || currentViewId === 'ije-cao-ring-3a-material' || currentViewId === 'ije-cao-ring-3b-material' || currentViewId === 'ije-fm-ring-1-material' || currentViewId === 'surge-fm-expole-material' || currentViewId === 'surge-fm-newpole-material';
             const isPembayaranView = currentViewId === 'daftar-pembayaran';
             const isTagihanView = currentViewId === 'daftar-tagihan';
-            const isKaryawanView = currentViewId === 'daftar-karyawan' || currentViewId === 'daftar-pelaksana';
+            const isKaryawanView = currentViewId === 'daftar-karyawan' || currentViewId === 'daftar-pelaksana' || currentViewId === 'daftar-absensi';
             const hideMainFilters = isSPKView || isBoQView || isMaterialView || isTagihanView || isKaryawanView || currentViewId === 'jrp-jobj-bon-material' || currentViewId === 'ije-cao-ring-2-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-3b-spk' || currentViewId === 'ije-cao-ring-2-boq' || currentViewId === 'ije-cao-ring-4-boq' || currentViewId === 'ije-cao-ring-3a-boq' || currentViewId === 'ije-cao-ring-3b-boq' || currentViewId === 'ije-fm-ring-1-boq' || currentViewId === 'surge-fm-expole-boq' || currentViewId === 'surge-fm-newpole-boq' || currentViewId === 'ije-cao-ring-2-material' || currentViewId === 'ije-cao-ring-4-material' || currentViewId === 'ije-cao-ring-3a-material' || currentViewId === 'ije-cao-ring-3b-material' || currentViewId === 'ije-fm-ring-1-material' || currentViewId === 'surge-fm-expole-material' || currentViewId === 'surge-fm-newpole-material' || currentViewId === 'ije-fm-ring-1-spk' || currentViewId === 'surge-fm-expole-spk' || currentViewId === 'surge-fm-newpole-spk' || currentViewId === 'ije-cao-ring-4-spk' || currentViewId === 'ije-cao-ring-3a-spk' || currentViewId === 'ije-cao-ring-2-rekon' || currentViewId === 'ije-cao-ring-4-rekon' || currentViewId === 'ije-cao-ring-3a-rekon' || currentViewId === 'ije-cao-ring-3b-rekon' || currentViewId === 'ije-fm-ring-1-rekon';
 
             // Extract unique values for Tagihan filters
@@ -4876,6 +4886,15 @@
                         if (h === 'URL Dokumen') {
                             val = (val !== '-' && val) ? `<a href="${val}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;"><i class="fas fa-external-link-alt"></i> Lihat Dokumen</a>` : '-';
                             style = 'text-align: center;';
+                        } else {
+                            style = 'text-align: left;';
+                        }
+                    } else if (currentViewId === 'daftar-absensi') {
+                        if (h === 'Tanggal') {
+                            val = formatDate(val);
+                            style = 'text-align: right;';
+                        } else if (['Check In', 'Check Out'].includes(h)) {
+                            style = 'text-align: right;';
                         } else {
                             style = 'text-align: left;';
                         }
