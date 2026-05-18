@@ -1769,6 +1769,31 @@
 
         // === SESSION & RBAC SYSTEM ===
         let currentUser = null;
+        let autoLogoutTimer = null; // Timer untuk auto logout
+
+        // Fungsi untuk memulai timer auto logout (30 menit)
+        function startAutoLogoutTimer() {
+            // Hapus timer sebelumnya jika ada
+            if (autoLogoutTimer) {
+                clearTimeout(autoLogoutTimer);
+            }
+            
+            // Set timer baru untuk 30 menit (30 * 60 * 1000 ms)
+            autoLogoutTimer = setTimeout(() => {
+                showToast('Sesi Berakhir', 'Anda telah logout otomatis setelah 30 menit.', 'error');
+                setTimeout(() => {
+                    window.confirmLogout();
+                }, 1500); // Delay 1.5 detik untuk menampilkan toast
+            }, 30 * 60 * 1000); // 30 menit
+        }
+
+        // Fungsi untuk menghentikan timer auto logout
+        function stopAutoLogoutTimer() {
+            if (autoLogoutTimer) {
+                clearTimeout(autoLogoutTimer);
+                autoLogoutTimer = null;
+            }
+        }
 
         function showToast(title, message, type = 'error') {
             const container = document.getElementById('toastContainer');
@@ -1840,6 +1865,9 @@
             loginOverlay.classList.add('hidden');
             mainWrapper.style.display = '';
             sidebar.style.display = '';
+            
+            // Mulai timer auto logout 30 menit
+            startAutoLogoutTimer();
         }
 
         function checkSession() {
@@ -3177,6 +3205,7 @@
         };
 
         window.confirmLogout = function () {
+            stopAutoLogoutTimer(); // Hentikan timer auto logout
             localStorage.removeItem('userSession');
             currentUser = null;
             location.reload();
