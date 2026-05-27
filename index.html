@@ -3024,7 +3024,7 @@
             } else if (currentViewId === 'daftar-absensi') {
                 cols = ['Tanggal', 'Nama Karyawan', 'NIK', 'Nama PM', 'Lokasi Kerja', 'Status'];
             } else if (currentViewId === 'daftar-pembayaran') {
-                cols = ['Nama Perusahaan', 'Nama SPK', 'Status'];
+                cols = ['Nama Perusahaan', 'Nama SPK', 'Nama Lokasi', 'Status'];
             } else if (currentViewId === 'jrp-jobj-spk') {
                 cols = ['Nama Cluster', 'Tipe', 'Zona'];
             } else if (currentViewId.endsWith('-material')) {
@@ -4213,7 +4213,7 @@
             } else if (currentViewId === 'daftar-pembayaran') {
                 headers = [
                     'Tanggal Pembayaran', 'Nilai Pembayaran', 'Nama Perusahaan',
-                    'Nama SPK', 'Status', 'Keterangan'
+                    'Nama SPK', 'Nama Lokasi', 'Status', 'Keterangan'
                 ];
             } else if (currentViewId === 'daftar-tagihan') {
                 headers = [
