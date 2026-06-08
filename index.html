@@ -5531,7 +5531,16 @@
                                 callbacks: { 
                                     title: ctx => originalLabels[ctx[0].dataIndex],
                                     label: ctx => 'Rp ' + formatCurrency(ctx.raw) 
-                                } 
+                                },
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                titleColor: '#111827',
+                                bodyColor: '#374151',
+                                borderColor: '#e5e7eb',
+                                borderWidth: 1,
+                                padding: 12,
+                                bodyFont: { size: 11 },
+                                titleFont: { size: 12, weight: 'bold' },
+                                displayColors: false
                             } 
                         },
                         scales: { 
@@ -5596,7 +5605,18 @@
                         responsive: true, maintainAspectRatio: false, cutout: '65%',
                         plugins: {
                             legend: { position: 'right', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 12, weight: 500 } } },
-                            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + ' proyek' } }
+                            tooltip: { 
+                                callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + ' proyek' },
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                titleColor: '#111827',
+                                bodyColor: '#374151',
+                                borderColor: '#e5e7eb',
+                                borderWidth: 1,
+                                padding: 12,
+                                bodyFont: { size: 11 },
+                                titleFont: { size: 12, weight: 'bold' },
+                                displayColors: false
+                            }
                         }
                     },
                     plugins: [{
