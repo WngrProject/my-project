@@ -5615,11 +5615,30 @@
             const ctx3 = document.getElementById('dashChartTrend');
             if (ctx3) {
                 const monthlyMap = {};
+                const monthlyDetails = {};
+                const monthNamesShort = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
                 pembayaran.forEach(p => {
                     const d = parseFireDate(p['Tanggal Pembayaran']);
                     if (!d) return;
                     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
                     monthlyMap[key] = (monthlyMap[key]||0) + parseNum(p['Nilai Pembayaran']);
+                    if (!monthlyDetails[key]) monthlyDetails[key] = [];
+                    
+                    // Format tanggal ke dd-mmm-yyyy
+                    let formattedDate = 'N/A';
+                    if (d) {
+                        const day = String(d.getDate()).padStart(2, '0');
+                        const month = monthNamesShort[d.getMonth()];
+                        const year = d.getFullYear();
+                        formattedDate = `${day}-${month}-${year}`;
+                    }
+                    
+                    monthlyDetails[key].push({
+                        nilai: parseNum(p['Nilai Pembayaran']),
+                        perusahaan: p['Nama Perusahaan'] || 'N/A',
+                        spk: p['Nama SPK'] || 'N/A',
+                        tanggal: formattedDate
+                    });
                 });
                 const sortedKeys = Object.keys(monthlyMap).sort();
                 const last12 = sortedKeys.slice(-12);
@@ -5646,7 +5665,42 @@
                         responsive: true, maintainAspectRatio: false,
                         animation: { duration: 1500, easing: 'easeOutQuart' },
                         hover: { animationDuration: 400 },
-                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Rp ' + formatCurrency(ctx.raw) } } },
+                        plugins: { 
+                            legend: { display: false }, 
+                            tooltip: { 
+                                callbacks: { 
+                                    title: (ctx) => {
+                                        return ctx[0].label;
+                                    },
+                                    label: (ctx) => {
+                                        return 'Total: Rp ' + formatCurrency(ctx.raw);
+                                    },
+                                    afterLabel: (ctx) => {
+                                        const monthKey = last12[ctx.dataIndex];
+                                        const details = monthlyDetails[monthKey] || [];
+                                        const lines = [];
+                                        lines.push(''); // Empty line for spacing
+                                        details.forEach((d, idx) => {
+                                            if (idx > 0) lines.push(''); // Spacing between items
+                                            lines.push(`Nilai: Rp ${formatCurrency(d.nilai)}`);
+                                            lines.push(`Perusahaan: ${d.perusahaan}`);
+                                            lines.push(`SPK: ${d.spk}`);
+                                            lines.push(`Tanggal: ${d.tanggal}`);
+                                        });
+                                        return lines;
+                                    }
+                                },
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                titleColor: '#111827',
+                                bodyColor: '#374151',
+                                borderColor: '#e5e7eb',
+                                borderWidth: 1,
+                                padding: 12,
+                                bodyFont: { size: 11 },
+                                titleFont: { size: 12, weight: 'bold' },
+                                displayColors: false
+                            } 
+                        },
                         scales: { y: { beginAtZero: true, ticks: { callback: v => { if (v>=1e9) return (v/1e9).toFixed(1)+'M'; if (v>=1e6) return (v/1e6).toFixed(0)+'Jt'; return v; } }, grid: { borderDash: [3,3] } }, x: { grid: { display: false } } }
                     }
                 }));
@@ -5670,7 +5724,31 @@
                         responsive: true, maintainAspectRatio: false,
                         animation: { duration: 1500, easing: 'easeOutQuart' },
                         hover: { animationDuration: 400 },
-                        plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 11 } } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': Rp ' + formatCurrency(ctx.raw) } } },
+                        plugins: { 
+                            legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 11 } } }, 
+                            tooltip: { 
+                                callbacks: { 
+                                    title: (ctx) => {
+                                        const idx = ctx[0].dataIndex;
+                                        const p = top8[idx];
+                                        return [
+                                            p['Nama Perusahaan'] || 'N/A',
+                                            p['Nama SPK'] || 'N/A'
+                                        ];
+                                    },
+                                    label: ctx => ctx.dataset.label + ': Rp ' + formatCurrency(ctx.raw) 
+                                },
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                titleColor: '#111827',
+                                bodyColor: '#374151',
+                                borderColor: '#e5e7eb',
+                                borderWidth: 1,
+                                padding: 12,
+                                bodyFont: { size: 11 },
+                                titleFont: { size: 12, weight: 'bold' },
+                                displayColors: true
+                            } 
+                        },
                         scales: { y: { beginAtZero: true, ticks: { callback: v => { if (v>=1e9) return (v/1e9).toFixed(1)+'M'; if (v>=1e6) return (v/1e6).toFixed(0)+'Jt'; return v; } }, grid: { borderDash: [3,3] } }, x: { grid: { display: false } } }
                     }
                 }));
